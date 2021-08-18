@@ -1,0 +1,143 @@
+#
+# .github/workflows/codeql-analysis.yml
+#
+# Copyright 2021 Jens A. Koch.
+# SPDX-License-Identifier: MIT
+# This file is part of jakoch/wikifolio_universe_converter.
+#
+
+name: Build
+
+on: [push]
+
+jobs:
+
+# ---------------------------------------------------------------------------------------
+
+  build-on-windows:
+  
+# ---------------------------------------------------------------------------------------
+
+    name: Windows
+    runs-on: windows-latest
+    
+    env:
+      BUILD_TYPE: Release
+      VCPKG_ROOT: C:\vcpkg
+      VCPKG_TARGET_TRIPLET: x64-windows-static
+      BUILD_SHARED_LIBS: OFF      
+          
+    defaults:
+      run:
+        shell: cmd
+          
+    steps:
+      - name: 🤘 Checkout Code
+        uses: actions/checkout@v2 # https://github.com/actions/checkout
+        
+      - name: 📥 Setup VC Environment (→ vcvarsall)
+        if: runner.os == 'Windows'
+        run: call "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
+        
+      - name: 🔽 Update VCPKG
+        if: runner.os == 'Windows'
+        run: |
+          cd ${{ env.VCPKG_ROOT }}
+          git reset --hard
+          git pull --quiet
+          bootstrap-vcpkg.bat -disableMetrics
+          vcpkg integrate install --triplet=${{ env.VCPKG_TARGET_TRIPLET }} --feature-flags=manifests
+          vcpkg version
+          
+      - name: 🎯 Cache VCPKG
+        id: cache-vcpkg
+        uses: actions/cache@v1 # https://github.com/actions/cache
+        with:
+          path: ~\AppData\Local\vcpkg
+          key: cache-windows-vcpkg-${{ env.VCPKG_TARGET_TRIPLET }}-${{ github.ref }}-${{ github.run_number }}
+          restore-keys: |
+            cache-windows-vcpkg-${{ env.VCPKG_TARGET_TRIPLET }}-${{ github.ref }}
+            cache-windows-vcpkg-${{ env.VCPKG_TARGET_TRIPLET }}
+          
+      - name: ✏ CMake ➔ Configure (including VCPKG → Install Dependencies)
+        if: runner.os == 'Windows'
+        run: |
+          cmake -G "Visual Studio 16 2019" -A x64                                              ^
+                -S ${{ github.workspace }} -B ../build                                         ^
+                -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}                                       ^
+                -DCMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_ROOT }}/scripts/buildsystems/vcpkg.cmake  ^
+                -DVCPKG_TARGET_TRIPLET=${{ env.VCPKG_TARGET_TRIPLET }}                         ^
+                -DBUILD_SHARED_LIBS=${{ env.BUILD_SHARED_LIBS }}                               ^
+                -DCMAKE_VERBOSE_MAKEFILE=ON
+ 
+      - name: ❔ CHECK important folders, to see if everything is present (after building)
+        run: |
+          dir ..\build
+          dir /S /B ..\build\vcpkg_installed\${{ env.VCPKG_TARGET_TRIPLET }}
+          dir /S /B ..\build
+                
+      - name: 🙏 CMake → Build
+        if: runner.os == 'Windows'
+        run: |
+          cd ..\build
+          cmake --build . --config %BUILD_TYPE% -j %NUMBER_OF_PROCESSORS%
+          
+      #- name: 📦 CMake ➔ Install
+      #  run: |
+      #    cd ..\build
+      #    cmake --install . --config %BUILD_TYPE% --prefix build/wiuc --verbose
+      
+      - name: Copy build artifact to packaging folder
+        run: |
+          mkdir artifact
+          copy ..\build\${{ env.BUILD_TYPE }}\wiuc.exe artifact\
+
+      - name: 🔼 Upload Build Artifact
+        uses: actions/upload-artifact@v2 # https://github.com/actions/upload-artifact
+        if: always()
+        with:
+          name: Wikifolio_Investment_Universe_Converter
+          path: artifact\wiuc.exe
+
+# ---------------------------------------------------------------------------------------
+
+  build-on-linux:
+  
+# ---------------------------------------------------------------------------------------
+
+    name: Linux
+    runs-on: ubuntu-latest
+    
+    env:
+      BUILD_TYPE: Release
+      VCPKG_ROOT: /usr/local/share/vcpkg
+      VCPKG_TARGET_TRIPLET: x64-linux
+      BUILD_SHARED_LIBS: ON    
+      
+    steps:
+      - name: 🤘 Checkout Code
+        uses: actions/checkout@v2 # https://github.com/actions/checkout
+     
+      - name: 🔽 Update VCPKG
+        run: |
+          cd ${{ env.VCPKG_ROOT }}
+          git reset --hard
+          git pull --quiet
+          ./bootstrap-vcpkg.sh -disableMetrics
+          vcpkg integrate install --triplet=${{ env.VCPKG_TARGET_TRIPLET }} --feature-flags=manifests
+          vcpkg version
+           
+      - name: ✏ CMake ➔ Configure (including VCPKG → Install Dependencies)
+        run: |
+          cmake -S ${{ github.workspace }} -B ../build                                         \
+                -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}                                       \
+                -DCMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_ROOT }}/scripts/buildsystems/vcpkg.cmake  \
+                -DVCPKG_TARGET_TRIPLET=${{ env.VCPKG_TARGET_TRIPLET }}                         \
+                -DBUILD_SHARED_LIBS=${{ env.BUILD_SHARED_LIBS }}                               \
+                -DCMAKE_VERBOSE_MAKEFILE=ON
+      
+      - name: 🙏 CMake → Build
+        run: |
+          cd ../build
+          cmake --build . --config $env:BUILD_TYPE -j $env:NUMBER_OF_PROCESSORS
+
