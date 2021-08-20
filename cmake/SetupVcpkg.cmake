@@ -121,7 +121,7 @@ if(NOT DEFINED ENV{BUILD_SHARED_LIBS})
     if ("${VCPKG_TARGET_TRIPLET}" MATCHES ".*-static")
         set(BUILD_SHARED_LIBS OFF)
     else()
-        set(BUILD_SHARED_LIBS OFF)
+        set(BUILD_SHARED_LIBS ON)
     endif()
 endif()
 
@@ -153,6 +153,7 @@ message(STATUS "[VCPKG]  VCPKG_MANIFEST_FILE           -> '${VCPKG_MANIFEST_FILE
 message(STATUS "[VCPKG]  VCPKG_TARGET_TRIPLET          -> '${VCPKG_TARGET_TRIPLET}'")
 message(STATUS "[VCPKG]  VCPKG_DIR                     -> '${VCPKG_DIR}'")
 message(STATUS "[INFO]   CMAKE_TOOLCHAIN_FILE          -> '${CMAKE_TOOLCHAIN_FILE}'")
+message(STATUS "[INFO]   BUILD_SHARED_LIBS             -> '$ENV{BUILD_SHARED_LIBS}'")
 message(STATUS "")
 
 #

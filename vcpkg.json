@@ -4,7 +4,7 @@
   "description": "Konvertiert das wikifolio.com Anlageuniversum XLSX-Spreadsheet in eine SQLite Datenbank.",
   "homepage": "https://github.com/jakoch/wikifolio_universe",
   "license": "MIT",
-  "supports": "windows & x64",
+  "supports": "windows & linux & x64 & !arm",
   "dependencies": [
     "sqlite3",
     "xlsxio",
@@ -12,6 +12,10 @@
       "name": "curl",
       "default-features": false,
       "features": [ "openssl" ]
+    },
+    {
+      "name": "fmt",
+      "platform": "linux"
     }
   ]
 }

@@ -1,10 +1,4 @@
 #include "main.h"
-#include "curl/curl.h"
-
-#include <sstream>
-#include <format>
-#include <chrono>
-#include <stdlib.h>
 
 XLSXReader::XLSXReader(const char* filename)
 {
@@ -145,7 +139,7 @@ public:
         const auto duration = std::chrono::duration_cast<Resolution>(_end - _start).count();
         std::ostringstream strStream;
         strStream << "[" << time_point_name << "] Time Elapsed: "
-            << std::format("{:01}.{:04}", (duration % 1'000'000) / 1'000, duration % 1'000)
+            << format("{:01}.{:04}", (duration % 1'000'000) / 1'000, duration % 1'000)
             << " s" << std::endl;
         std::cout << strStream.str() << std::endl;
     }
@@ -430,7 +424,7 @@ bool csv_to_sqlite()
 
       //printf("%s\n", sql_insert_values.c_str());
 
-      sql_insert_stmt = std::format(sql_insert_stmt_tpl, sql_insert_values.c_str());
+      sql_insert_stmt = format(sql_insert_stmt_tpl, sql_insert_values.c_str());
 
       sql_insert_values.clear();
 

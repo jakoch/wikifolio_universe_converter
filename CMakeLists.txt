@@ -14,7 +14,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
   set(CMAKE_MODULE_LINKER_FLAGS_INIT "-machine:x64 -nologo")
   set(CMAKE_SHARED_LINKER_FLAGS_INIT "-machine:x64 -nologo")
   set(CMAKE_STATIC_LINKER_FLAGS_INIT "-machine:x64 -nologo")
-  
+
   #
   # Debug
   #
@@ -77,14 +77,16 @@ if(WIN32)
         # to the multi-threaded statically-linked runtime library.
         cmake_policy(SET CMP0091 NEW)
         set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-    endif() 
-    
+    endif()
+
 endif()
 
 #-------------------------------------------------------------------
 # Setup CMake
 #-------------------------------------------------------------------
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
+include(Findxlsxio_read)
 
 #-------------------------------------------------------------------
 # Setup VCPKG
@@ -108,9 +110,21 @@ project(wiuc DESCRIPTION "wikifolio_investment_universe_converter")
 # Define C++ Standard to use
 #-------------------------------------------------------------------
 
-set(CMAKE_CXX_STANDARD          23) # to get /std:c++latest on MSVC
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS        ON)
+if(MSVC)
+  set(CMAKE_CXX_STANDARD          23) # to get /std:c++latest on MSVC
+  set(CMAKE_CXX_STANDARD_REQUIRED ON)
+  set(CMAKE_CXX_EXTENSIONS        ON)
+endif()
+
+if (CMAKE_CXX_COMPILER_ID STREQUAL "CLANG")
+  set(CMAKE_CXX_STANDARD          20)
+  set(CMAKE_CXX_STANDARD_REQUIRED ON)
+  set(CMAKE_CXX_EXTENSIONS        ON)
+
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++2b -stdlib=libc++ -Wall -Wextra -Werror -fexec-charset=UTF-8 -mtune=skylake")
+  #set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} some other flags")
+  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
+endif()
 
 #-------------------------------------------------------------------
 # Find Dependencies
@@ -120,25 +134,19 @@ list(APPEND CMAKE_PREFIX_PATH "${VCPKG_DIR}")
 list(APPEND CMAKE_PREFIX_PATH "${VCPKG_DIR}/lib")
 list(APPEND CMAKE_PREFIX_PATH "${VCPKG_DIR}/debug/lib")
 
-#find_package(SQLite3 REQUIRED)
 find_package(unofficial-sqlite3 CONFIG REQUIRED)
+
 find_package(CURL CONFIG REQUIRED)
 
-find_package(expat)
+find_package(fmt CONFIG REQUIRED)
+
+find_package(expat CONFIG REQUIRED)
+
 find_package(minizip CONFIG REQUIRED)
 
-# TODO remove this. blocked by upstream (xlsxio) (no export config).
-# hey upstream, can you please provide an export config?
-set(xlsxio_read_DIR "${VCPKG_DIR}/include/xlsxio_read.h")
-set(xlsxio_read_INCLUDE_DIRS "${VCPKG_DIR}/include")
-find_library(xlsxio_read_LIBRARY
-    NAMES xlsxio_read
-    HINTS "${CMAKE_PREFIX_PATH}/lib"
-)
-SET(xlsxio_read_FOUND true)
-FIND_PACKAGE_HANDLE_STANDARD_ARGS(xlsxio_read DEFAULT_MSG xlsxio_read_LIBRARIES xlsxio_read_INCLUDE_DIRS)
-
-find_package(xlsxio_read)
+set(xlsxio_read_DIR         "${VCPKG_DIR}/include/xlsxio_read.h")
+set(xlsxio_read_INCLUDE_DIR "${VCPKG_DIR}/include")
+find_package(xlsxio_read REQUIRED)
 
 #-------------------------------------------------------------------
 # Setup Sources
@@ -159,14 +167,20 @@ set(SRC
 
 add_executable(wiuc ${SRC})
 
-# Export symbols of xlsxio_read.
-target_compile_definitions(wiuc PRIVATE BUILD_XLSXIO_STATIC)
+if(MSVC)
+  # Export symbols of xlsxio_read.
+  target_compile_definitions(wiuc PRIVATE BUILD_XLSXIO_STATIC)
+endif()
 
 target_link_libraries(wiuc
     PRIVATE
-      EXPAT::EXPAT
+      ${xlsxio_read_LIBRARY}
       minizip::minizip
+      expat::expat
       unofficial::sqlite3::sqlite3
       CURL::libcurl
-      "vcpkg_installed\\x64-windows-static\\lib\\xlsxio_read"
 )
+
+if(NOT MSVC)
+  target_link_libraries(wiuc PRIVATE fmt::fmt)
+endif()

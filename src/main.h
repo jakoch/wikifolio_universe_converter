@@ -6,6 +6,17 @@
 #include <stdexcept>
 #include <fstream>
 #include <ostream>
+#include <sstream>
+#include <chrono>
+
+// use std::format on MSVC - use libfmt as polyfill on Linux
+#ifdef _WIN32
+#include <format>
+using std::format;
+#else
+#include <fmt/core.h>
+using fmt::format;
+#endif
 
 #include "xlsxio_read.h"
 
