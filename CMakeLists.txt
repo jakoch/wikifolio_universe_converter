@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.19)
 # Compiler Flags
 #-------------------------------------------------------------------
 
-if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+if (MSVC)
   #
   # Settings for ALL build types
   #
@@ -61,7 +61,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
   set(CMAKE_CXX_FLAGS_DEBUG   "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
-  
+
 endif()
 
 if(WIN32)
@@ -85,6 +85,9 @@ endif()
 # Setup CMake
 #-------------------------------------------------------------------
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
+set(CMAKE_FIND_LIBRARY_PREFIXES ";")
+set(CMAKE_FIND_LIBRARY_SUFFIXES ";")
 
 include(Findxlsxio_read)
 
@@ -116,7 +119,7 @@ if(MSVC)
   set(CMAKE_CXX_EXTENSIONS        ON)
 endif()
 
-if (CMAKE_CXX_COMPILER_ID STREQUAL "CLANG")
+if(CMAKE_CXX_COMPILER_ID STREQUAL "CLANG")
   set(CMAKE_CXX_STANDARD          20)
   set(CMAKE_CXX_STANDARD_REQUIRED ON)
   set(CMAKE_CXX_EXTENSIONS        ON)
@@ -138,7 +141,9 @@ find_package(unofficial-sqlite3 CONFIG REQUIRED)
 
 find_package(CURL CONFIG REQUIRED)
 
-find_package(fmt CONFIG REQUIRED)
+if(NOT MSVC)
+  find_package(fmt CONFIG REQUIRED)
+endif()
 
 find_package(expat CONFIG REQUIRED)
 
