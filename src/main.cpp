@@ -117,10 +117,6 @@ XLSXReaderSheet& XLSXReaderSheet::operator >> (time_t& value)
   return *this;
 }*/
 
-#include <type_traits>
-#include <sstream>
-#include <iostream>
-
 template <class Resolution = std::chrono::milliseconds>
 class Timer {
 public:
@@ -182,7 +178,7 @@ const char* investment_universe_URL = "https://wikifolio.blob.core.windows.net/p
 
 const char* xlsx_filename    = "Investment_Universe.de.xlsx";
 const char* csv_tmp_filename = "Investment_Universe.tmp.csv";
-const char *csv_filename     = "Investment_Universe.csv";
+const char* csv_filename     = "Investment_Universe.csv";
 const char* sqlite_filename  = "Investment_Universe.sqlite";
 
 bool xlsx_to_csv()

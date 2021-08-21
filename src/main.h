@@ -7,7 +7,9 @@
 #include <fstream>
 #include <ostream>
 #include <sstream>
+#include <iostream>
 #include <chrono>
+#include <type_traits>
 
 // use std::format on MSVC - use libfmt as polyfill on Linux
 #ifdef _WIN32
