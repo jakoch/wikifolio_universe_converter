@@ -6,12 +6,14 @@ Konvertiert das [wikifolio.com Anlageuniversum](https://www.wikifolio.com/de/de/
 
 [![](http://github-actions.40ants.com/jakoch/wikifolio_universe_converter/matrix.svg)](https://github.com/jakoch/wikifolio_universe_converter/actions/)
 
-|   CI Service     | Compiler | Target Triplet           | Status |
-|:---------------- |:-------- |:------------------------ |:------:|
-| GitHub Actions   | VS2019   | x64-windows-static       |   🟢   |
-|                  | VS2019   | x64-windows              |   👷🏼   |
-|                  | GCC      | x64-linux                |   🟢   |
-|                  | Clang    |                          |   👷🏼   | 
+|   CI Service     | Compiler    | Target Triplet           | Status |
+|:---------------- |:----------- |:------------------------ |:------:|
+| GitHub Actions   | VC16 2019   | x64-windows-static       |   🟢   |
+|                  | VC16 2019   | x64-windows              |   👷🏼   |
+|                  | VC17 2022   | x64-windows-static       |   🟢   |
+|                  | VC17 2022   | x64-windows              |   👷🏼   |
+|                  | GCC         | x64-linux                |   🟢   |
+|                  | Clang       | x64-linux                |   👷🏼   | 
 
 Symbols used: ⚪ Build disabled. 🟢 Build succeeds. 🔴 Build fails. 👷🏼 TODO.
 
