@@ -22,6 +22,7 @@ jobs:
     runs-on: windows-latest
 
     env:
+      COMPILER: "VC16"
       BUILD_TYPE: Release
       VCPKG_ROOT: C:\vcpkg
       VCPKG_TARGET_TRIPLET: x64-windows-static
@@ -96,7 +97,7 @@ jobs:
         uses: actions/upload-artifact@v2 # https://github.com/actions/upload-artifact
         if: always()
         with:
-          name: Windows-Wikifolio_Investment_Universe_Converter
+          name: ${{ env.VCPKG_TARGET_TRIPLET }}-${{ env.COMPILER }}-Wikifolio_Universe_Converter
           path: artifact\wiuc.exe
 
 # ---------------------------------------------------------------------------------------
@@ -109,6 +110,7 @@ jobs:
     runs-on: windows-2022
 
     env:
+      COMPILER: "VC17"
       BUILD_TYPE: Release
       VCPKG_ROOT: C:\vcpkg
       VCPKG_TARGET_TRIPLET: x64-windows-static
@@ -183,12 +185,12 @@ jobs:
         uses: actions/upload-artifact@v2 # https://github.com/actions/upload-artifact
         if: always()
         with:
-          name: Windows-Wikifolio_Investment_Universe_Converter
+          name: ${{ env.VCPKG_TARGET_TRIPLET }}-${{ env.COMPILER }}-Wikifolio_Universe_Converter
           path: artifact\wiuc.exe
 
 # ---------------------------------------------------------------------------------------
 
-  build-on-linux:
+  build-on-linux-gcc:
 
 # ---------------------------------------------------------------------------------------
 
@@ -200,6 +202,9 @@ jobs:
       VCPKG_ROOT: /usr/local/share/vcpkg
       VCPKG_TARGET_TRIPLET: x64-linux
       BUILD_SHARED_LIBS: ON
+      COMPILER: GCC
+      CC: gcc
+      CXX: g++
 
     steps:
       - name: 🤘 Checkout Code
@@ -237,5 +242,5 @@ jobs:
         uses: actions/upload-artifact@v2 # https://github.com/actions/upload-artifact
         if: always()
         with:
-          name: Linux-Wikifolio_Investment_Universe_Converter
+          name: ${{ env.VCPKG_TARGET_TRIPLET }}-${{ env.COMPILER }}-Wikifolio_Universe_Converter
           path: artifact/wiuc
