@@ -93,7 +93,7 @@ jobs:
         uses: actions/upload-artifact@v2 # https://github.com/actions/upload-artifact
         if: always()
         with:
-          name: ${{ env.VCPKG_TARGET_TRIPLET }}-${{ env.COMPILER }}-Wikifolio_Universe_Converter
+          name: Wikifolio_Investment_Universe_Converter-${{ env.VCPKG_TARGET_TRIPLET }}-${{ env.COMPILER }}
           path: artifact\wiuc.exe
 
 # ---------------------------------------------------------------------------------------
@@ -178,7 +178,7 @@ jobs:
         uses: actions/upload-artifact@v2 # https://github.com/actions/upload-artifact
         if: always()
         with:
-          name: ${{ env.VCPKG_TARGET_TRIPLET }}-${{ env.COMPILER }}-Wikifolio_Universe_Converter
+          name: Wikifolio_Investment_Universe_Converter-${{ env.VCPKG_TARGET_TRIPLET }}-${{ env.COMPILER }}
           path: artifact\wiuc.exe
 
 # ---------------------------------------------------------------------------------------
@@ -235,5 +235,5 @@ jobs:
         uses: actions/upload-artifact@v2 # https://github.com/actions/upload-artifact
         if: always()
         with:
-          name: ${{ env.VCPKG_TARGET_TRIPLET }}-${{ env.COMPILER }}-Wikifolio_Universe_Converter
+          name: Wikifolio_Investment_Universe_Converter-${{ env.VCPKG_TARGET_TRIPLET }}-${{ env.COMPILER }}
           path: artifact/wiuc
