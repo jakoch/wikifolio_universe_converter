@@ -267,16 +267,13 @@ jobs:
                 -DBUILD_SHARED_LIBS=${{ env.BUILD_SHARED_LIBS }}                               \
                 -DCMAKE_VERBOSE_MAKEFILE=ON
         env:
-          CC: ${{matrix.config.COMPILER.cc}}
-          CXX: ${{matrix.config.COMPILER.cxx}}
+          CC: ${{matrix.COMPILER.cc}}
+          CXX: ${{matrix.COMPILER.cxx}}
 
       - name: 🙏 CMake → Build
         run: |
           cd ../build
           cmake --build . --config ${{ matrix.BUILD_TYPE }}
-        env:
-          CC: ${{matrix.config.COMPILER.cc}}
-          CXX: ${{matrix.config.COMPILER.cxx}}
 
       - name: Copy build artifact to packaging folder
         run: |
