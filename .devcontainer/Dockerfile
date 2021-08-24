@@ -71,7 +71,7 @@ RUN wget https://cmake.org/files/v3.21/cmake-3.21.1-linux-x86_64.sh && \
 # | LLVM                        |
 # +-----------------------------+
 
-# Set repo key
+# set repo key
 RUN curl -sS https://apt.llvm.org/llvm-snapshot.gpg.key | (OUT=$(apt-key add - 2>&1) || echo $OUT)
 
 RUN add-apt-repository "deb https://apt.llvm.org/unstable/    llvm-toolchain-13  main" && \
@@ -91,25 +91,23 @@ ENV CXX=/usr/bin/clang++-13
 
 # Note: vcpkg requires curl, unzip, tar, pkg-config (optional cmake)
 
+ENV VCPKG_ROOT=/opt/vcpkg
 ENV VCPKG_PATH=/opt/vcpkg/bin
-ENV VCPKG_ROOT=/opt/vcpkg/bin
+ENV PATH="${PATH}:${VCPKG_PATH}"
 ENV VCPKG_TRIPLET=x64-linux
-ENV PATH="${PATH}:${VCPKG_PATHH}"
 
-# Note: vcpkg downloads latest verison of cmake and ninja
-# (alternativly use ./bootstrap-vcpkg.sh -useSystemBinaries)
-# Warning: Debian\Buster system binary is 3.13.4
-# "CMake 3.14 or higher is required.  You are running version 3.13.4"
+# Use installed binaries from the system.
+# Do not download latest version of CMake and Ninja during vcpkg bootstrap!
 ENV VCPKG_FORCE_SYSTEM_BINARIES=1
 
 RUN mkdir -p $VCPKG_PATH && \
     git clone --depth=1 https://github.com/Microsoft/vcpkg.git $VCPKG_PATH && \
     cd $VCPKG_PATH && \
-    ./bootstrap-vcpkg.sh -disableMetrics -useSystemBinaries
+    ./bootstrap-vcpkg.sh -disableMetrics -useSystemBinaries && \
+    sudo /opt/vcpkg/bin/vcpkg integrate install
 
-RUN sudo /opt/vcpkg/bin/vcpkg integrate install && \
-    # install default packages globally
-    sudo /opt/vcpkg/bin/vcpkg install gtest catch2 spdlog fmt nlohmann-json
+# install default packages globally
+#RUN sudo /opt/vcpkg/bin/vcpkg install gtest catch2 spdlog fmt nlohmann-json
 
 # +-----------------------------+
 # | Powerline Fonts             |

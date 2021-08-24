@@ -286,3 +286,79 @@ jobs:
         with:
           name: Wikifolio_Investment_Universe_Converter-${{ env.VCPKG_TARGET_TRIPLET }}-${{ matrix.COMPILER.name }}
           path: artifact/wiuc
+
+# ---------------------------------------------------------------------------------------
+
+  build-on-devcontainer:
+
+# ---------------------------------------------------------------------------------------
+
+    name: "Linux ${{ matrix.COMPILER.name }}"
+    runs:
+      using: "docker"
+      image: "../.devcontainer/Dockerfile"
+
+    strategy:
+      fail-fast: false
+      matrix:
+        BUILD_TYPE: [ Release ]
+        COMPILER:
+        - {
+            name: "GCC-11",
+            cc: "gcc-10",
+            cxx: "g++-10",
+            apt_package: g++-10,
+          }
+        - {
+            name: "Clang-13",
+            cc: "clang-12",
+            cxx: "clang++-12",
+            apt_package: clang-12,
+          }
+
+    env:
+      VCPKG_ROOT: /opt/vcpkg
+      VCPKG_TARGET_TRIPLET: x64-linux
+      BUILD_SHARED_LIBS: ON
+
+    steps:
+      - name: 🤘 Checkout Code
+        uses: actions/checkout@v2 # https://github.com/actions/checkout
+
+      - name: 🔽 Update VCPKG
+        run: |
+          cd ${{ env.VCPKG_ROOT }}
+          git reset --hard
+          git pull --quiet
+          ./bootstrap-vcpkg.sh -disableMetrics
+          vcpkg integrate install --triplet=${{ env.VCPKG_TARGET_TRIPLET }} --feature-flags=manifests
+          vcpkg version
+
+      - name: ✏ CMake ➔ Configure (including VCPKG → Install Dependencies)
+        run: |
+          cmake -S ${{ github.workspace }} -B ../build                                         \
+                -DCMAKE_BUILD_TYPE=${{ matrix.BUILD_TYPE }}                                       \
+                -DCMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_ROOT }}/scripts/buildsystems/vcpkg.cmake  \
+                -DVCPKG_TARGET_TRIPLET=${{ env.VCPKG_TARGET_TRIPLET }}                         \
+                -DBUILD_SHARED_LIBS=${{ env.BUILD_SHARED_LIBS }}                               \
+                -DCMAKE_VERBOSE_MAKEFILE=ON
+        env:
+          CC: ${{matrix.COMPILER.cc}}
+          CXX: ${{matrix.COMPILER.cxx}}
+
+      - name: 🙏 CMake → Build
+        run: |
+          cd ../build
+          cmake --build . --config ${{ matrix.BUILD_TYPE }}
+
+      - name: Copy build artifact to packaging folder
+        run: |
+          mkdir artifact
+          cp ../build/wiuc artifact/
+
+      - name: 🔼 Upload Build Artifact
+        uses: actions/upload-artifact@v2 # https://github.com/actions/upload-artifact
+        if: always()
+        with:
+          name: Wikifolio_Investment_Universe_Converter-${{ env.VCPKG_TARGET_TRIPLET }}-${{ matrix.COMPILER.name }}
+          path: artifact/wiuc
