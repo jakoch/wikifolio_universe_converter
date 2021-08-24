@@ -229,10 +229,10 @@ jobs:
             apt_package: g++-10,
           }
         - {
-            name: "Clang-13",
-            cc: "clang-13",
-            cxx: "clang++-13",
-            apt_package: clang-13,
+            name: "Clang-12",
+            cc: "clang-12",
+            cxx: "clang++-12",
+            apt_package: clang-12,
           }
 
     env:
@@ -243,6 +243,11 @@ jobs:
     steps:
       - name: 🤘 Checkout Code
         uses: actions/checkout@v2 # https://github.com/actions/checkout
+
+      - name: 🔽 Install Dependencies
+        run: |
+          sudo apt update
+          sudo apt install ${{ matrix.COMPILER.package }} -y
 
       - name: 🔽 Update VCPKG
         run: |
@@ -261,11 +266,17 @@ jobs:
                 -DVCPKG_TARGET_TRIPLET=${{ env.VCPKG_TARGET_TRIPLET }}                         \
                 -DBUILD_SHARED_LIBS=${{ env.BUILD_SHARED_LIBS }}                               \
                 -DCMAKE_VERBOSE_MAKEFILE=ON
+        env:
+          CC: ${{matrix.config.COMPILER.cc}}
+          CXX: ${{matrix.config.COMPILER.cxx}}
 
       - name: 🙏 CMake → Build
         run: |
           cd ../build
           cmake --build . --config ${{ matrix.BUILD_TYPE }}
+        env:
+          CC: ${{matrix.config.COMPILER.cc}}
+          CXX: ${{matrix.config.COMPILER.cxx}}
 
       - name: Copy build artifact to packaging folder
         run: |
