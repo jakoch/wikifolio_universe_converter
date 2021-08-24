@@ -8,12 +8,13 @@ Konvertiert das [wikifolio.com Anlageuniversum](https://www.wikifolio.com/de/de/
 
 |   CI Service     | Compiler    | Target Triplet           | Status |
 |:---------------- |:----------- |:------------------------ |:------:|
-| GitHub Actions   | VC16 2019   | x64-windows-static       |   🟢   |
-|                  | VC16 2019   | x64-windows              |   👷🏼   |
-|                  | VC17 2022   | x64-windows-static       |   🟢   |
-|                  | VC17 2022   | x64-windows              |   👷🏼   |
-|                  | GCC         | x64-linux                |   🟢   |
-|                  | Clang       | x64-linux                |   👷🏼   | 
+| GitHub Actions   | VC16 VS2019 | x64-windows-static       |   🟢   |
+|                  | VC16 VS2019 | x64-windows              |   👷🏼   |
+|                  | VC17 VS2022 | x64-windows-static       |   🟢   |
+|                  | VC17 VS2022 | x64-windows              |   👷🏼   |
+|                  | GCC-9       | x64-linux                |   🟢   |
+|                  | GCC-10      | x64-linux                |   🟢   |
+|                  | Clang-12    | x64-linux                |   🟢  | 
 
 Symbols used: ⚪ Build disabled. 🟢 Build succeeds. 🔴 Build fails. 👷🏼 TODO.
 
