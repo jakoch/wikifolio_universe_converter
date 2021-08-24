@@ -36,6 +36,16 @@ jobs:
       - name: 🤘 Checkout Code
         uses: actions/checkout@v2 # https://github.com/actions/checkout
 
+      - name: ℹ Show Tool Versions
+        run: |
+          date /T
+          time /T
+          curl -V
+          cmake --version
+          msbuild /version
+          vcpkg version
+          echo NUMBER_OF_PROCESSORS=%NUMBER_OF_PROCESSORS%
+
       - name: 📥 Setup VC Environment (→ vcvarsall)
         run: call "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
 
@@ -120,6 +130,16 @@ jobs:
       - name: 🤘 Checkout Code
         uses: actions/checkout@v2 # https://github.com/actions/checkout
 
+      - name: ℹ Show Tool Versions
+        run: |
+          date /T
+          time /T
+          curl -V
+          cmake --version
+          msbuild /version
+          vcpkg version
+          echo NUMBER_OF_PROCESSORS=%NUMBER_OF_PROCESSORS%
+
       # https://github.com/actions/virtual-environments/blob/main/images/win/Windows2022-Readme.md#visual-studio-enterprise-2022
       - name: 📥 Setup VC Environment (→ vcvarsall)
         run: call "C:/Program Files/Microsoft Visual Studio/2022/Preview/VC/Auxiliary/Build/vcvars64.bat"
@@ -183,21 +203,43 @@ jobs:
 
 # ---------------------------------------------------------------------------------------
 
-  build-on-linux-gcc:
+  build-on-linux:
 
 # ---------------------------------------------------------------------------------------
 
-    name: "Linux GCC"
-    runs-on: ubuntu-latest
+    name: "Linux ${{ matrix.COMPILER.name }}"
+    runs-on: ${{ matrix.OS }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        OS: [ ubuntu-latest ]
+        BUILD_TYPE: [ Release ]
+        COMPILER:
+        - {
+            name: "GCC-9"
+            cc: "gcc-9",
+            cxx: "g++-9",
+            apt_package: g++-9,
+          }
+        - {
+            name: "GCC-10",
+            apt_package: g++-10,
+            cc: "gcc-10",
+            cxx: "g++-10",
+            apt_package: g++-10,
+          }
+        - {
+            name: "Clang-13",
+            cc: "clang-13",
+            cxx: "clang++-13",
+            apt_package: clang-13,
+          }
 
     env:
-      BUILD_TYPE: Release
       VCPKG_ROOT: /usr/local/share/vcpkg
       VCPKG_TARGET_TRIPLET: x64-linux
       BUILD_SHARED_LIBS: ON
-      COMPILER: GCC
-      CC: gcc
-      CXX: g++
 
     steps:
       - name: 🤘 Checkout Code
@@ -215,7 +257,7 @@ jobs:
       - name: ✏ CMake ➔ Configure (including VCPKG → Install Dependencies)
         run: |
           cmake -S ${{ github.workspace }} -B ../build                                         \
-                -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}                                       \
+                -DCMAKE_BUILD_TYPE=${{ matrix.BUILD_TYPE }}                                       \
                 -DCMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_ROOT }}/scripts/buildsystems/vcpkg.cmake  \
                 -DVCPKG_TARGET_TRIPLET=${{ env.VCPKG_TARGET_TRIPLET }}                         \
                 -DBUILD_SHARED_LIBS=${{ env.BUILD_SHARED_LIBS }}                               \
@@ -224,7 +266,7 @@ jobs:
       - name: 🙏 CMake → Build
         run: |
           cd ../build
-          cmake --build . --config $env:BUILD_TYPE
+          cmake --build . --config ${{ matrix.BUILD_TYPE }}
 
       - name: Copy build artifact to packaging folder
         run: |
@@ -235,5 +277,5 @@ jobs:
         uses: actions/upload-artifact@v2 # https://github.com/actions/upload-artifact
         if: always()
         with:
-          name: Wikifolio_Investment_Universe_Converter-${{ env.VCPKG_TARGET_TRIPLET }}-${{ env.COMPILER }}
+          name: Wikifolio_Investment_Universe_Converter-${{ env.VCPKG_TARGET_TRIPLET }}-${{ matrix.COMPILER.name }}
           path: artifact/wiuc
