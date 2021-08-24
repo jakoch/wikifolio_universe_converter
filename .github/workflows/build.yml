@@ -217,14 +217,13 @@ jobs:
         BUILD_TYPE: [ Release ]
         COMPILER:
         - {
-            name: "GCC-9"
+            name: "GCC-9",
             cc: "gcc-9",
             cxx: "g++-9",
             apt_package: g++-9,
           }
         - {
             name: "GCC-10",
-            apt_package: g++-10,
             cc: "gcc-10",
             cxx: "g++-10",
             apt_package: g++-10,
