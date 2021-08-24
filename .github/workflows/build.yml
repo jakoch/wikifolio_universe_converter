@@ -18,7 +18,7 @@ jobs:
 
 # ---------------------------------------------------------------------------------------
 
-    name: Windows
+    name: "Windows x64 static VS2019"
     runs-on: windows-latest
 
     env:
@@ -194,7 +194,7 @@ jobs:
 
 # ---------------------------------------------------------------------------------------
 
-    name: Linux
+    name: "Linux x64 shared GCC"
     runs-on: ubuntu-latest
 
     env:
