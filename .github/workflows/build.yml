@@ -245,7 +245,8 @@ jobs:
           git reset --hard
           git pull --quiet
           bootstrap-vcpkg.bat -disableMetrics
-          vcpkg integrate install --triplet=${{ env.VCPKG_TARGET_TRIPLET }} --feature-flags=manifests --head
+          vcpkg integrate install --triplet=${{ env.VCPKG_TARGET_TRIPLET }} --head xlsxio
+          vcpkg integrate install --triplet=${{ env.VCPKG_TARGET_TRIPLET }} --feature-flags=manifests
           vcpkg version
 
       - name: 🎯 Cache VCPKG
