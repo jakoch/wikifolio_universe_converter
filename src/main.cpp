@@ -270,9 +270,9 @@ bool download(const char *url, const char *save_as_filename)
   CURL *curl = curl_easy_init();
 
   if (curl) {
-    struct curl_slist *dns;
-    dns = curl_slist_append(NULL, "wikifolio.blob.core.windows.net:443:191.239.203.0");
-    curl_easy_setopt(curl, CURLOPT_RESOLVE, dns);
+    //struct curl_slist *dns;
+    //dns = curl_slist_append(NULL, "wikifolio.blob.core.windows.net:443:191.239.203.0");
+    //curl_easy_setopt(curl, CURLOPT_RESOLVE, dns);
 
     struct curl_slist *headers = NULL;
     headers = curl_slist_append(headers, "Content-Type:application/octet-stream");
