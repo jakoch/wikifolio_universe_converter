@@ -331,7 +331,8 @@ jobs:
           }
 
     env:
-      VCPKG_ROOT: /usr/local/share/vcpkg
+      #VCPKG_ROOT: /usr/local/share/vcpkg
+      VCPKG_ROOT: ${{ github.workspace }}/vcpkg
       VCPKG_TARGET_TRIPLET: x64-linux
       BUILD_SHARED_LIBS: ON
 
