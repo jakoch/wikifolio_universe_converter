@@ -312,12 +312,6 @@ jobs:
         BUILD_TYPE: [ Release ]
         COMPILER:
         - {
-            name: "GCC-9",
-            cc: "gcc-9",
-            cxx: "g++-9",
-            apt_package: g++-9,
-          }
-        - {
             name: "GCC-10",
             cc: "gcc-10",
             cxx: "g++-10",
@@ -331,8 +325,7 @@ jobs:
           }
 
     env:
-      #VCPKG_ROOT: /usr/local/share/vcpkg
-      VCPKG_ROOT: ${{ github.workspace }}/vcpkg
+      VCPKG_ROOT: /usr/local/share/vcpkg      
       VCPKG_TARGET_TRIPLET: x64-linux
       BUILD_SHARED_LIBS: ON
 
@@ -351,7 +344,7 @@ jobs:
           git reset --hard
           git pull --quiet
           ./bootstrap-vcpkg.sh -disableMetrics
-          vcpkg integrate install --triplet=${{ env.VCPKG_TARGET_TRIPLET }} --feature-flags=manifests
+          #vcpkg integrate install --triplet=${{ env.VCPKG_TARGET_TRIPLET }} --feature-flags=manifests
           vcpkg version
 
       - name: ✏ CMake ➔ Configure (including VCPKG → Install Dependencies)
