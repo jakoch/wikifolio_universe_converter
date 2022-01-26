@@ -9,6 +9,7 @@
 #include <sstream>
 #include <iostream>
 #include <chrono>
+#include <iomanip>
 #include <type_traits>
 
 // use std::format on MSVC - use libfmt as polyfill on Linux
@@ -26,6 +27,8 @@ using fmt::format;
 
 #include <curl/curl.h>
 #include <curl/easy.h>
+
+#include "version.h"
 
 class XLSXReader
 {

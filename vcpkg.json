@@ -1,6 +1,6 @@
 {
   "name": "wikifolio-universe-converter",
-  "version": "0.1.0",
+  "version": "1.0.1",
   "description": "Konvertiert das wikifolio.com Anlageuniversum XLSX-Spreadsheet in eine SQLite Datenbank.",
   "homepage": "https://github.com/jakoch/wikifolio_universe",
   "license": "MIT",

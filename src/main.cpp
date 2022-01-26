@@ -117,6 +117,13 @@ XLSXReaderSheet& XLSXReaderSheet::operator >> (time_t& value)
   return *this;
 }*/
 
+std::string getYear() {
+    std::time_t time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    std::stringstream ss;
+    ss << std::put_time(std::localtime(&time), "%Y");
+    return ss.str();
+}
+
 template <class Resolution = std::chrono::milliseconds>
 class Timer {
 public:
@@ -455,7 +462,11 @@ bool csv_to_sqlite()
 
 int main(int argc, char *argv[])
 {
-  printf("Wikifolio Investment Universe Converter v1.0.0\nCopyright (c) Jens A. Koch, 2021.\n\n");
+  printf(
+    "Wikifolio Investment Universe Converter v%s\nCopyright (c) Jens A. Koch, 2021-%s.\n\n",
+    app_version::get_version().c_str(),
+    getYear().c_str()
+  );
 
   Timer<> total_application_timer;
 

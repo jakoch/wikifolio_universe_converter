@@ -104,10 +104,28 @@ include(SetupVcpkg)
 option(BUILD_SHARED_LIBS "Build shared libraries"               OFF)
 
 #-------------------------------------------------------------------
+# Get Versioning Data
+#-------------------------------------------------------------------
+
+# vcpkg.json is the primary source for version data
+file(READ ${CMAKE_SOURCE_DIR}/vcpkg.json VCPKG_JSON_STRING)
+string(JSON APP_NAME     GET ${VCPKG_JSON_STRING} "name")
+string(JSON APP_VERSION  GET ${VCPKG_JSON_STRING} "version")
+string(JSON APP_LICENSE  GET ${VCPKG_JSON_STRING} "license")
+string(JSON APP_DESC     GET ${VCPKG_JSON_STRING} "description")
+string(JSON APP_HOMEPAGE GET ${VCPKG_JSON_STRING} "homepage")
+
+#-------------------------------------------------------------------
 # Project
 #-------------------------------------------------------------------
 
-project(wiuc DESCRIPTION "wikifolio_investment_universe_converter")
+project(wiuc VERSION ${APP_VERSION} DESCRIPTION "wikifolio_investment_universe_converter")
+
+#-------------------------------------------------------------------
+# Versionize
+#-------------------------------------------------------------------
+
+configure_file("src/version.cpp.in" "version.cpp" @ONLY)
 
 #-------------------------------------------------------------------
 # Define C++ Standard to use
@@ -160,6 +178,8 @@ find_package(xlsxio_read REQUIRED)
 set(SRC
   src/main.h
   src/main.cpp
+  src/version.h
+  ${CMAKE_CURRENT_BINARY_DIR}/version.cpp
 )
 
 #-------------------------------------------------------------------
@@ -189,3 +209,8 @@ target_link_libraries(wiuc
 if(NOT MSVC)
   target_link_libraries(wiuc PRIVATE fmt::fmt)
 endif()
+
+target_include_directories(wiuc PUBLIC
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>"
+)
+target_include_directories(wiuc PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
