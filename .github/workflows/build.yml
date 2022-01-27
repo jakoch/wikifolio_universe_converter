@@ -101,7 +101,6 @@ jobs:
             cache-windows-vcpkg-${{ matrix.config.VCPKG_TARGET_TRIPLET }}
 
       - name: ✏ CMake ➔ Configure (including VCPKG → Install Dependencies)
-        if: matrix.config.COMPILER == 'VC16'
         run: |
           if "${{ matrix.config.COMPILER }}" == "VC16"; set "GENERATOR=Visual Studio 16 2019"
           if "${{ matrix.config.COMPILER }}" == "VC17"; set "GENERATOR=Visual Studio 17 2022"
