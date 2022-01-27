@@ -84,21 +84,21 @@ jobs:
 
       - name: 🔽 Integrate VCPKG
         if: matrix.config.VCPKG_MODE == 'manifest'
-        run: vcpkg integrate install --triplet=${{ env.VCPKG_TARGET_TRIPLET }} --feature-flags=manifests
+        run: vcpkg integrate install --triplet=${{ matrix.config.VCPKG_TARGET_TRIPLET }} --feature-flags=manifests
 
       - name: 🔽 Integrate VCPKG
         if: matrix.config.VCPKG_MODE == 'head'
-        run: vcpkg integrate install --triplet=${{ env.VCPKG_TARGET_TRIPLET }} --head xlsxio sqlite3 curl
+        run: vcpkg integrate install --triplet=${{ matrix.config.VCPKG_TARGET_TRIPLET }} --head xlsxio sqlite3 curl
 
       - name: 🎯 Cache VCPKG
         id: cache-vcpkg
         uses: actions/cache@v1 # https://github.com/actions/cache
         with:
           path: ~\AppData\Local\vcpkg
-          key: cache-windows-vcpkg-${{ env.VCPKG_TARGET_TRIPLET }}-${{ github.ref }}-${{ github.run_number }}
+          key: cache-windows-vcpkg-${{ matrix.config.VCPKG_TARGET_TRIPLET }}-${{ github.ref }}-${{ github.run_number }}
           restore-keys: |
-            cache-windows-vcpkg-${{ env.VCPKG_TARGET_TRIPLET }}-${{ github.ref }}
-            cache-windows-vcpkg-${{ env.VCPKG_TARGET_TRIPLET }}
+            cache-windows-vcpkg-${{ matrix.config.VCPKG_TARGET_TRIPLET }}-${{ github.ref }}
+            cache-windows-vcpkg-${{ matrix.config.VCPKG_TARGET_TRIPLET }}
 
       - name: ✏ CMake ➔ Configure (including VCPKG → Install Dependencies)
         if: matrix.config.COMPILER == 'VC16'
@@ -109,9 +109,9 @@ jobs:
           mkdir build && cd build
           cmake -G "%GENERATOR%" -A x64                                                        ^
                 -S ${{ github.workspace }} -B ..                                               ^
-                -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}                                       ^
+                -DCMAKE_BUILD_TYPE=${{ matrix.config.BUILD_TYPE }}                                       ^
                 -DCMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_ROOT }}/scripts/buildsystems/vcpkg.cmake  ^
-                -DVCPKG_TARGET_TRIPLET=${{ env.VCPKG_TARGET_TRIPLET }}                         ^
+                -DVCPKG_TARGET_TRIPLET=${{ matrix.config.VCPKG_TARGET_TRIPLET }}                         ^
                 -DBUILD_SHARED_LIBS=${{ env.BUILD_SHARED_LIBS }}                               ^
                 -DCMAKE_VERBOSE_MAKEFILE=ON
 
@@ -124,7 +124,7 @@ jobs:
       - name: ❔ CHECK important folders, to see if everything is present (after building)
         run: |
           dir build
-          dir /S /B build\vcpkg_installed\${{ env.VCPKG_TARGET_TRIPLET }}
+          dir /S /B build\vcpkg_installed\${{ matrix.config.VCPKG_TARGET_TRIPLET }}
           dir /S /B build\wiuc-%VERSION%
 
       - name: Copy build artifact to packaging folder
@@ -136,7 +136,7 @@ jobs:
         uses: actions/upload-artifact@v2 # https://github.com/actions/upload-artifact
         if: always()
         with:
-          name: Wikifolio_Investment_Universe_Converter-${{ env.VCPKG_TARGET_TRIPLET }}-${{ env.COMPILER }}
+          name: Wikifolio_Investment_Universe_Converter-${{ matrix.config.VCPKG_TARGET_TRIPLET }}-${{ matrix.config.COMPILER }}
           path: artifact\wiuc.exe
 
 # ---------------------------------------------------------------------------------------
