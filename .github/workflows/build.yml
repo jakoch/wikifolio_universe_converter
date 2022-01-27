@@ -23,8 +23,8 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - { OS: windows-2019, BUILD_TYPE: Release, VCPKG_TARGET_TRIPLET: x64-windows-static, COMPILER: "VC16", JOB_NAME: "VC16 | x64_win-static | Release"}
-          - { OS: windows-2022, BUILD_TYPE: Release, VCPKG_TARGET_TRIPLET: x64-windows-static, COMPILER: "VC17", JOB_NAME: "VC17 | x64-win-static | Release"}
+          - { OS: windows-2019, BUILD_TYPE: Release, VCPKG_TARGET_TRIPLET: x64-windows-static, COMPILER: "VC16", JOB_NAME: "Windows | VC16 | static | Release"}
+          - { OS: windows-2022, BUILD_TYPE: Release, VCPKG_TARGET_TRIPLET: x64-windows-static, COMPILER: "VC17", JOB_NAME: "Windows | VC17 | static | Release"}
 
     env:
       PLATFORM: x64
