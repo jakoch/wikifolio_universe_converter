@@ -23,9 +23,8 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - { OS: windows-2019, BUILD_TYPE: Release, VCPKG_TARGET_TRIPLET: x64-windows-static, COMPILER: "VC16", VCPKG_MODE: "manifest", JOB_NAME: "VC16|x64_win-static|Release"}
-          - { OS: windows-2022, BUILD_TYPE: Release, VCPKG_TARGET_TRIPLET: x64-windows-static, COMPILER: "VC17", VCPKG_MODE: "manifest", JOB_NAME: "VC17|x64-win-static|Release"}
-          - { OS: windows-2022, BUILD_TYPE: Release, VCPKG_TARGET_TRIPLET: x64-windows-static, COMPILER: "VC17", VCPKG_MODE: "head", JOB_NAME: "VC17|x64-win-static|Release|vcpkg-head"}
+          - { OS: windows-2019, BUILD_TYPE: Release, VCPKG_TARGET_TRIPLET: x64-windows-static, COMPILER: "VC16", JOB_NAME: "VC16 | x64_win-static | Release"}
+          - { OS: windows-2022, BUILD_TYPE: Release, VCPKG_TARGET_TRIPLET: x64-windows-static, COMPILER: "VC17", JOB_NAME: "VC17 | x64-win-static | Release"}
 
     env:
       PLATFORM: x64
@@ -85,11 +84,6 @@ jobs:
       - name: 🔽 Integrate VCPKG (using manifest)
         if: matrix.config.VCPKG_MODE == 'manifest'
         run: vcpkg integrate install --triplet=${{ matrix.config.VCPKG_TARGET_TRIPLET }} --feature-flags=manifests
-
-      - name: 🔽 Integrate VCPKG (using head)
-        if: matrix.config.VCPKG_MODE == 'head'
-        run: |
-          vcpkg install --triplet=${{ matrix.config.VCPKG_TARGET_TRIPLET }} --head xlsxio sqlite3 curl
 
       - name: 🎯 Cache VCPKG
         id: cache-vcpkg
