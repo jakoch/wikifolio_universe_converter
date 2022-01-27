@@ -37,13 +37,15 @@ jobs:
         shell: cmd
 
     steps:
+      - name: 🤘 Checkout Code
+        uses: actions/checkout@v2 # https://github.com/actions/checkout
+
       - name: ℹ Show Tool Versions
         run: |
           date /T
           time /T
           curl -V
           cmake --version
-          msbuild /version
           vcpkg version
           echo NUMBER_OF_PROCESSORS=%NUMBER_OF_PROCESSORS%
 
