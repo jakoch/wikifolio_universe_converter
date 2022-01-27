@@ -88,7 +88,9 @@ jobs:
 
       - name: 🔽 Integrate VCPKG (using head)
         if: matrix.config.VCPKG_MODE == 'head'
-        run: vcpkg integrate install --triplet=${{ matrix.config.VCPKG_TARGET_TRIPLET }} --head xlsxio sqlite3 curl
+        run: |
+          vcpkg integrate install --triplet=${{ matrix.config.VCPKG_TARGET_TRIPLET }}
+          vcpkg install --head xlsxio sqlite3 curl
 
       - name: 🎯 Cache VCPKG
         id: cache-vcpkg
