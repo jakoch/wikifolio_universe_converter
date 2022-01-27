@@ -81,11 +81,11 @@ jobs:
           vcpkg version
 
       - name: 🔽 Integrate VCPKG
-        if: matrix.config.VCPKG_MODE == "manifest"
+        if: matrix.config.VCPKG_MODE == 'manifest'
         run: vcpkg integrate install --triplet=${{ env.VCPKG_TARGET_TRIPLET }} --feature-flags=manifests
 
       - name: 🔽 Integrate VCPKG
-        if: matrix.config.VCPKG_MODE == "manifest"
+        if: matrix.config.VCPKG_MODE == 'head'
         run: vcpkg integrate install --triplet=${{ env.VCPKG_TARGET_TRIPLET }} --head xlsxio sqlite3 curl
 
       - name: 🎯 Cache VCPKG
