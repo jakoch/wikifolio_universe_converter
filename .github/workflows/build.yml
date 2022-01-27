@@ -82,11 +82,11 @@ jobs:
           bootstrap-vcpkg.bat -disableMetrics
           vcpkg version
 
-      - name: 🔽 Integrate VCPKG
+      - name: 🔽 Integrate VCPKG (using manifest)
         if: matrix.config.VCPKG_MODE == 'manifest'
         run: vcpkg integrate install --triplet=${{ matrix.config.VCPKG_TARGET_TRIPLET }} --feature-flags=manifests
 
-      - name: 🔽 Integrate VCPKG
+      - name: 🔽 Integrate VCPKG (using head)
         if: matrix.config.VCPKG_MODE == 'head'
         run: vcpkg integrate install --triplet=${{ matrix.config.VCPKG_TARGET_TRIPLET }} --head xlsxio sqlite3 curl
 
@@ -107,11 +107,10 @@ jobs:
           if "${{ matrix.config.COMPILER }}" == "VC17"; set "GENERATOR=Visual Studio 17 2022"
           echo %GENERATOR%
           mkdir build && cd build
-          cmake -G "%GENERATOR%" -A x64                                                        ^
-                -S ${{ github.workspace }} -B ..                                               ^
-                -DCMAKE_BUILD_TYPE=${{ matrix.config.BUILD_TYPE }}                                       ^
+          cmake -G "%GENERATOR%" -A x64 -B ..                                                  ^
+                -DCMAKE_BUILD_TYPE=${{ matrix.config.BUILD_TYPE }}                             ^
                 -DCMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_ROOT }}/scripts/buildsystems/vcpkg.cmake  ^
-                -DVCPKG_TARGET_TRIPLET=${{ matrix.config.VCPKG_TARGET_TRIPLET }}                         ^
+                -DVCPKG_TARGET_TRIPLET=${{ matrix.config.VCPKG_TARGET_TRIPLET }}               ^
                 -DBUILD_SHARED_LIBS=${{ env.BUILD_SHARED_LIBS }}                               ^
                 -DCMAKE_VERBOSE_MAKEFILE=ON
 
