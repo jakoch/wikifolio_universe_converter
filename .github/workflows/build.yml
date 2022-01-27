@@ -108,7 +108,7 @@ jobs:
           if "${{ matrix.config.COMPILER }}" == "VC17"; set "GENERATOR=Visual Studio 17 2022"
           echo %GENERATOR%
           mkdir build && cd build
-          cmake -G "%GENERATOR%" -A x64 -B ..                                                  ^
+          cmake -G "%GENERATOR%" -A x64 ..                                                     ^
                 -DCMAKE_BUILD_TYPE=${{ matrix.config.BUILD_TYPE }}                             ^
                 -DCMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_ROOT }}/scripts/buildsystems/vcpkg.cmake  ^
                 -DVCPKG_TARGET_TRIPLET=${{ matrix.config.VCPKG_TARGET_TRIPLET }}               ^
