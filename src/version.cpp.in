@@ -1,0 +1,25 @@
+#include "version.h"
+
+static app_version app_metadata = app_version{
+    "@APP_NAME@",
+    sem_version{@PROJECT_VERSION_MAJOR@, @PROJECT_VERSION_MINOR@, @PROJECT_VERSION_PATCH@},
+    "@PROJECT_VERSION_MAJOR@.@PROJECT_VERSION_MINOR@.@PROJECT_VERSION_PATCH@",
+    "@APP_LICENSE@",
+    "@APP_DESC@",
+    "@APP_HOMEPAGE@"
+};
+
+[[nodiscard]] app_version const &app_version::data() noexcept
+{
+    return app_metadata;
+}
+
+[[nodiscard]] sem_version const &app_version::get_semantic_version() noexcept
+{
+    return app_metadata.s_version;
+}
+
+[[nodiscard]] std::string const &app_version::get_version() noexcept
+{
+    return app_metadata.version;
+}
