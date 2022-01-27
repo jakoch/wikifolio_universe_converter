@@ -8,9 +8,10 @@ FROM debian:sid-slim
 # | METADATA                    |
 # +-----------------------------+
 
-# MAINTAINER Jens A. Koch <jakoch@web.de>
-
-# LABEL base.image="debian:sid-slim"
+LABEL maintainer Jens A. Koch <jakoch@web.de>
+LABEL version="2022-01-27"
+LABEL description="C++ DevBox (LLVM 13 & GCC 11) (CMake & VCPKG) (zsh + p10k)"
+LABEL base.image="debian:sid-slim"
 
 # +-----------------------------+
 # | ARGS                        |
@@ -133,14 +134,19 @@ ENV ZSH_THEME powerlevel10k/powerlevel10k
 # get and run installer
 RUN wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | zsh || true
 
+# copy theme config
+# you might run "p10k configure" to configure using a wizard
+COPY .p10k.zsh /root/.p10k.zsh
+
 # install theme
 RUN git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ~/.oh-my-zsh/themes/powerlevel10k
 RUN sed -i 's/ZSH_THEME="robbyrussell"/ZSH_THEME="powerlevel10k\/powerlevel10k"/g' ~/.zshrc && \
-    echo '[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh' >> ~/.zshrc
+    echo '[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh' >> ~/.zshrc && \
+    echo "POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD=true" >> ~/.zshrc && \
+    echo "export LANG=en_US.UTF-8" >> ~/.zshrc
 
-# copy theme config
-# you might run "p10k configure" to configure using a wizard
-COPY .p10k.zsh /root/
+# autosuggestions for zsh
+RUN git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
 
 # +-----------------------------+
 # | CLEANUP                     |
@@ -180,7 +186,8 @@ RUN echo $TZ > /etc/timezone && \
     dpkg-reconfigure locales && \
     update-locale LANG=de_DE.UTF-8
 
-ENV LANG=de_DE.UTF-8
+#ENV LANG=de_DE.UTF-8
+ENV LANG=en_US.UTF-8
 
 RUN echo "export PATH=$PATH" > /etc/environment
 

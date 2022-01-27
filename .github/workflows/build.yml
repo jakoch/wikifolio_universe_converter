@@ -12,20 +12,24 @@ on: [push]
 
 jobs:
 
-# ---------------------------------------------------------------------------------------
+  builds-windows:
 
-  build-on-windows-2019:
+    name: ${{ matrix.config.JOB_NAME }}
+    # https://github.com/actions/virtual-environments/blob/main/images/win/Windows2019-Readme.md
+    # https://github.com/actions/virtual-environments/blob/main/images/win/Windows2022-Readme.md
+    runs-on: ${{ matrix.config.OS }}
 
-# ---------------------------------------------------------------------------------------
-
-    name: "Windows VC16"
-    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - { OS: windows-2022, BUILD_TYPE: Release, VCPKG_TARGET_TRIPLET: x64-windows-static, COMPILER: "VC16", VCPKG_MODE: "manifest", JOB_NAME: "VC16|x64_win-static|Release"}
+          - { OS: windows-2022, BUILD_TYPE: Release, VCPKG_TARGET_TRIPLET: x64-windows-static, COMPILER: "VC17", VCPKG_MODE: "manifest", JOB_NAME: "VC17|x64-win-static|Release"}
+          - { OS: windows-2022, BUILD_TYPE: Release, VCPKG_TARGET_TRIPLET: x64-windows-static, COMPILER: "VC17", VCPKG_MODE: "head", JOB_NAME: "VC17|x64-win-static|Release|vcpkg-head"}
 
     env:
-      COMPILER: "VC16"
-      BUILD_TYPE: Release
+      PLATFORM: x64
       VCPKG_ROOT: C:\vcpkg
-      VCPKG_TARGET_TRIPLET: x64-windows-static
       BUILD_SHARED_LIBS: OFF
 
     defaults:
@@ -33,9 +37,6 @@ jobs:
         shell: cmd
 
     steps:
-      - name: 🤘 Checkout Code
-        uses: actions/checkout@v2 # https://github.com/actions/checkout
-
       - name: ℹ Show Tool Versions
         run: |
           date /T
@@ -46,17 +47,47 @@ jobs:
           vcpkg version
           echo NUMBER_OF_PROCESSORS=%NUMBER_OF_PROCESSORS%
 
-      - name: 📥 Setup VC Environment (→ vcvarsall)
-        run: call "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
+      # TODO
+      # Build Artifact Name: wiuc-1.0.1-0cda6a2-VC17-x64-static-Release
+      - name: ✏ Fetch Versioning Data & Set Artifact Name
+        shell: pwsh
+        run: |
+          $NAME="wiuc"
+          $VERSION=$(jq -r .version vcpkg.json)
+          $SHORT_HASH=$($env:GITHUB_SHA.substring(0,7))
+          $COMPILER="${{ matrix.config.COMPILER }}"
+          $TRIPLET="${{ matrix.config.VCPKG_TARGET_TRIPLET }}"
+          $BUILD_TYPE="${{ matrix.config.BUILD_TYPE }}"
+          $ARTIFACT_NAME="$NAME-$VERSION-$SHORT_HASH-$COMPILER-$TRIPLET-$BUILD_TYPE"
+          echo "Artifact Name:" $ARTIFACT_NAME
+          echo "ARTIFACT_NAME=$($ARTIFACT_NAME)" >> $env:GITHUB_ENV
+          echo "VERSION=$($VERSION)" >> $env:GITHUB_ENV
+
+      - name: 📥 Setup VC16 Environment (➔ vcvarsall)
+        if: matrix.config.COMPILER == 'VC16'
+        run: call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" %PLATFORM%
+
+      # https://github.com/actions/virtual-environments/blob/main/images/win/Windows2022-Readme.md#visual-studio-enterprise-2022
+      - name: 📥 Setup VC17 Environment (→ vcvars64)
+        if: matrix.config.COMPILER == 'VC17'
+        run: call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
 
       - name: 🔽 Update VCPKG
+        if: matrix.config.VCPKG_HEAD == "manifest"
         run: |
           cd ${{ env.VCPKG_ROOT }}
           git reset --hard
           git pull --quiet
           bootstrap-vcpkg.bat -disableMetrics
-          vcpkg integrate install --triplet=${{ env.VCPKG_TARGET_TRIPLET }} --feature-flags=manifests
           vcpkg version
+
+      - name: 🔽 Integrate VCPKG
+        if: matrix.config.VCPKG_HEAD == "manifest"
+        run: vcpkg integrate install --triplet=${{ env.VCPKG_TARGET_TRIPLET }} --feature-flags=manifests
+
+      - name: 🔽 Integrate VCPKG
+        if: matrix.config.VCPKG_HEAD == "manifest"
+        run: vcpkg integrate install --triplet=${{ env.VCPKG_TARGET_TRIPLET }} --head xlsxio sqlite3 curl
 
       - name: 🎯 Cache VCPKG
         id: cache-vcpkg
@@ -69,231 +100,42 @@ jobs:
             cache-windows-vcpkg-${{ env.VCPKG_TARGET_TRIPLET }}
 
       - name: ✏ CMake ➔ Configure (including VCPKG → Install Dependencies)
+        if: matrix.config.COMPILER == 'VC16'
         run: |
-          cmake -G "Visual Studio 16 2019" -A x64                                              ^
-                -S ${{ github.workspace }} -B ../build                                         ^
+          if "${{ matrix.config.COMPILER }}" == "VC16"; set "GENERATOR=Visual Studio 16 2019"
+          if "${{ matrix.config.COMPILER }}" == "VC17"; set "GENERATOR=Visual Studio 17 2022"
+          echo %GENERATOR%
+          mkdir build && cd build
+          cmake -G "%GENERATOR%" -A x64                                                        ^
+                -S ${{ github.workspace }} -B ..                                               ^
                 -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}                                       ^
                 -DCMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_ROOT }}/scripts/buildsystems/vcpkg.cmake  ^
                 -DVCPKG_TARGET_TRIPLET=${{ env.VCPKG_TARGET_TRIPLET }}                         ^
                 -DBUILD_SHARED_LIBS=${{ env.BUILD_SHARED_LIBS }}                               ^
                 -DCMAKE_VERBOSE_MAKEFILE=ON
 
+      - name: 🙏 CMake ➔ Build
+        run: cmake --build build --config ${{ matrix.config.BUILD_TYPE }} -j %NUMBER_OF_PROCESSORS%
+
+      - name: 📦 CMake ➔ Install
+        run: cmake --install build --config ${{ matrix.config.BUILD_TYPE }} --prefix build/wiuc-%VERSION% --verbose
+
       - name: ❔ CHECK important folders, to see if everything is present (after building)
         run: |
-          dir ..\build
-          dir /S /B ..\build\vcpkg_installed\${{ env.VCPKG_TARGET_TRIPLET }}
-          dir /S /B ..\build
-
-      - name: 🙏 CMake → Build
-        run: |
-          cd ..\build
-          cmake --build . --config %BUILD_TYPE% -j %NUMBER_OF_PROCESSORS%
-
-      #- name: 📦 CMake ➔ Install
-      #  run: |
-      #    cd ..\build
-      #    cmake --install . --config %BUILD_TYPE% --prefix build/wiuc --verbose
+          dir build
+          dir /S /B build\vcpkg_installed\${{ env.VCPKG_TARGET_TRIPLET }}
+          dir /S /B build\wiuc-%VERSION%
 
       - name: Copy build artifact to packaging folder
         run: |
           mkdir artifact
-          copy ..\build\${{ env.BUILD_TYPE }}\wiuc.exe artifact\
+          copy build\wiuc-%VERSION%\wiuc.exe artifact\
 
       - name: 🔼 Upload Build Artifact
         uses: actions/upload-artifact@v2 # https://github.com/actions/upload-artifact
         if: always()
         with:
           name: Wikifolio_Investment_Universe_Converter-${{ env.VCPKG_TARGET_TRIPLET }}-${{ env.COMPILER }}
-          path: artifact\wiuc.exe
-
-# ---------------------------------------------------------------------------------------
-
-  build-on-windows-2022:
-
-# ---------------------------------------------------------------------------------------
-
-    name: "Windows VC17"
-    runs-on: windows-2022
-
-    env:
-      COMPILER: "VC17"
-      BUILD_TYPE: Release
-      VCPKG_ROOT: C:\vcpkg
-      VCPKG_TARGET_TRIPLET: x64-windows-static
-      BUILD_SHARED_LIBS: OFF
-
-    defaults:
-      run:
-        shell: cmd
-
-    steps:
-      - name: 🤘 Checkout Code
-        uses: actions/checkout@v2 # https://github.com/actions/checkout
-
-      - name: ℹ Show Tool Versions
-        run: |
-          date /T
-          time /T
-          curl -V
-          cmake --version
-          msbuild /version
-          vcpkg version
-          echo NUMBER_OF_PROCESSORS=%NUMBER_OF_PROCESSORS%
-
-      # https://github.com/actions/virtual-environments/blob/main/images/win/Windows2022-Readme.md#visual-studio-enterprise-2022
-      - name: 📥 Setup VC Environment (→ vcvarsall)
-        run: call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-
-      - name: 🔽 Update VCPKG
-        run: |
-          cd ${{ env.VCPKG_ROOT }}
-          git reset --hard
-          git pull --quiet
-          bootstrap-vcpkg.bat -disableMetrics
-          vcpkg integrate install --triplet=${{ env.VCPKG_TARGET_TRIPLET }} --feature-flags=manifests
-          vcpkg version
-
-      - name: 🎯 Cache VCPKG
-        id: cache-vcpkg
-        uses: actions/cache@v1 # https://github.com/actions/cache
-        with:
-          path: ~\AppData\Local\vcpkg
-          key: cache-windows-vcpkg-${{ env.VCPKG_TARGET_TRIPLET }}-${{ github.ref }}-${{ github.run_number }}
-          restore-keys: |
-            cache-windows-vcpkg-${{ env.VCPKG_TARGET_TRIPLET }}-${{ github.ref }}
-            cache-windows-vcpkg-${{ env.VCPKG_TARGET_TRIPLET }}
-
-      - name: ✏ CMake ➔ Configure (including VCPKG → Install Dependencies)
-        run: |
-          cmake -G "Visual Studio 17 2022" -A x64                                              ^
-                -S ${{ github.workspace }} -B ../build                                         ^
-                -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}                                       ^
-                -DCMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_ROOT }}/scripts/buildsystems/vcpkg.cmake  ^
-                -DVCPKG_TARGET_TRIPLET=${{ env.VCPKG_TARGET_TRIPLET }}                         ^
-                -DBUILD_SHARED_LIBS=${{ env.BUILD_SHARED_LIBS }}                               ^
-                -DCMAKE_VERBOSE_MAKEFILE=ON
-
-      - name: ❔ CHECK important folders, to see if everything is present (after building)
-        run: |
-          dir ..\build
-          dir /S /B ..\build\vcpkg_installed\${{ env.VCPKG_TARGET_TRIPLET }}
-          dir /S /B ..\build
-
-      - name: 🙏 CMake → Build
-        run: |
-          cd ..\build
-          cmake --build . --config %BUILD_TYPE% -j %NUMBER_OF_PROCESSORS%
-
-      #- name: 📦 CMake ➔ Install
-      #  run: |
-      #    cd ..\build
-      #    cmake --install . --config %BUILD_TYPE% --prefix build/wiuc --verbose
-
-      - name: Copy build artifact to packaging folder
-        run: |
-          mkdir artifact
-          copy ..\build\${{ env.BUILD_TYPE }}\wiuc.exe artifact\
-
-      - name: 🔼 Upload Build Artifact
-        uses: actions/upload-artifact@v2 # https://github.com/actions/upload-artifact
-        if: always()
-        with:
-          name: Wikifolio_Investment_Universe_Converter-${{ env.VCPKG_TARGET_TRIPLET }}-${{ env.COMPILER }}
-          path: artifact\wiuc.exe
-
-# ---------------------------------------------------------------------------------------
-
-  build-on-windows-2022-vcpkg-head:
-
-# ---------------------------------------------------------------------------------------
-
-    name: "Windows VC17 vcpkg head"
-    runs-on: windows-2022
-
-    env:
-      COMPILER: "VC17"
-      BUILD_TYPE: Release
-      VCPKG_ROOT: C:\vcpkg
-      VCPKG_TARGET_TRIPLET: x64-windows-static
-      BUILD_SHARED_LIBS: OFF
-
-    defaults:
-      run:
-        shell: cmd
-
-    steps:
-      - name: 🤘 Checkout Code
-        uses: actions/checkout@v2 # https://github.com/actions/checkout
-
-      - name: ℹ Show Tool Versions
-        run: |
-          date /T
-          time /T
-          curl -V
-          cmake --version
-          msbuild /version
-          vcpkg version
-          echo NUMBER_OF_PROCESSORS=%NUMBER_OF_PROCESSORS%
-
-      # https://github.com/actions/virtual-environments/blob/main/images/win/Windows2022-Readme.md#visual-studio-enterprise-2022
-      - name: 📥 Setup VC Environment (→ vcvarsall)
-        run: call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-
-      - name: 🔽 Update VCPKG
-        run: |
-          cd ${{ env.VCPKG_ROOT }}
-          git reset --hard
-          git pull --quiet
-          bootstrap-vcpkg.bat -disableMetrics
-          vcpkg integrate install --triplet=${{ env.VCPKG_TARGET_TRIPLET }} --head xlsxio sqlite3 curl
-          vcpkg version
-
-      - name: 🎯 Cache VCPKG
-        id: cache-vcpkg
-        uses: actions/cache@v1 # https://github.com/actions/cache
-        with:
-          path: ~\AppData\Local\vcpkg
-          key: cache-windows-vcpkg-${{ env.VCPKG_TARGET_TRIPLET }}-${{ github.ref }}-${{ github.run_number }}
-          restore-keys: |
-            cache-windows-vcpkg-${{ env.VCPKG_TARGET_TRIPLET }}-${{ github.ref }}
-            cache-windows-vcpkg-${{ env.VCPKG_TARGET_TRIPLET }}
-
-      - name: ✏ CMake ➔ Configure (including VCPKG → Install Dependencies)
-        run: |
-          cmake -G "Visual Studio 17 2022" -A x64                                              ^
-                -S ${{ github.workspace }} -B ../build                                         ^
-                -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}                                       ^
-                -DCMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_ROOT }}/scripts/buildsystems/vcpkg.cmake  ^
-                -DVCPKG_TARGET_TRIPLET=${{ env.VCPKG_TARGET_TRIPLET }}                         ^
-                -DBUILD_SHARED_LIBS=${{ env.BUILD_SHARED_LIBS }}                               ^
-                -DCMAKE_VERBOSE_MAKEFILE=ON
-
-      - name: ❔ CHECK important folders, to see if everything is present (after building)
-        run: |
-          dir ..\build
-          dir /S /B ..\build\vcpkg_installed\${{ env.VCPKG_TARGET_TRIPLET }}
-          dir /S /B ..\build
-
-      - name: 🙏 CMake → Build
-        run: |
-          cd ..\build
-          cmake --build . --config %BUILD_TYPE% -j %NUMBER_OF_PROCESSORS%
-
-      #- name: 📦 CMake ➔ Install
-      #  run: |
-      #    cd ..\build
-      #    cmake --install . --config %BUILD_TYPE% --prefix build/wiuc --verbose
-
-      - name: Copy build artifact to packaging folder
-        run: |
-          mkdir artifact
-          copy ..\build\${{ env.BUILD_TYPE }}\wiuc.exe artifact\
-
-      - name: 🔼 Upload Build Artifact
-        uses: actions/upload-artifact@v2 # https://github.com/actions/upload-artifact
-        if: always()
-        with:
-          name: Wikifolio_Investment_Universe_Converter-${{ env.VCPKG_TARGET_TRIPLET }}-head-${{ env.COMPILER }}
           path: artifact\wiuc.exe
 
 # ---------------------------------------------------------------------------------------
@@ -325,7 +167,7 @@ jobs:
           }
 
     env:
-      VCPKG_ROOT: /usr/local/share/vcpkg      
+      VCPKG_ROOT: /usr/local/share/vcpkg
       VCPKG_TARGET_TRIPLET: x64-linux
       BUILD_SHARED_LIBS: ON
 
