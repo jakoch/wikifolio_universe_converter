@@ -118,12 +118,12 @@ jobs:
         run: |
           dir build
           dir /S /B build\vcpkg_installed\${{ matrix.config.VCPKG_TARGET_TRIPLET }}
-          dir /S /B build\wiuc-%VERSION%
+          dir /S /B build\${{ matrix.config.BUILD_TYPE }}
 
       - name: Copy build artifact to packaging folder
         run: |
           mkdir artifact
-          copy build\wiuc-%VERSION%\wiuc.exe artifact\
+          copy build\${{ matrix.config.BUILD_TYPE }}\wiuc.exe artifact\
 
       - name: 🔼 Upload Build Artifact
         uses: actions/upload-artifact@v2 # https://github.com/actions/upload-artifact
