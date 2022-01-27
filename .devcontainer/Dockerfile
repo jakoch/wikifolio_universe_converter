@@ -1,5 +1,5 @@
 # +-----------------------------+
-# | BASE IMAGE             ~27MB|        See https://hub.docker.com/_/debian
+# | BASE IMAGE             ~30MB|        See https://hub.docker.com/_/debian
 # +-----------------------------+
 
 FROM debian:sid-slim
@@ -62,9 +62,14 @@ RUN apt-get update && \
 # | CMAKE - Latest Version      |
 # +-----------------------------+
 
-RUN wget https://cmake.org/files/v3.21/cmake-3.21.1-linux-x86_64.sh && \
+# list downloads
+# curl -s https://api.github.com/repos/Kitware/CMake/releases/latest | jq -r '.assets[] | .browser_download_url'
+
+RUN version="$(curl -s https://api.github.com/repos/Kitware/CMake/releases/latest | jq -r '.tag_name' | cut -c 2-)"; echo "Latest Version: $version" && \
+    url="https://github.com/Kitware/CMake/releases/download/v$version/cmake-$version-linux-x86_64.sh"; echo "Download URL: $url" && \
+    wget $url && \
     mkdir /opt/cmake && \
-    sudo sh cmake-3.21.1-linux-x86_64.sh --prefix=/opt/cmake --skip-license && \
+    sudo sh cmake-$version-linux-x86_64.sh --prefix=/opt/cmake --skip-license && \
     ln -s /opt/cmake/bin/cmake /usr/local/bin/cmake
 
 # +-----------------------------+
@@ -99,12 +104,12 @@ ENV VCPKG_TRIPLET=x64-linux
 # Use installed binaries from the system.
 # Do not download latest version of CMake and Ninja during vcpkg bootstrap!
 ENV VCPKG_FORCE_SYSTEM_BINARIES=1
+ENV VCPKG_USE_SYSTEM_BINARIES=1
 
 RUN mkdir -p $VCPKG_PATH && \
     git clone --depth=1 https://github.com/Microsoft/vcpkg.git $VCPKG_PATH && \
     cd $VCPKG_PATH && \
-    ./bootstrap-vcpkg.sh -disableMetrics -useSystemBinaries && \
-    sudo /opt/vcpkg/bin/vcpkg integrate install
+    ./bootstrap-vcpkg.sh -disableMetrics
 
 # install default packages globally
 #RUN sudo /opt/vcpkg/bin/vcpkg install gtest catch2 spdlog fmt nlohmann-json

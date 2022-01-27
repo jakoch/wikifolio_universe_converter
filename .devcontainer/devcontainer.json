@@ -11,9 +11,9 @@
 
 	// Set *default* container specific settings.json values on container create.
 	"settings": {
-		"terminal.integrated.shell.linux": "/bin/zsh",
-		// tell VSCode that you want the shell to be a login, interactive shell
-		"terminal.integrated.shellArgs.linux": ["-l", "-i"],
+		"files.trimTrailingWhitespace": true,
+		"files.insertFinalNewline": true,
+		"terminal.integrated.defaultProfile.linux": "zsh",
 		"cmake.cmakePath": "cmake",
 		"cmake.ctestPath": "ctest",
 		"clangd.path": "clangd"
