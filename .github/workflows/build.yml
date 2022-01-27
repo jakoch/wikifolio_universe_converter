@@ -12,7 +12,7 @@ on: [push]
 
 jobs:
 
-  builds-windows:
+  build-on-windows:
 
     name: ${{ matrix.config.JOB_NAME }}
     # https://github.com/actions/virtual-environments/blob/main/images/win/Windows2019-Readme.md
