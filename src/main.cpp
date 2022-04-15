@@ -241,8 +241,8 @@ bool rename_header_columns()
     // change column names on first line of file only once
     if(replaced == 0) {
       line = replace(line, "Anlageuniversum(Gruppe)", "Anlagegruppe");
-      line = replace(line, "Whitelist für institutionelle Produkte – Schweiz", "WhitelistSchweiz");
-      line = replace(line, "IC20 Whitelist", "WhitelistIC20");
+      //line = replace(line, "Whitelist für institutionelle Produkte – Schweiz", "WhitelistSchweiz");
+      //line = replace(line, "IC20 Whitelist", "WhitelistIC20");
       replaced = 1;
     }
 
@@ -337,16 +337,14 @@ bool download(const char *url, const char *save_as_filename)
 void createTable(sqlite3 *db) {
   // Create Schema
   // --------------------------------------------------------------
-  // CREATE TABLE Anlageuniversum ("ISIN TEXT, WKN TEXT, SecurityType TEXT, Bezeichnung TEXT, Anlagegruppe TEXT, Anlageuniversum TEXT, WhitelistSchweiz TEXT,WhitelistIC20 TEXT)
+  // CREATE TABLE Anlageuniversum ("ISIN TEXT, WKN TEXT, SecurityType TEXT, Bezeichnung TEXT, Anlagegruppe TEXT, Anlageuniversum TEXT)
   static const char *sql_table_schema = "CREATE TABLE Anlageuniversum ("
                                         "ISIN TEXT,"
                                         "WKN TEXT,"
                                         "SecurityType TEXT,"
                                         "Bezeichnung TEXT,"
                                         "Anlagegruppe TEXT,"
-                                        "Anlageuniversum TEXT,"
-                                        "WhitelistSchweiz TEXT,"
-                                        "WhitelistIC20 TEXT)";
+                                        "Anlageuniversum TEXT)";
 
   sqlite3_exec(db, sql_table_schema, nullptr, nullptr, nullptr);
 }
@@ -391,7 +389,7 @@ bool csv_to_sqlite()
   // --------------------
 
   std::string sql_insert_stmt_tpl =
-      "INSERT INTO Anlageuniversum ( ISIN, WKN, SecurityType, Bezeichnung, Anlagegruppe, Anlageuniversum, WhitelistSchweiz, WhitelistIC20 ) VALUES( {} );";
+      "INSERT INTO Anlageuniversum ( ISIN, WKN, SecurityType, Bezeichnung, Anlagegruppe, Anlageuniversum ) VALUES( {} );";
 
   std::string sql_insert_values, sql_insert_stmt, line, field;
 
