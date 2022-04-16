@@ -16,8 +16,7 @@
     "cmake.configureSettings": {
         "VCPKG_TARGET_TRIPLET": "x64-linux",
         "BUILD_SHARED_LIBS": "ON",
-        "CMAKE_TOOLCHAIN_FILE": "/opt/vcpkg/bin/scripts/buildsystems/vcpkg.cmake",
-        //"CMAKE_INSTALL_PREFIX": "../../wikifolio_universe_converter",
+        "CMAKE_TOOLCHAIN_FILE": "/opt/vcpkg/bin/scripts/buildsystems/vcpkg.cmake"
     },
     "cmake.preferredGenerators": [
         "Ninja"
