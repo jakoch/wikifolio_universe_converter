@@ -390,7 +390,7 @@ bool csv_to_sqlite()
   // --------------------
 
   std::string sql_insert_stmt_tpl =
-      "INSERT INTO Anlageuniversum ( ISIN, WKN, SecurityType, Bezeichnung, Emittent, Anlagegruppe, Anlageuniversum ) VALUES( {} );";
+      L"INSERT INTO Anlageuniversum ( ISIN, WKN, SecurityType, Bezeichnung, Emittent, Anlagegruppe, Anlageuniversum ) VALUES( {} );";
 
   std::string sql_insert_values, sql_insert_stmt, line, field;
 
