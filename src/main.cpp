@@ -241,8 +241,6 @@ bool rename_header_columns()
     // change column names on first line of file only once
     if(replaced == 0) {
       line = replace(line, "Anlageuniversum(Gruppe)", "Anlagegruppe");
-      //line = replace(line, "Whitelist für institutionelle Produkte – Schweiz", "WhitelistSchweiz");
-      //line = replace(line, "IC20 Whitelist", "WhitelistIC20");
       replaced = 1;
     }
 
@@ -343,7 +341,7 @@ void createTable(sqlite3 *db) {
                                         "WKN TEXT,"
                                         "SecurityType TEXT,"
                                         "Bezeichnung TEXT,"
-	  				"Emittent TEXT,"
+	  				                            "Emittent TEXT,"
                                         "Anlagegruppe TEXT,"
                                         "Anlageuniversum TEXT)";
 
@@ -389,8 +387,8 @@ bool csv_to_sqlite()
   // Iterate CSV data, build INSERT statement, exec query
   // --------------------
 
-  std::string sql_insert_stmt_tpl =
-      L"INSERT INTO Anlageuniversum ( ISIN, WKN, SecurityType, Bezeichnung, Emittent, Anlagegruppe, Anlageuniversum ) VALUES( {} );";
+  static const char *sql_insert_stmt_tpl =
+      "INSERT INTO Anlageuniversum ( ISIN, WKN, SecurityType, Bezeichnung, Emittent, Anlagegruppe, Anlageuniversum ) VALUES ( {} );";
 
   std::string sql_insert_values, sql_insert_stmt, line, field;
 
