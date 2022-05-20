@@ -337,12 +337,13 @@ bool download(const char *url, const char *save_as_filename)
 void createTable(sqlite3 *db) {
   // Create Schema
   // --------------------------------------------------------------
-  // CREATE TABLE Anlageuniversum ("ISIN TEXT, WKN TEXT, SecurityType TEXT, Bezeichnung TEXT, Anlagegruppe TEXT, Anlageuniversum TEXT)
+  // CREATE TABLE Anlageuniversum ("ISIN TEXT, WKN TEXT, SecurityType TEXT, Bezeichnung TEXT, Emittent TEXT, Anlagegruppe TEXT, Anlageuniversum TEXT)
   static const char *sql_table_schema = "CREATE TABLE Anlageuniversum ("
                                         "ISIN TEXT,"
                                         "WKN TEXT,"
                                         "SecurityType TEXT,"
                                         "Bezeichnung TEXT,"
+	  				"Emittent TEXT,"
                                         "Anlagegruppe TEXT,"
                                         "Anlageuniversum TEXT)";
 
@@ -389,7 +390,7 @@ bool csv_to_sqlite()
   // --------------------
 
   std::string sql_insert_stmt_tpl =
-      "INSERT INTO Anlageuniversum ( ISIN, WKN, SecurityType, Bezeichnung, Anlagegruppe, Anlageuniversum ) VALUES( {} );";
+      "INSERT INTO Anlageuniversum ( ISIN, WKN, SecurityType, Bezeichnung, Emittent, Anlagegruppe, Anlageuniversum ) VALUES( {} );";
 
   std::string sql_insert_values, sql_insert_stmt, line, field;
 
