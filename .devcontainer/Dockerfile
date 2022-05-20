@@ -56,8 +56,9 @@ RUN apt-get update && \
     # locale
     locales \
     # shell
-    zsh
+    zsh \
     # iproute2 procps less gnupg
+    fontconfig
 
 # +-----------------------------+
 # | CMAKE - Latest Version      |
@@ -80,16 +81,17 @@ RUN version="$(curl -s https://api.github.com/repos/Kitware/CMake/releases/lates
 # set repo key
 RUN curl -sS https://apt.llvm.org/llvm-snapshot.gpg.key | (OUT=$(apt-key add - 2>&1) || echo $OUT)
 
-RUN add-apt-repository "deb https://apt.llvm.org/unstable/    llvm-toolchain-13  main" && \
+# https://apt.llvm.org/unstable/pool/main/l/
+RUN add-apt-repository "deb https://apt.llvm.org/unstable/    llvm-toolchain-14  main" && \
     apt-get -qq update && \
     apt-get install -qqy --no-install-recommends \
-    clang-13 lldb-13 lld-13 clangd-13 clang-format-13 clang-tidy-13 libc++-dev libc++abi-dev
+    clang-14 lldb-14 lld-14 clangd-14 clang-format-14 clang-tidy-14 libc++-dev libc++abi-dev
 
-ENV PATH="/usr/lib/llvm-13/bin:/usr/lib/llvm-13/include:${PATH}"
-ENV LD_LIBRARY_PATH="/usr/lib/llvm-13/lib:${LD_LIBRARY_PATH}"
+ENV PATH="/usr/lib/llvm-14/bin:/usr/lib/llvm-14/include:${PATH}"
+ENV LD_LIBRARY_PATH="/usr/lib/llvm-14/lib:${LD_LIBRARY_PATH}"
 
-ENV CC=/usr/bin/clang-13
-ENV CXX=/usr/bin/clang++-13
+ENV CC=/usr/bin/clang-14
+ENV CXX=/usr/bin/clang++-14
 
 # +-----------------------------+
 # | vcpkg                 ~225MB|
@@ -112,16 +114,25 @@ RUN mkdir -p $VCPKG_PATH && \
     cd $VCPKG_PATH && \
     ./bootstrap-vcpkg.sh -disableMetrics
 
-# install default packages globally
-#RUN sudo /opt/vcpkg/bin/vcpkg install gtest catch2 spdlog fmt nlohmann-json
-
 # +-----------------------------+
 # | Powerline Fonts             |
 # +-----------------------------+
 
-RUN git clone --depth=1 https://github.com/powerline/fonts.git && \
-    sh fonts/install.sh && \
-    rm -rf fonts
+RUN git clone https://github.com/powerline/fonts.git --depth=1 /tmp/fonts && \
+    # install MesloLGS_NF
+    cd /tmp/fonts && \
+    mkdir MesloLGS_NF && cd MesloLGS_NF && \
+    wget https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Regular.ttf && \
+    wget https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Bold.ttf && \
+    wget https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Italic.ttf && \
+    wget https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Bold%20Italic.ttf && \
+    cd .. && \
+    ./install.sh && \
+    # clean-up a bit
+    cd .. && \
+    rm -rf /tmp/fonts && \
+    # refresh fontcache
+    fc-cache -f
 
 # +-----------------------------+
 # | ZSH + Theme                 |
@@ -131,8 +142,8 @@ RUN git clone --depth=1 https://github.com/powerline/fonts.git && \
 ENV TERM xterm-256color
 ENV ZSH_THEME powerlevel10k/powerlevel10k
 
-# get and run installer
-RUN wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | zsh || true
+# run ohmyzsh installer
+RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 
 # copy theme config
 # you might run "p10k configure" to configure using a wizard
@@ -145,7 +156,7 @@ RUN sed -i 's/ZSH_THEME="robbyrussell"/ZSH_THEME="powerlevel10k\/powerlevel10k"/
     echo "POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD=true" >> ~/.zshrc && \
     echo "export LANG=en_US.UTF-8" >> ~/.zshrc
 
-# autosuggestions for zsh
+RUN git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
 RUN git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
 
 # +-----------------------------+
@@ -188,6 +199,7 @@ RUN echo $TZ > /etc/timezone && \
 
 #ENV LANG=de_DE.UTF-8
 ENV LANG=en_US.UTF-8
+ENV LC_ALL=en_US.UTF-8
 
 RUN echo "export PATH=$PATH" > /etc/environment
 
