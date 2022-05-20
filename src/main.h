@@ -16,9 +16,14 @@
 #ifdef _WIN32
 #include <format>
 using std::format;
+using std::vformat;
+using std::make_format_args;
 #else
-#include <fmt/core.h>
+//#include <fmt/core.h>
+#include <fmt/format.h>
 using fmt::format;
+using fmt::vformat;
+using fmt::make_format_args;
 #endif
 
 #include "xlsxio_read.h"

@@ -387,7 +387,7 @@ bool csv_to_sqlite()
   // Iterate CSV data, build INSERT statement, exec query
   // --------------------
 
-  static const char *sql_insert_stmt_tpl =
+  static const std::string sql_insert_stmt_tpl =
       "INSERT INTO Anlageuniversum ( ISIN, WKN, SecurityType, Bezeichnung, Emittent, Anlagegruppe, Anlageuniversum ) VALUES ( {} );";
 
   std::string sql_insert_values, sql_insert_stmt, line, field;
@@ -424,7 +424,7 @@ bool csv_to_sqlite()
 
       //printf("%s\n", sql_insert_values.c_str());
 
-      sql_insert_stmt = format(sql_insert_stmt_tpl, sql_insert_values.c_str());
+      sql_insert_stmt = vformat(sql_insert_stmt_tpl, make_format_args(sql_insert_values.c_str()));
 
       sql_insert_values.clear();
 
