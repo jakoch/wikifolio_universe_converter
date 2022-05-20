@@ -129,7 +129,7 @@ jobs:
         uses: actions/upload-artifact@v2 # https://github.com/actions/upload-artifact
         if: always()
         with:
-          name: Wikifolio_Investment_Universe_Converter-${{ matrix.config.VCPKG_TARGET_TRIPLET }}-${{ matrix.config.COMPILER }}
+          name: ${{ env.ARTIFACT_NAME }}
           path: artifact\wiuc.exe
 
 # ---------------------------------------------------------------------------------------
@@ -180,7 +180,6 @@ jobs:
           git reset --hard
           git pull --quiet
           ./bootstrap-vcpkg.sh -disableMetrics
-          #vcpkg integrate install --triplet=${{ env.VCPKG_TARGET_TRIPLET }} --feature-flags=manifests
           vcpkg version
 
       - name: ✏ CMake ➔ Configure (including VCPKG → Install Dependencies)
