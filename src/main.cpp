@@ -143,8 +143,8 @@ public:
         std::ostringstream strStream;
         strStream << "[" << time_point_name << "] Time Elapsed: "
             << format("{:01}.{:04}", (duration % 1'000'000) / 1'000, duration % 1'000)
-            << " s" << std::endl;
-        std::cout << strStream.str() << std::endl;
+            << " s\n";
+        std::cout << strStream.str() << '\n';
     }
 };
 
@@ -244,7 +244,7 @@ bool rename_header_columns()
       replaced = 1;
     }
 
-    output_file << line << std::endl;
+    output_file << line << '\n';
   }
   output_file.close();
   input_file.close();
