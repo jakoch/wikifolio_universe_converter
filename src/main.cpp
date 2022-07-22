@@ -141,7 +141,7 @@ public:
         const auto sec_duration = std::chrono::duration_cast<std::chrono::milliseconds>(time_diff).count();
         const auto ns_duration = std::chrono::duration_cast<std::chrono::nanoseconds>(time_diff).count();
         std::ostringstream strStream;
-        strStream << std::format("[{}] Time Elapsed: {:01}.{:04} s\n", time_point_name, sec_duration, ns_duration);
+        strStream << format("[{}] Time Elapsed: {:01}.{:04} s\n", time_point_name, sec_duration, ns_duration);
         std::cout << strStream.str();
     }
 };
