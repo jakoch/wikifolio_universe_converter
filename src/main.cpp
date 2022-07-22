@@ -124,27 +124,25 @@ std::string getYear() {
     return ss.str();
 }
 
-template <class Resolution = std::chrono::milliseconds>
 class Timer {
-public:
-    using Clock = std::conditional_t<std::chrono::high_resolution_clock::is_steady,
-        std::chrono::high_resolution_clock,
-        std::chrono::steady_clock>;
+public:    
+    using Time = std::conditional_t<std::chrono::high_resolution_clock::is_steady, 
+    std::chrono::high_resolution_clock, std::chrono::steady_clock>;
 
 private:
-    const Clock::time_point _start = Clock::now();
+    const Time::time_point start_time = Time::now();
 
 public:
     Timer() = default;
 
     inline void stop(const char *time_point_name) {
-        const auto _end = Clock::now();
-        const auto duration = std::chrono::duration_cast<Resolution>(_end - _start).count();
+        const auto stop_time = Time::now();
+        const auto time_diff = stop_time - start_time;
+        const auto sec_duration = std::chrono::duration_cast<std::chrono::milliseconds>(time_diff).count();
+        const auto ns_duration = std::chrono::duration_cast<std::chrono::nanoseconds>(time_diff).count();
         std::ostringstream strStream;
-        strStream << "[" << time_point_name << "] Time Elapsed: "
-            << format("{:01}.{:04}", (duration % 1'000'000) / 1'000, duration % 1'000)
-            << " s\n";
-        std::cout << strStream.str() << '\n';
+        strStream << std::format("[{}] Time Elapsed: {:01}.{:04} s\n", time_point_name, sec_duration, ns_duration);
+        std::cout << strStream.str();
     }
 };
 
@@ -465,9 +463,9 @@ int main(int argc, char *argv[])
     getYear().c_str()
   );
 
-  Timer<> total_application_timer;
+  Timer total_application_timer;
 
-  Timer<> download_timer;
+  Timer download_timer;
 
   bool universe_downloaded = download(investment_universe_URL, xlsx_filename);
 
@@ -475,7 +473,7 @@ int main(int argc, char *argv[])
 
   if (universe_downloaded) {
 
-    Timer<> xlsx_to_csv_timer;
+    Timer xlsx_to_csv_timer;
 
     bool converted_to_csv = xlsx_to_csv();
 
@@ -486,7 +484,7 @@ int main(int argc, char *argv[])
     }
   }
 
-  Timer<> csv_to_sqlite_timer;
+  Timer csv_to_sqlite_timer;
 
   bool converted_to_sqlite = csv_to_sqlite();
 
