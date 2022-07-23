@@ -80,19 +80,19 @@ jobs:
           bootstrap-vcpkg.bat -disableMetrics
           vcpkg version
 
-      - name: 🔽 Integrate VCPKG (using manifest)
-        if: matrix.config.VCPKG_MODE == 'manifest'
-        run: vcpkg integrate install --triplet=${{ matrix.config.VCPKG_TARGET_TRIPLET }} --feature-flags=manifests
+      #- name: 🔽 Integrate VCPKG
+      #  run: vcpkg integrate install --triplet=${{ matrix.config.VCPKG_TARGET_TRIPLET }} --feature-flags=manifests
 
       - name: 🎯 Cache VCPKG
         id: cache-vcpkg
         uses: actions/cache@v3 # https://github.com/actions/cache
         with:
-          path: ~\AppData\Local\vcpkg
-          key: cache-vcpkg-${{ matrix.config.VCPKG_TARGET_TRIPLET }}-${{ github.ref }}-${{ github.run_number }}
+          # https://github.com/microsoft/vcpkg/blob/master/docs/users/binarycaching.md#configuration
+          path: ~\AppData\Local\vcpkg\archives\
+          key: cache-vcpkg-${{ matrix.config.COMPILER }}-${{ matrix.config.VCPKG_TARGET_TRIPLET }}-${{ github.ref }}-${{ github.run_number }}
           restore-keys: |
-            cache-vcpkg-${{ matrix.config.VCPKG_TARGET_TRIPLET }}-${{ github.ref }}
-            cache-vcpkg-${{ matrix.config.VCPKG_TARGET_TRIPLET }}
+            cache-vcpkg-${{ matrix.config.COMPILER }}-${{ matrix.config.VCPKG_TARGET_TRIPLET }}-${{ github.ref }}
+            cache-vcpkg-${{ matrix.config.COMPILER }}-${{ matrix.config.VCPKG_TARGET_TRIPLET }}
 
       - name: ✏ CMake ➔ Configure (including VCPKG → Install Dependencies)
         run: |
@@ -201,6 +201,20 @@ jobs:
           ./bootstrap-vcpkg.sh -disableMetrics
           vcpkg version
 
+      #- name: 🔽 Integrate VCPKG
+      #  run: vcpkg integrate install --triplet=${{ matrix.config.VCPKG_TARGET_TRIPLET }} --feature-flags=manifests
+
+      - name: 🎯 Cache VCPKG
+        id: cache-vcpkg
+        uses: actions/cache@v3 # https://github.com/actions/cache
+        with:
+          # https://github.com/microsoft/vcpkg/blob/master/docs/users/binarycaching.md#configuration
+          path: /home/runner/.cache/vcpkg/archives/
+          key: cache-vcpkg-${{ matrix.config.COMPILER }}-${{ matrix.config.VCPKG_TARGET_TRIPLET }}-${{ github.ref }}-${{ github.run_number }}
+          restore-keys: |
+            cache-vcpkg-${{ matrix.config.COMPILER }}-${{ matrix.config.VCPKG_TARGET_TRIPLET }}-${{ github.ref }}
+            cache-vcpkg-${{ matrix.config.COMPILER }}-${{ matrix.config.VCPKG_TARGET_TRIPLET }}
+
       - name: ✏ CMake ➔ Configure (including VCPKG → Install Dependencies)
         run: |
           cmake -S ${{ github.workspace }} -B ../build                                         \
@@ -223,14 +237,14 @@ jobs:
           mkdir artifact
           cp ../build/wiuc artifact/${{ env.ARTIFACT_NAME }}
 
-      - name: 🔼 Upload Build Artifact (on commit)
+      - name: 🔼 Upload Build Artifact (on every commit)
         uses: actions/upload-artifact@v2 # https://github.com/actions/upload-artifact
         if: always()
         with:
           name: ${{ env.ARTIFACT_NAME }}
           path: artifact/${{ env.ARTIFACT_NAME }}
 
-      - name: 📦 Create Github Release (on tag)
+      - name: 📦 Create Github Release (only on tag)
         uses: softprops/action-gh-release@v1 # https://github.com/softprops/action-gh-release
         if: startsWith(github.ref, 'refs/tags/')
         with:
