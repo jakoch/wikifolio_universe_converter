@@ -89,8 +89,6 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 set(CMAKE_FIND_LIBRARY_PREFIXES ";")
 set(CMAKE_FIND_LIBRARY_SUFFIXES ";")
 
-include(Findxlsxio_read)
-
 #-------------------------------------------------------------------
 # Setup VCPKG
 #-------------------------------------------------------------------
@@ -170,6 +168,7 @@ find_package(expat CONFIG REQUIRED)
 
 find_package(minizip CONFIG REQUIRED)
 
+include(Findxlsxio_read)
 set(xlsxio_read_DIR         "${VCPKG_DIR}/include/xlsxio_read.h")
 set(xlsxio_read_INCLUDE_DIR "${VCPKG_DIR}/include")
 find_package(xlsxio_read REQUIRED)

@@ -48,7 +48,6 @@ jobs:
           vcpkg version
           echo NUMBER_OF_PROCESSORS=%NUMBER_OF_PROCESSORS%
 
-      # TODO
       # Build Artifact Name: wiuc-1.0.1-0cda6a2-VC17-x64-static-Release
       - name: ✏ Fetch Versioning Data & Set Artifact Name
         shell: pwsh
@@ -87,13 +86,13 @@ jobs:
 
       - name: 🎯 Cache VCPKG
         id: cache-vcpkg
-        uses: actions/cache@v1 # https://github.com/actions/cache
+        uses: actions/cache@v3 # https://github.com/actions/cache
         with:
           path: ~\AppData\Local\vcpkg
-          key: cache-windows-vcpkg-${{ matrix.config.VCPKG_TARGET_TRIPLET }}-${{ github.ref }}-${{ github.run_number }}
+          key: cache-vcpkg-${{ matrix.config.VCPKG_TARGET_TRIPLET }}-${{ github.ref }}-${{ github.run_number }}
           restore-keys: |
-            cache-windows-vcpkg-${{ matrix.config.VCPKG_TARGET_TRIPLET }}-${{ github.ref }}
-            cache-windows-vcpkg-${{ matrix.config.VCPKG_TARGET_TRIPLET }}
+            cache-vcpkg-${{ matrix.config.VCPKG_TARGET_TRIPLET }}-${{ github.ref }}
+            cache-vcpkg-${{ matrix.config.VCPKG_TARGET_TRIPLET }}
 
       - name: ✏ CMake ➔ Configure (including VCPKG → Install Dependencies)
         run: |
@@ -120,12 +119,12 @@ jobs:
           dir /S /B build\vcpkg_installed\${{ matrix.config.VCPKG_TARGET_TRIPLET }}
           dir /S /B build\${{ matrix.config.BUILD_TYPE }}
 
-      - name: Copy build artifact to packaging folder and rename it
+      - name: 🚥 Prepare Build Artifact (copy to packaging folder and rename)
         run: |
           mkdir artifact
           copy build\${{ matrix.config.BUILD_TYPE }}\wiuc.exe artifact\${{ env.ARTIFACT_NAME }}
 
-      - name: 🔼 Upload Build Artifact
+      - name: 🔼 Upload Build Artifact (on commit)
         uses: actions/upload-artifact@v2 # https://github.com/actions/upload-artifact
         if: always()
         with:
@@ -175,19 +174,19 @@ jobs:
       - name: 🤘 Checkout Code
         uses: actions/checkout@v2 # https://github.com/actions/checkout
 
-      # Build Artifact Name: wiuc-1.0.1-0cda6a2-Clang-12-x64-linux-Release
+      # Build Artifact Name: wiuc-1.0.1-0cda6a2-Clang12-x64-linux-Release
       - name: ✏ Fetch Versioning Data & Set Artifact Name
         run: |
-          $NAME="wiuc"
-          $VERSION=$(jq -r .version vcpkg.json)
-          $SHORT_HASH=$($env:GITHUB_SHA.substring(0,7))
-          $COMPILER="${{ matrix.COMPILER.name }}"
-          $TRIPLET="${{ env.VCPKG_TARGET_TRIPLET }}"
-          $BUILD_TYPE="${{ matrix.config.BUILD_TYPE }}"
-          $ARTIFACT_NAME="$NAME-$VERSION-$SHORT_HASH-$COMPILER-$TRIPLET-$BUILD_TYPE"
-          echo "Artifact Name:" $ARTIFACT_NAME
-          echo "ARTIFACT_NAME=$($ARTIFACT_NAME)" >> $env:GITHUB_ENV
-          echo "VERSION=$($VERSION)" >> $env:GITHUB_ENV
+          NAME='wiuc'
+          VERSION=$(jq -r .version vcpkg.json)
+          SHORT_HASH=`echo $GITHUB_SHA | cut -c1-8`
+          COMPILER=`echo ${{ matrix.COMPILER.name }} | sed 's/-//'`
+          TRIPLET="${{ env.VCPKG_TARGET_TRIPLET }}"
+          BUILD_TYPE="${{ matrix.BUILD_TYPE }}"
+          ARTIFACT_NAME="$NAME-$VERSION-$SHORT_HASH-$COMPILER-$TRIPLET-$BUILD_TYPE"
+          echo "Artifact Name: $ARTIFACT_NAME"
+          echo "ARTIFACT_NAME=$ARTIFACT_NAME" >> $GITHUB_ENV
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: 🔽 Install Dependencies
         run: |
@@ -219,7 +218,7 @@ jobs:
           cd ../build
           cmake --build . --config ${{ matrix.BUILD_TYPE }}
 
-      - name: 🚥 Copy build artifact to packaging folder and rename it
+      - name: 🚥 Prepare Build Artifact (copy to packaging folder and rename)
         run: |
           mkdir artifact
           cp ../build/wiuc artifact/${{ env.ARTIFACT_NAME }}

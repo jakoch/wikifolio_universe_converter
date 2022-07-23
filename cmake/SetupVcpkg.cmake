@@ -8,6 +8,14 @@
 # Environment Variables: https://vcpkg.readthedocs.io/en/latest/users/config-environment/
 #
 
+#
+# From CMake 3.13+. option() honors normal variables (if they already exist).
+# https://cmake.org/cmake/help/v3.24/policy/CMP0077.html
+#
+if(POLICY CMP0077)
+   cmake_policy(SET CMP0077 NEW)
+endif()
+
 set(VCPKG_ENABLED ON)
 
 set(VCPKG_VERBOSE OFF)
