@@ -120,17 +120,23 @@ jobs:
           dir /S /B build\vcpkg_installed\${{ matrix.config.VCPKG_TARGET_TRIPLET }}
           dir /S /B build\${{ matrix.config.BUILD_TYPE }}
 
-      - name: Copy build artifact to packaging folder
+      - name: Copy build artifact to packaging folder and rename it
         run: |
           mkdir artifact
-          copy build\${{ matrix.config.BUILD_TYPE }}\wiuc.exe artifact\
+          copy build\${{ matrix.config.BUILD_TYPE }}\wiuc.exe artifact\${{ env.ARTIFACT_NAME }}
 
       - name: 🔼 Upload Build Artifact
         uses: actions/upload-artifact@v2 # https://github.com/actions/upload-artifact
         if: always()
         with:
           name: ${{ env.ARTIFACT_NAME }}
-          path: artifact\wiuc.exe
+          path: artifact/${{ env.ARTIFACT_NAME }}
+
+      - name: 📦 Create Github Release (on tag)
+        uses: softprops/action-gh-release@v1 # https://github.com/softprops/action-gh-release
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: artifact\${{ env.ARTIFACT_NAME }}
 
 # ---------------------------------------------------------------------------------------
 
@@ -169,6 +175,20 @@ jobs:
       - name: 🤘 Checkout Code
         uses: actions/checkout@v2 # https://github.com/actions/checkout
 
+      # Build Artifact Name: wiuc-1.0.1-0cda6a2-Clang-12-x64-linux-Release
+      - name: ✏ Fetch Versioning Data & Set Artifact Name
+        run: |
+          $NAME="wiuc"
+          $VERSION=$(jq -r .version vcpkg.json)
+          $SHORT_HASH=$($env:GITHUB_SHA.substring(0,7))
+          $COMPILER="${{ matrix.COMPILER.name }}"
+          $TRIPLET="${{ env.VCPKG_TARGET_TRIPLET }}"
+          $BUILD_TYPE="${{ matrix.config.BUILD_TYPE }}"
+          $ARTIFACT_NAME="$NAME-$VERSION-$SHORT_HASH-$COMPILER-$TRIPLET-$BUILD_TYPE"
+          echo "Artifact Name:" $ARTIFACT_NAME
+          echo "ARTIFACT_NAME=$($ARTIFACT_NAME)" >> $env:GITHUB_ENV
+          echo "VERSION=$($VERSION)" >> $env:GITHUB_ENV
+
       - name: 🔽 Install Dependencies
         run: |
           sudo apt update
@@ -185,7 +205,7 @@ jobs:
       - name: ✏ CMake ➔ Configure (including VCPKG → Install Dependencies)
         run: |
           cmake -S ${{ github.workspace }} -B ../build                                         \
-                -DCMAKE_BUILD_TYPE=${{ matrix.BUILD_TYPE }}                                       \
+                -DCMAKE_BUILD_TYPE=${{ matrix.BUILD_TYPE }}                                    \
                 -DCMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_ROOT }}/scripts/buildsystems/vcpkg.cmake  \
                 -DVCPKG_TARGET_TRIPLET=${{ env.VCPKG_TARGET_TRIPLET }}                         \
                 -DBUILD_SHARED_LIBS=${{ env.BUILD_SHARED_LIBS }}                               \
@@ -199,14 +219,20 @@ jobs:
           cd ../build
           cmake --build . --config ${{ matrix.BUILD_TYPE }}
 
-      - name: Copy build artifact to packaging folder
+      - name: 🚥 Copy build artifact to packaging folder and rename it
         run: |
           mkdir artifact
-          cp ../build/wiuc artifact/
+          cp ../build/wiuc artifact/${{ env.ARTIFACT_NAME }}
 
-      - name: 🔼 Upload Build Artifact
+      - name: 🔼 Upload Build Artifact (on commit)
         uses: actions/upload-artifact@v2 # https://github.com/actions/upload-artifact
         if: always()
         with:
-          name: Wikifolio_Investment_Universe_Converter-${{ env.VCPKG_TARGET_TRIPLET }}-${{ matrix.COMPILER.name }}
-          path: artifact/wiuc
+          name: ${{ env.ARTIFACT_NAME }}
+          path: artifact/${{ env.ARTIFACT_NAME }}
+
+      - name: 📦 Create Github Release (on tag)
+        uses: softprops/action-gh-release@v1 # https://github.com/softprops/action-gh-release
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: artifact/${{ env.ARTIFACT_NAME }}
