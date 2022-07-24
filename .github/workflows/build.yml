@@ -1,7 +1,7 @@
 #
-# .github/workflows/codeql-analysis.yml
+# .github/workflows/build.yml
 #
-# Copyright 2021 Jens A. Koch.
+# Copyright 2022 Jens A. Koch.
 # SPDX-License-Identifier: MIT
 # This file is part of jakoch/wikifolio_universe_converter.
 #
@@ -14,7 +14,9 @@ jobs:
 
   build-on-windows:
 
-    name: ${{ matrix.config.JOB_NAME }}
+    name: ${{ matrix.config.job_name }}
+
+    # https://github.com/actions/virtual-environments#available-environments
     # https://github.com/actions/virtual-environments/blob/main/images/win/Windows2019-Readme.md
     # https://github.com/actions/virtual-environments/blob/main/images/win/Windows2022-Readme.md
     runs-on: ${{ matrix.config.OS }}
@@ -23,8 +25,8 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - { OS: windows-2019, BUILD_TYPE: Release, VCPKG_TARGET_TRIPLET: x64-windows-static, COMPILER: "VC16", JOB_NAME: "Windows | VC16 | static | Release"}
-          - { OS: windows-2022, BUILD_TYPE: Release, VCPKG_TARGET_TRIPLET: x64-windows-static, COMPILER: "VC17", JOB_NAME: "Windows | VC17 | static | Release"}
+          - { os: windows-2019, compiler: "VC16", vcpkg_target_triplet: x64-windows-static, build_type: Release, job_name: "Windows | VC16 | static | Release"}
+          - { os: windows-2022, compiler: "VC17", vcpkg_target_triplet: x64-windows-static, build_type: Release, job_name: "Windows | VC17 | static | Release"}
 
     env:
       PLATFORM: x64
@@ -55,21 +57,21 @@ jobs:
           $NAME="wiuc"
           $VERSION=$(jq -r .version vcpkg.json)
           $SHORT_HASH=$($env:GITHUB_SHA.substring(0,7))
-          $COMPILER="${{ matrix.config.COMPILER }}"
-          $TRIPLET="${{ matrix.config.VCPKG_TARGET_TRIPLET }}"
-          $BUILD_TYPE="${{ matrix.config.BUILD_TYPE }}"
+          $COMPILER="${{ matrix.config.compiler }}"
+          $TRIPLET="${{ matrix.config.vcpkg_target_triplet }}"
+          $BUILD_TYPE="${{ matrix.config.build_type }}"
           $ARTIFACT_NAME="$NAME-$VERSION-$SHORT_HASH-$COMPILER-$TRIPLET-$BUILD_TYPE"
           echo "Artifact Name:" $ARTIFACT_NAME
           echo "ARTIFACT_NAME=$($ARTIFACT_NAME)" >> $env:GITHUB_ENV
           echo "VERSION=$($VERSION)" >> $env:GITHUB_ENV
 
       - name: 📥 Setup VC16 Environment (➔ vcvarsall)
-        if: matrix.config.COMPILER == 'VC16'
+        if: matrix.config.compiler == 'VC16'
         run: call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" %PLATFORM%
 
       # https://github.com/actions/virtual-environments/blob/main/images/win/Windows2022-Readme.md#visual-studio-enterprise-2022
       - name: 📥 Setup VC17 Environment (→ vcvars64)
-        if: matrix.config.COMPILER == 'VC17'
+        if: matrix.config.compiler == 'VC17'
         run: call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
 
       - name: 🔽 Update VCPKG
@@ -89,40 +91,40 @@ jobs:
         with:
           # https://github.com/microsoft/vcpkg/blob/master/docs/users/binarycaching.md#configuration
           path: ~\AppData\Local\vcpkg\archives\
-          key: cache-vcpkg-${{ matrix.config.COMPILER }}-${{ matrix.config.VCPKG_TARGET_TRIPLET }}-${{ github.ref }}-${{ github.run_number }}
+          key: cache-vcpkg-${{ matrix.config.compiler }}-${{ matrix.config.vcpkg_target_triplet }}-${{ github.ref }}-${{ github.run_number }}
           restore-keys: |
-            cache-vcpkg-${{ matrix.config.COMPILER }}-${{ matrix.config.VCPKG_TARGET_TRIPLET }}-${{ github.ref }}
-            cache-vcpkg-${{ matrix.config.COMPILER }}-${{ matrix.config.VCPKG_TARGET_TRIPLET }}
+            cache-vcpkg-${{ matrix.config.compiler }}-${{ matrix.config.vcpkg_target_triplet }}-${{ github.ref }}
+            cache-vcpkg-${{ matrix.config.compiler }}-${{ matrix.config.vcpkg_target_triplet }}
 
       - name: ✏ CMake ➔ Configure (including VCPKG → Install Dependencies)
         run: |
-          if "${{ matrix.config.COMPILER }}" == "VC16"; set "GENERATOR=Visual Studio 16 2019"
-          if "${{ matrix.config.COMPILER }}" == "VC17"; set "GENERATOR=Visual Studio 17 2022"
+          if "${{ matrix.config.compiler }}" == "VC16"; set "GENERATOR=Visual Studio 16 2019"
+          if "${{ matrix.config.compiler }}" == "VC17"; set "GENERATOR=Visual Studio 17 2022"
           echo %GENERATOR%
           mkdir build && cd build
           cmake -G "%GENERATOR%" -A x64 ..                                                     ^
-                -DCMAKE_BUILD_TYPE=${{ matrix.config.BUILD_TYPE }}                             ^
+                -DCMAKE_BUILD_TYPE=${{ matrix.config.build_type }}                             ^
                 -DCMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_ROOT }}/scripts/buildsystems/vcpkg.cmake  ^
-                -DVCPKG_TARGET_TRIPLET=${{ matrix.config.VCPKG_TARGET_TRIPLET }}               ^
+                -DVCPKG_TARGET_TRIPLET=${{ matrix.config.vcpkg_target_triplet }}               ^
                 -DBUILD_SHARED_LIBS=${{ env.BUILD_SHARED_LIBS }}                               ^
                 -DCMAKE_VERBOSE_MAKEFILE=ON
 
       - name: 🙏 CMake ➔ Build
-        run: cmake --build build --config ${{ matrix.config.BUILD_TYPE }} -j %NUMBER_OF_PROCESSORS%
+        run: cmake --build build --config ${{ matrix.config.build_type }} -j %NUMBER_OF_PROCESSORS%
 
       - name: 📦 CMake ➔ Install
-        run: cmake --install build --config ${{ matrix.config.BUILD_TYPE }} --prefix build/wiuc-%VERSION% --verbose
+        run: cmake --install build --config ${{ matrix.config.build_type }} --prefix build/wiuc-%VERSION% --verbose
 
       - name: ❔ CHECK important folders, to see if everything is present (after building)
         run: |
           dir build
-          dir /S /B build\vcpkg_installed\${{ matrix.config.VCPKG_TARGET_TRIPLET }}
-          dir /S /B build\${{ matrix.config.BUILD_TYPE }}
+          dir /S /B build\vcpkg_installed\${{ matrix.config.vcpkg_target_triplet }}
+          dir /S /B build\${{ matrix.config.build_type }}
 
       - name: 🚥 Prepare Build Artifact (copy to packaging folder and rename)
         run: |
           mkdir artifact
-          copy build\${{ matrix.config.BUILD_TYPE }}\wiuc.exe artifact\${{ env.ARTIFACT_NAME }}
+          copy build\${{ matrix.config.build_type }}\wiuc.exe artifact\${{ env.ARTIFACT_NAME }}
 
       - name: 🔼 Upload Build Artifact (on commit)
         uses: actions/upload-artifact@v2 # https://github.com/actions/upload-artifact
@@ -143,31 +145,24 @@ jobs:
 
 # ---------------------------------------------------------------------------------------
 
-    name: "Linux ${{ matrix.COMPILER.name }}"
-    runs-on: ${{ matrix.OS }}
+    name: ${{ matrix.config.job_name }}
+
+    # https://github.com/actions/virtual-environments#available-environments
+    # https://github.com/actions/virtual-environments/blob/main/images/linux/Ubuntu2004-Readme.md
+    # https://github.com/actions/virtual-environments/blob/main/images/linux/Ubuntu2204-Readme.md
+    runs-on: ${{ matrix.config.os }}
 
     strategy:
       fail-fast: false
       matrix:
-        OS: [ ubuntu-latest ]
-        BUILD_TYPE: [ Release ]
-        COMPILER:
-        - {
-            name: "GCC-10",
-            cc: "gcc-10",
-            cxx: "g++-10",
-            apt_package: g++-10,
-          }
-        - {
-            name: "Clang-12",
-            cc: "clang-12",
-            cxx: "clang++-12",
-            apt_package: clang-12,
-          }
+        config:
+        - { os: ubuntu-20.04, compiler: "GCC-10",   vcpkg_target_triplet: x64-linux, build_type: Release, apt_packages: "g++-10",   cc: "gcc-10",   cxx: "g++-10",     job_name: "Linux | GCC-10 | Release"}
+        - { os: ubuntu-20.04, compiler: "Clang-12", vcpkg_target_triplet: x64-linux, build_type: Release, apt_packages: "clang-12", cc: "clang-12", cxx: "clang++-12", job_name: "Linux | Clang-12 | Release"}
+        - { os: ubuntu-22.04, compiler: "GCC-11",   vcpkg_target_triplet: x64-linux, build_type: Release, apt_packages: "g++-11",   cc: "gcc-11",   cxx: "g++-11",     job_name: "Linux | GCC-11 | Release"}
+        - { os: ubuntu-22.04, compiler: "Clang-14", vcpkg_target_triplet: x64-linux, build_type: Release, apt_packages: "clang-14", cc: "clang-14", cxx: "clang++-14", job_name: "Linux | Clang-14 | Release"}
 
     env:
       VCPKG_ROOT: /usr/local/share/vcpkg
-      VCPKG_TARGET_TRIPLET: x64-linux
       BUILD_SHARED_LIBS: ON
 
     steps:
@@ -180,9 +175,9 @@ jobs:
           NAME='wiuc'
           VERSION=$(jq -r .version vcpkg.json)
           SHORT_HASH=`echo $GITHUB_SHA | cut -c1-8`
-          COMPILER=`echo ${{ matrix.COMPILER.name }} | sed 's/-//'`
-          TRIPLET="${{ env.VCPKG_TARGET_TRIPLET }}"
-          BUILD_TYPE="${{ matrix.BUILD_TYPE }}"
+          COMPILER=`echo ${{ matrix.config.compiler }} | sed 's/-//'`
+          TRIPLET="${{ matrix.config.vcpkg_target_triplet }}"
+          BUILD_TYPE="${{ matrix.build_type }}"
           ARTIFACT_NAME="$NAME-$VERSION-$SHORT_HASH-$COMPILER-$TRIPLET-$BUILD_TYPE"
           echo "Artifact Name: $ARTIFACT_NAME"
           echo "ARTIFACT_NAME=$ARTIFACT_NAME" >> $GITHUB_ENV
@@ -191,7 +186,7 @@ jobs:
       - name: 🔽 Install Dependencies
         run: |
           sudo apt update
-          sudo apt install ${{ matrix.COMPILER.package }} -y
+          sudo apt install ${{ matrix.config.apt_packages }} -y
 
       - name: 🔽 Update VCPKG
         run: |
@@ -202,7 +197,7 @@ jobs:
           vcpkg version
 
       #- name: 🔽 Integrate VCPKG
-      #  run: vcpkg integrate install --triplet=${{ matrix.config.VCPKG_TARGET_TRIPLET }} --feature-flags=manifests
+      #  run: vcpkg integrate install --triplet=${{ matrix.config.vcpkg_target_triplet }} --feature-flags=manifests
 
       - name: 🎯 Cache VCPKG
         id: cache-vcpkg
@@ -210,17 +205,17 @@ jobs:
         with:
           # https://github.com/microsoft/vcpkg/blob/master/docs/users/binarycaching.md#configuration
           path: /home/runner/.cache/vcpkg/archives/
-          key: cache-vcpkg-${{ matrix.config.COMPILER }}-${{ matrix.config.VCPKG_TARGET_TRIPLET }}-${{ github.ref }}-${{ github.run_number }}
+          key: cache-vcpkg-${{ matrix.config.compiler }}-${{ matrix.config.vcpkg_target_triplet }}-${{ github.ref }}-${{ github.run_number }}
           restore-keys: |
-            cache-vcpkg-${{ matrix.config.COMPILER }}-${{ matrix.config.VCPKG_TARGET_TRIPLET }}-${{ github.ref }}
-            cache-vcpkg-${{ matrix.config.COMPILER }}-${{ matrix.config.VCPKG_TARGET_TRIPLET }}
+            cache-vcpkg-${{ matrix.config.compiler }}-${{ matrix.config.vcpkg_target_triplet }}-${{ github.ref }}
+            cache-vcpkg-${{ matrix.config.compiler }}-${{ matrix.config.vcpkg_target_triplet }}
 
       - name: ✏ CMake ➔ Configure (including VCPKG → Install Dependencies)
         run: |
           cmake -S ${{ github.workspace }} -B ../build                                         \
-                -DCMAKE_BUILD_TYPE=${{ matrix.BUILD_TYPE }}                                    \
+                -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}                                    \
                 -DCMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_ROOT }}/scripts/buildsystems/vcpkg.cmake  \
-                -DVCPKG_TARGET_TRIPLET=${{ env.VCPKG_TARGET_TRIPLET }}                         \
+                -DVCPKG_TARGET_TRIPLET=${{ matrix.config.vcpkg_target_triplet }}               \
                 -DBUILD_SHARED_LIBS=${{ env.BUILD_SHARED_LIBS }}                               \
                 -DCMAKE_VERBOSE_MAKEFILE=ON
         env:
@@ -230,7 +225,7 @@ jobs:
       - name: 🙏 CMake → Build
         run: |
           cd ../build
-          cmake --build . --config ${{ matrix.BUILD_TYPE }}
+          cmake --build . --config ${{ matrix.config.build_type }}
 
       - name: 🚥 Prepare Build Artifact (copy to packaging folder and rename)
         run: |

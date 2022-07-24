@@ -13,8 +13,10 @@ Konvertiert das [wikifolio.com Anlageuniversum](https://www.wikifolio.com/de/de/
 |                  | VC17 VS2022 | x64-windows-static       |   🟢   |
 |                  | VC17 VS2022 | x64-windows              |   👷🏼   |
 |                  | GCC-9       | x64-linux                |   ⚪🟢   |
-|                  | GCC-10      | x64-linux                |   🟢   |
+|                  | GCC-10      | x64-linux                |   🟢  |
+|                  | GCC-11      | x64-linux                |   🟢  |
 |                  | Clang-12    | x64-linux                |   🟢  | 
+|                  | Clang-14    | x64-linux                |   🟢  |
 
 Symbols used: ⚪ Build disabled. 🟢 Build succeeds. 🔴 Build fails. 👷🏼 TODO.
 
