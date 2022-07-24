@@ -33,13 +33,13 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const cancelled = await github.actions.listWorkflowRunsForRepo({
+            const cancelled = await octokit.actions.listWorkflowRuns({
               owner: context.repo.owner,
               per_page: 100,
               repo: context.repo.repo,
               status: 'cancelled',
             });
-            const skipped = await github.actions.listWorkflowRunsForRepo({
+            const skipped = await octokit.actions.listWorkflowRunsForRepo({
               owner: context.repo.owner,
               per_page: 100,
               repo: context.repo.repo,
@@ -48,7 +48,7 @@ jobs:
             for (const response of [cancelled, skipped]) {
               for (const run of response.data.workflow_runs) {
                 console.log(`[Deleting] Run id ${run.id} of '${run.name}' is a cancelled or skipped run.`);
-                await github.actions.deleteWorkflowRun({
+                await octokit.rest.actions.deleteWorkflowRun({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   run_id: run.id
@@ -73,7 +73,7 @@ jobs:
             let runs_to_delete = [];
             for (const workflow of workflows) {
               for (let page = 0; page < pages; page += 1) {
-                let response = await github.actions.listWorkflowRuns({
+                let response = await octokit.actions.listWorkflowRuns({
                   owner: context.repo.owner,
                   page: page,
                   per_page: 100,
@@ -92,7 +92,7 @@ jobs:
             for (const run of runs_to_delete) {
               console.log(`[Deleting] Run id ${run[0]} of '${run[1]}' is older than ${days_to_expiration} days.`);
               try {
-                await github.actions.deleteWorkflowRun({
+                await octokit.actions.deleteWorkflowRun({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   run_id: run[0]
@@ -110,7 +110,7 @@ jobs:
             const pages = 5;
             let runs_to_delete = [];
             for (let page = 0; page < pages; page += 1) {
-              let response = await github.actions.listWorkflowRuns({
+              let response = await octokit.actions.listWorkflowRuns({
                 owner: context.repo.owner,
                 page: page,
                 per_page: 100,
@@ -126,7 +126,7 @@ jobs:
             for (const run of runs_to_delete) {
               console.log(`[Deleting] Run id ${run[0]} of '${run[1]}'.`);
               try {
-                await github.actions.deleteWorkflowRun({
+                await octokit.actions.deleteWorkflowRun({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   run_id: run[0]
