@@ -8,7 +8,7 @@
 
 name: Build
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
 
@@ -184,9 +184,9 @@ jobs:
           echo "ARTIFACT_NAME=$ARTIFACT_NAME" >> $GITHUB_ENV
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
-      - name: 🔽 Install Dependencies
+      - name: 🔽 Update Build Environment (update/install packages)
         run: |
-          sudo apt update
+          sudo apt update -qq
           sudo apt install ${{ matrix.config.apt_packages }} -y
 
       - name: 🔽 Update VCPKG
@@ -220,8 +220,8 @@ jobs:
                 -DBUILD_SHARED_LIBS=${{ env.BUILD_SHARED_LIBS }}                               \
                 -DCMAKE_VERBOSE_MAKEFILE=ON
         env:
-          CC: ${{matrix.COMPILER.cc}}
-          CXX: ${{matrix.COMPILER.cxx}}
+          CC: ${{matrix.config.cc}}
+          CXX: ${{matrix.config.cxx}}
 
       - name: 🙏 CMake → Build
         run: |
