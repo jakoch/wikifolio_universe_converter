@@ -72,7 +72,7 @@ jobs:
             let runs_to_delete = [];
             for (const workflow of workflows) {
               for (let page = 0; page < pages; page += 1) {
-                let response = await github.rest.actions.listWorkflowRuns({
+                const response = await github.rest.actions.listWorkflowRuns({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   workflow_id: workflow
@@ -109,7 +109,7 @@ jobs:
             const pages = 5;
             let runs_to_delete = [];
             for (let page = 0; page < pages; page += 1) {
-              let response = await github.rest.actions.listWorkflowRuns({
+              const response = await github.rest.actions.listWorkflowRuns({
                 owner: context.repo.owner,
                 page: page,
                 per_page: 100,
