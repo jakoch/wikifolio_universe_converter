@@ -125,20 +125,20 @@ jobs:
       - name: 🚥 Prepare Build Artifact (copy to packaging folder and rename)
         run: |
           mkdir artifact
-          copy build\${{ matrix.config.build_type }}\wiuc.exe artifact\${{ env.ARTIFACT_NAME }}
+          copy build\${{ matrix.config.build_type }}\wiuc.exe artifact\
 
       - name: 🔼 Upload Build Artifact (on commit)
         uses: actions/upload-artifact@v2 # https://github.com/actions/upload-artifact
         if: always()
         with:
           name: ${{ env.ARTIFACT_NAME }}
-          path: artifact/${{ env.ARTIFACT_NAME }}
+          path: artifact/**/*
 
       - name: 📦 Create Github Release (on tag)
         uses: softprops/action-gh-release@v1 # https://github.com/softprops/action-gh-release
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: artifact\${{ env.ARTIFACT_NAME }}
+          files: artifact/**/*
 
 # ---------------------------------------------------------------------------------------
 
@@ -178,7 +178,7 @@ jobs:
           SHORT_HASH=`echo $GITHUB_SHA | cut -c1-8`
           COMPILER=`echo ${{ matrix.config.compiler }} | sed 's/-//'`
           TRIPLET="${{ matrix.config.vcpkg_target_triplet }}"
-          BUILD_TYPE="${{ matrix.build_type }}"
+          BUILD_TYPE="${{ matrix.config.build_type }}"
           ARTIFACT_NAME="$NAME-$VERSION-$SHORT_HASH-$COMPILER-$TRIPLET-$BUILD_TYPE"
           echo "Artifact Name: $ARTIFACT_NAME"
           echo "ARTIFACT_NAME=$ARTIFACT_NAME" >> $GITHUB_ENV
@@ -228,20 +228,24 @@ jobs:
           cd ../build
           cmake --build . --config ${{ matrix.config.build_type }}
 
-      - name: 🚥 Prepare Build Artifact (copy to packaging folder and rename)
+      - name: 🚥 Prepare Build Artifact (copy to packaging folder)
         run: |
           mkdir artifact
-          cp ../build/wiuc artifact/${{ env.ARTIFACT_NAME }}
+          cp ../build/wiuc artifact/
 
+      #
+      # The uploaded artifact will be a zip file named, e.g. "wiuc-1.0.3-2399e873-Clang14-x64-linux-Release".
+      # The binary inside the zip is named "wiuc".
+      #
       - name: 🔼 Upload Build Artifact (on every commit)
         uses: actions/upload-artifact@v2 # https://github.com/actions/upload-artifact
         if: always()
         with:
           name: ${{ env.ARTIFACT_NAME }}
-          path: artifact/${{ env.ARTIFACT_NAME }}
+          path: artifact/**/*
 
       - name: 📦 Create Github Release (only on tag)
         uses: softprops/action-gh-release@v1 # https://github.com/softprops/action-gh-release
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: artifact/${{ env.ARTIFACT_NAME }}
+          files: artifact/**/*
