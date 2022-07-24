@@ -75,7 +75,7 @@ jobs:
                 const response = await github.rest.actions.listWorkflowRuns({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
-                  workflow_id: workflow
+                  workflow_id: workflow,
                   page: page,
                   per_page: 100
                 });
