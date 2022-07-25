@@ -138,10 +138,10 @@ public:
     inline void stop(const char *time_point_name) {
         const auto stop_time = Time::now();
         const auto time_diff = stop_time - start_time;
-        //const auto sec_duration = std::chrono::duration_cast<std::chrono::seconds>(time_diff).count();
         const auto ms_duration = std::chrono::duration_cast<std::chrono::milliseconds>(time_diff).count();
+        //const auto x = std::vformat(L"{:.2f}", std::make_format_args(ms_duration));
         std::ostringstream strStream;
-        strStream << format("[{}] Time Elapsed: {} ms\n", time_point_name, ms_duration);
+        strStream << format("[{}] Time Elapsed: {}.{} sec\n", time_point_name, (ms_duration / 1000), (ms_duration % 1000));
         std::cout << strStream.str();
     }
 };
