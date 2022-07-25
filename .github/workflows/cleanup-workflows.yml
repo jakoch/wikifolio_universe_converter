@@ -37,13 +37,13 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               per_page: 100,
-              status: 'cancelled',
+              status: 'cancelled'
             });
             const skipped = await github.rest.actions.listWorkflowRunsForRepo({
               owner: context.repo.owner,
               repo: context.repo.repo,
               per_page: 100,
-              status: 'skipped',
+              status: 'skipped'
             });
             for (const response of [cancelled, skipped]) {
               for (const run of response.data.workflow_runs) {
