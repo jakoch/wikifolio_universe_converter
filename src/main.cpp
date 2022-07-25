@@ -125,8 +125,8 @@ std::string getYear() {
 }
 
 class Timer {
-public:    
-    using Time = std::conditional_t<std::chrono::high_resolution_clock::is_steady, 
+public:
+    using Time = std::conditional_t<std::chrono::high_resolution_clock::is_steady,
     std::chrono::high_resolution_clock, std::chrono::steady_clock>;
 
 private:
@@ -138,10 +138,10 @@ public:
     inline void stop(const char *time_point_name) {
         const auto stop_time = Time::now();
         const auto time_diff = stop_time - start_time;
-        const auto sec_duration = std::chrono::duration_cast<std::chrono::milliseconds>(time_diff).count();
-        const auto ns_duration = std::chrono::duration_cast<std::chrono::nanoseconds>(time_diff).count();
+        //const auto sec_duration = std::chrono::duration_cast<std::chrono::seconds>(time_diff).count();
+        const auto ms_duration = std::chrono::duration_cast<std::chrono::milliseconds>(time_diff).count();
         std::ostringstream strStream;
-        strStream << format("[{}] Time Elapsed: {:01}.{:04} s\n", time_point_name, sec_duration, ns_duration);
+        strStream << format("[{}] Time Elapsed: {} ms\n", time_point_name, ms_duration);
         std::cout << strStream.str();
     }
 };
