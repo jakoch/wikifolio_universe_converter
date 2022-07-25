@@ -2,19 +2,16 @@
     "C_Cpp.vcpkg.enabled": false,
     // windows
     //"cmake.configureSettings": {
-    //    "VCPKG_TARGET_TRIPLET": "x64-windows-static",
-    //    "CMAKE_TOOLCHAIN_FILE": "E:/tools/vcpkg/scripts/buildsystems/vcpkg.cmake",
-        // support for the main branch (non-vpkg)
     //    "BUILD_SHARED_LIBS": "OFF",
-        // Generate Documentation using Doxygen
-        // "DOXYGEN_EXECUTABLE": "E:\\tools\\doxygen\\doxygen.exe",
-        // we install two levels above that
+    //    "VCPKG_TARGET_TRIPLET": "x64-windows-static",
+    //    "CMAKE_TOOLCHAIN_FILE": "E:/tools/vcpkg/scripts/buildsystems/vcpkg.cmake",   
+    //    "DOXYGEN_EXECUTABLE": "E:\\tools\\doxygen\\doxygen.exe",
     //    "CMAKE_INSTALL_PREFIX": "../../wikifolio_universe_converter",
     //},
     //linux
     "cmake.configureSettings": {
-        "VCPKG_TARGET_TRIPLET": "x64-linux",
         "BUILD_SHARED_LIBS": "ON",
+        "VCPKG_TARGET_TRIPLET": "x64-linux",        
         "CMAKE_TOOLCHAIN_FILE": "/opt/vcpkg/bin/scripts/buildsystems/vcpkg.cmake"
     },
     "cmake.preferredGenerators": [

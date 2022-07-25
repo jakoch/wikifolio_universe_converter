@@ -40,7 +40,7 @@ jobs:
 
     steps:
       - name: 🤘 Checkout Code
-        uses: actions/checkout@v2 # https://github.com/actions/checkout
+        uses: actions/checkout@v3 # https://github.com/actions/checkout
 
       - name: ℹ Show Tool Versions
         run: |
@@ -128,7 +128,7 @@ jobs:
           copy build\${{ matrix.config.build_type }}\wiuc.exe artifact\
 
       - name: 🔼 Upload Build Artifact (on commit)
-        uses: actions/upload-artifact@v2 # https://github.com/actions/upload-artifact
+        uses: actions/upload-artifact@v3 # https://github.com/actions/upload-artifact
         if: always()
         with:
           name: ${{ env.ARTIFACT_NAME }}
@@ -168,7 +168,7 @@ jobs:
 
     steps:
       - name: 🤘 Checkout Code
-        uses: actions/checkout@v2 # https://github.com/actions/checkout
+        uses: actions/checkout@v3 # https://github.com/actions/checkout
 
       # Build Artifact Name: wiuc-1.0.1-0cda6a2-Clang12-x64-linux-Release
       - name: ✏ Fetch Versioning Data & Set Artifact Name
@@ -238,7 +238,7 @@ jobs:
       # The binary inside the zip is named "wiuc".
       #
       - name: 🔼 Upload Build Artifact (on every commit)
-        uses: actions/upload-artifact@v2 # https://github.com/actions/upload-artifact
+        uses: actions/upload-artifact@v3 # https://github.com/actions/upload-artifact
         if: always()
         with:
           name: ${{ env.ARTIFACT_NAME }}
