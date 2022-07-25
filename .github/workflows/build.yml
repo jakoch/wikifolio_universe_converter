@@ -128,7 +128,7 @@ jobs:
           copy build\${{ matrix.config.build_type }}\wiuc.exe artifact\
 
       - name: 🔼 Upload Build Artifact (on commit)
-        uses: actions/upload-artifact@v2 # https://github.com/actions/upload-artifact
+        uses: actions/upload-artifact@v3 # https://github.com/actions/upload-artifact
         if: always()
         with:
           name: ${{ env.ARTIFACT_NAME }}
@@ -238,7 +238,7 @@ jobs:
       # The binary inside the zip is named "wiuc".
       #
       - name: 🔼 Upload Build Artifact (on every commit)
-        uses: actions/upload-artifact@v2 # https://github.com/actions/upload-artifact
+        uses: actions/upload-artifact@v3 # https://github.com/actions/upload-artifact
         if: always()
         with:
           name: ${{ env.ARTIFACT_NAME }}
