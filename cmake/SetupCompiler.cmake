@@ -21,6 +21,29 @@ if(WIN32)
 endif()
 
 #-------------------------------------------------------------------
+# Define C++ Standard to use
+#-------------------------------------------------------------------
+
+if(MSVC)
+  set(CMAKE_CXX_STANDARD          23) # to get /std:c++latest on MSVC
+  set(CMAKE_CXX_STANDARD_REQUIRED ON)
+  set(CMAKE_CXX_EXTENSIONS        ON)
+endif()
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "CLANG")
+  set(CMAKE_CXX_STANDARD          20)
+  set(CMAKE_CXX_STANDARD_REQUIRED ON)
+  set(CMAKE_CXX_EXTENSIONS        ON)
+
+  # enable incomplete features to get "std::format" support
+  set(LIBCXX_ENABLE_INCOMPLETE_FEATURES ON)
+
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++2b -stdlib=libc++ -Wall -Wextra -Werror -fexec-charset=UTF-8 -mtune=skylake")
+  #set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} some other flags")
+  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
+endif()
+
+#-------------------------------------------------------------------
 # Compiler Flags
 #-------------------------------------------------------------------
 
