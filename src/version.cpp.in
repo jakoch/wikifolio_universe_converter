@@ -1,5 +1,6 @@
 #include "version.h"
 
+// clang-format off
 static app_version app_metadata = app_version{
     "@APP_NAME@",
     sem_version{@PROJECT_VERSION_MAJOR@, @PROJECT_VERSION_MINOR@, @PROJECT_VERSION_PATCH@},
@@ -8,6 +9,7 @@ static app_version app_metadata = app_version{
     "@APP_DESC@",
     "@APP_HOMEPAGE@"
 };
+// clang-format on
 
 [[nodiscard]] app_version const &app_version::data() noexcept
 {

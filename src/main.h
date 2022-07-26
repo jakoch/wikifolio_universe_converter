@@ -16,14 +16,14 @@
 #ifdef _WIN32
 #include <format>
 using std::format;
-using std::vformat;
 using std::make_format_args;
+using std::vformat;
 #else
 //#include <fmt/core.h>
 #include <fmt/format.h>
 using fmt::format;
-using fmt::vformat;
 using fmt::make_format_args;
+using fmt::vformat;
 #endif
 
 #include "xlsxio_read.h"
@@ -37,37 +37,37 @@ using fmt::make_format_args;
 
 class XLSXReader
 {
- private:
-   xlsxioreader handle;
- public:
-  XLSXReader(const char* filename);
-  ~XLSXReader();
+private:
+    xlsxioreader handle;
 
-  class XLSXSheet* OpenSheet(const char* sheetname, unsigned int flags);
+public:
+    XLSXReader(char const *filename);
+    ~XLSXReader();
+
+    class XLSXSheet *OpenSheet(char const *sheetname, unsigned int flags);
 };
 
 class XLSXSheet
 {
 private:
-  xlsxioreadersheet sheethandle;
-  XLSXSheet(xlsxioreadersheet sheet);
-  XLSXSheet(xlsxioreadersheet xlsxhandle, const char* sheetname, unsigned int flags);
+    xlsxioreadersheet sheethandle;
+    XLSXSheet(xlsxioreadersheet sheet);
+    XLSXSheet(xlsxioreadersheet xlsxhandle, char const *sheetname, unsigned int flags);
 
 public:
+    ~XLSXSheet();
+    bool GetNextRow();
+    char *GetNextCell();
+    bool GetNextCellString(char *&value);
+    bool GetNextCellString(std::string &value);
+    bool GetNextCellInt(int64_t &value);
+    bool GetNextCellFloat(double &value);
+    bool GetNextCellDateTime(time_t &value);
 
-  ~XLSXSheet();
-  bool GetNextRow();
-  char* GetNextCell();
-  bool GetNextCellString(char*& value);
-  bool GetNextCellString(std::string& value);
-  bool GetNextCellInt(int64_t& value);
-  bool GetNextCellFloat(double& value);
-  bool GetNextCellDateTime(time_t& value);
+    XLSXSheet &operator>>(char *&value);
+    XLSXSheet &operator>>(std::string &value);
+    XLSXSheet &operator>>(int64_t &value);
+    XLSXSheet &operator>>(double &value);
 
-  XLSXSheet& operator >> (char*& value);
-  XLSXSheet& operator >> (std::string& value);
-  XLSXSheet& operator >> (int64_t& value);
-  XLSXSheet &operator>>(double &value);
-
-  friend class XLSXReader;
+    friend class XLSXReader;
 };

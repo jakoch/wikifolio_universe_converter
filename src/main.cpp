@@ -1,114 +1,109 @@
 #include "main.h"
 
-XLSXReader::XLSXReader(const char* filename)
+XLSXReader::XLSXReader(char const *filename)
 {
-  handle = xlsxioread_open(filename);
+    handle = xlsxioread_open(filename);
 }
 
 XLSXReader::~XLSXReader()
 {
-  xlsxioread_close(handle);
+    xlsxioread_close(handle);
 }
 
-class XLSXSheet* XLSXReader::OpenSheet(const char* sheetname, unsigned int flags)
+class XLSXSheet *XLSXReader::OpenSheet(char const *sheetname, unsigned int flags)
 {
-  xlsxioreadersheet sheethandle = xlsxioread_sheet_open(handle, sheetname, flags);
-  if (sheethandle == NULL) {
-    return NULL;
-  }
-  return new XLSXSheet(sheethandle);
+    xlsxioreadersheet sheethandle = xlsxioread_sheet_open(handle, sheetname, flags);
+    if (sheethandle == NULL) { return NULL; }
+    return new XLSXSheet(sheethandle);
 }
 
-XLSXSheet::XLSXSheet(xlsxioreadersheet sheet)
-: sheethandle(sheet)
-{
-}
+XLSXSheet::XLSXSheet(xlsxioreadersheet sheet) : sheethandle(sheet) { }
 
 XLSXSheet::~XLSXSheet()
 {
-  xlsxioread_sheet_close(sheethandle);
+    xlsxioread_sheet_close(sheethandle);
 }
 
 bool XLSXSheet::GetNextRow()
 {
-  return (xlsxioread_sheet_next_row(sheethandle) != 0);
+    return (xlsxioread_sheet_next_row(sheethandle) != 0);
 }
 
-char* XLSXSheet::GetNextCell()
+char *XLSXSheet::GetNextCell()
 {
-  return xlsxioread_sheet_next_cell(sheethandle);
+    return xlsxioread_sheet_next_cell(sheethandle);
 }
 
-bool XLSXSheet::GetNextCellString(char*& value)
+bool XLSXSheet::GetNextCellString(char *&value)
 {
-  if (!xlsxioread_sheet_next_cell_string(sheethandle, &value)) {
-    value = NULL;
-    return false;
-  }
-  return true;
+    if (!xlsxioread_sheet_next_cell_string(sheethandle, &value)) {
+        value = NULL;
+        return false;
+    }
+    return true;
 }
 
-bool XLSXSheet::GetNextCellString(std::string& value)
+bool XLSXSheet::GetNextCellString(std::string &value)
 {
-  char* result;
-  if (!xlsxioread_sheet_next_cell_string(sheethandle, &result)) {
-    value.clear();
-    return false;
-  }
-  value.assign(result);
-  free(result);
-  return true;
+    char *result;
+    if (!xlsxioread_sheet_next_cell_string(sheethandle, &result)) {
+        value.clear();
+        return false;
+    }
+    value.assign(result);
+    free(result);
+    return true;
 }
 
-bool XLSXSheet::GetNextCellInt(int64_t& value)
+bool XLSXSheet::GetNextCellInt(int64_t &value)
 {
-  if (!xlsxioread_sheet_next_cell_int(sheethandle, &value)) {
-    value = 0;
-    return false;
-  }
-  return true;
+    if (!xlsxioread_sheet_next_cell_int(sheethandle, &value)) {
+        value = 0;
+        return false;
+    }
+    return true;
 }
 
-bool XLSXSheet::GetNextCellFloat(double& value)
+bool XLSXSheet::GetNextCellFloat(double &value)
 {
-  if (!xlsxioread_sheet_next_cell_float(sheethandle, &value)) {
-    value = 0;
-    return false;
-  }
-  return true;
+    if (!xlsxioread_sheet_next_cell_float(sheethandle, &value)) {
+        value = 0;
+        return false;
+    }
+    return true;
 }
 
-bool XLSXSheet::GetNextCellDateTime(time_t& value)
+bool XLSXSheet::GetNextCellDateTime(time_t &value)
 {
-  if (!xlsxioread_sheet_next_cell_datetime(sheethandle, &value)) {
-    value = 0;
-    return false;
-  }
-  return true;
+    if (!xlsxioread_sheet_next_cell_datetime(sheethandle, &value)) {
+        value = 0;
+        return false;
+    }
+    return true;
 }
 
-XLSXSheet& XLSXSheet::operator >> (char*& value)
+XLSXSheet &XLSXSheet::operator>>(char *&value)
 {
-  GetNextCellString(value);
-  return *this;
+    GetNextCellString(value);
+    return *this;
 }
 
-XLSXSheet& XLSXSheet::operator >> (std::string& value)
+XLSXSheet &XLSXSheet::operator>>(std::string &value)
 {
-  GetNextCellString(value);
-  return *this;
+    GetNextCellString(value);
+    return *this;
 }
 
-XLSXSheet& XLSXSheet::operator >> (int64_t& value)
+XLSXSheet &XLSXSheet::operator>>(int64_t &value)
 {
-  GetNextCellInt(value);
-  return *this;
+    GetNextCellInt(value);
+    return *this;
 }
 
-XLSXSheet& XLSXSheet::operator >> (double& value)
+XLSXSheet &XLSXSheet::operator>>(double &value)
 {
-  GetNextCellFloat(value);
-  return *this;
+    GetNextCellFloat(value);
+    return *this;
 }
 /*
 XLSXReaderSheet& XLSXReaderSheet::operator >> (time_t& value)
@@ -117,17 +112,21 @@ XLSXReaderSheet& XLSXReaderSheet::operator >> (time_t& value)
   return *this;
 }*/
 
-std::string getYear() {
+std::string getYear()
+{
     std::time_t time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     std::stringstream ss;
     ss << std::put_time(std::localtime(&time), "%Y");
     return ss.str();
 }
 
-class Timer {
+class Timer
+{
 public:
-    using Time = std::conditional_t<std::chrono::high_resolution_clock::is_steady,
-    std::chrono::high_resolution_clock, std::chrono::steady_clock>;
+    using Time = std::conditional_t<
+        std::chrono::high_resolution_clock::is_steady,
+        std::chrono::high_resolution_clock,
+        std::chrono::steady_clock>;
 
 private:
     const Time::time_point start_time = Time::now();
@@ -135,37 +134,40 @@ private:
 public:
     Timer() = default;
 
-    inline void stop(const char *time_point_name) {
-        const auto stop_time = Time::now();
-        const auto time_diff = stop_time - start_time;
-        const auto ms_duration = std::chrono::duration_cast<std::chrono::milliseconds>(time_diff).count();
-        //const auto x = std::vformat(L"{:.2f}", std::make_format_args(ms_duration));
+    inline void stop(char const *time_point_name)
+    {
+        auto const stop_time   = Time::now();
+        auto const time_diff   = stop_time - start_time;
+        auto const ms_duration = std::chrono::duration_cast<std::chrono::milliseconds>(time_diff).count();
+        // const auto x = std::vformat(L"{:.2f}", std::make_format_args(ms_duration));
         std::ostringstream strStream;
-        strStream << format("[{}] Time Elapsed: {}.{} sec\n", time_point_name, (ms_duration / 1000), (ms_duration % 1000));
+        strStream
+            << format("[{}] Time Elapsed: {}.{} sec\n", time_point_name, (ms_duration / 1000), (ms_duration % 1000));
         std::cout << strStream.str();
     }
 };
 
-inline std::string replace(std::string search_in, const std::string& search_for, const std::string& replace_with)
+inline std::string replace(std::string search_in, std::string const &search_for, std::string const &replace_with)
 {
-    if (search_for.empty()) {
-      return search_in;
-    }
+    if (search_for.empty()) { return search_in; }
 
     std::size_t pos;
     while ((pos = search_in.find(search_for)) != std::string::npos) {
-      search_in.replace(pos, search_for.size(), replace_with);
+        search_in.replace(pos, search_for.size(), replace_with);
     }
 
     return search_in;
 }
 
-std::string escape_string(const std::string &s) {
+std::string escape_string(std::string const &s)
+{
     std::ostringstream o;
     for (auto c = s.cbegin(); c != s.cend(); c++) {
         switch (*c) {
-        //case '"': o << "\\\""; break;
-        case '\'': o << "\'\'"; break;
+        // case '"': o << "\\\""; break;
+        case '\'':
+            o << "\'\'";
+            break;
         /*case '\\': o << "\\\\"; break;
         case '\b': o << "\\b"; break;
         case '\f': o << "\\f"; break;
@@ -173,326 +175,316 @@ std::string escape_string(const std::string &s) {
         case '\r': o << "\\r"; break;
         case '\t': o << "\\t"; break;*/
         default:
-          o << *c;
+            o << *c;
         }
     }
     return o.str();
 }
 
-const char* investment_universe_URL = "https://wikifolio.blob.core.windows.net/prod-documents/Investment_Universe.de.xlsx";
+char const *investment_universe_URL =
+    "https://wikifolio.blob.core.windows.net/prod-documents/Investment_Universe.de.xlsx";
 
-const char* xlsx_filename    = "Investment_Universe.de.xlsx";
-const char* csv_tmp_filename = "Investment_Universe.tmp.csv";
-const char* csv_filename     = "Investment_Universe.csv";
-const char* sqlite_filename  = "Investment_Universe.sqlite";
+char const *xlsx_filename    = "Investment_Universe.de.xlsx";
+char const *csv_tmp_filename = "Investment_Universe.tmp.csv";
+char const *csv_filename     = "Investment_Universe.csv";
+char const *sqlite_filename  = "Investment_Universe.sqlite";
 
 bool xlsx_to_csv()
 {
-  XLSXReader *file = new XLSXReader(xlsx_filename);
-  XLSXSheet *sheet = file->OpenSheet(NULL, XLSXIOREAD_SKIP_EMPTY_ROWS);
+    XLSXReader *file = new XLSXReader(xlsx_filename);
+    XLSXSheet *sheet = file->OpenSheet(NULL, XLSXIOREAD_SKIP_EMPTY_ROWS);
 
-  if (sheet == nullptr) {
-    std::printf("xlsxio was unable to find the first sheet.");
-    return false;
-  }
-
-  if (sheet)
-  {
-    std::ofstream csvfile;
-    csvfile.open(csv_filename);
-
-    std::string csv_row;
-    std::string value;
-    while (sheet->GetNextRow()) {
-      csv_row.clear();
-      while (sheet->GetNextCellString(value)) {
-        //printf("%s\t", value.c_str());
-        csv_row.append("'");
-        csv_row.append(escape_string(value));
-        csv_row.append("'");
-        csv_row.append(",");
-      }
-      csv_row.append("\n");
-      //printf("\n");
-      csvfile << csv_row;
+    if (sheet == nullptr) {
+        std::printf("xlsxio was unable to find the first sheet.");
+        return false;
     }
-    csvfile.close();
-    delete sheet;
-  }
-  delete file;
 
-  return true;
+    if (sheet) {
+        std::ofstream csvfile;
+        csvfile.open(csv_filename);
+
+        std::string csv_row;
+        std::string value;
+        while (sheet->GetNextRow()) {
+            csv_row.clear();
+            while (sheet->GetNextCellString(value)) {
+                // printf("%s\t", value.c_str());
+                csv_row.append("'");
+                csv_row.append(escape_string(value));
+                csv_row.append("'");
+                csv_row.append(",");
+            }
+            csv_row.append("\n");
+            // printf("\n");
+            csvfile << csv_row;
+        }
+        csvfile.close();
+        delete sheet;
+    }
+    delete file;
+
+    return true;
 };
 
 bool rename_header_columns()
 {
-  std::fstream input_file(csv_filename, std::ios::in);
-  std::ofstream output_file(csv_tmp_filename);
+    std::fstream input_file(csv_filename, std::ios::in);
+    std::ofstream output_file(csv_tmp_filename);
 
-  std::string line;
-  bool replaced = 0;
+    std::string line;
+    bool replaced = 0;
 
-  while (!input_file.eof())
-  {
-    getline(input_file, line);
+    while (!input_file.eof()) {
+        getline(input_file, line);
 
-    // change column names on first line of file only once
-    if(replaced == 0) {
-      line = replace(line, "Anlageuniversum(Gruppe)", "Anlagegruppe");
-      replaced = 1;
+        // change column names on first line of file only once
+        if (replaced == 0) {
+            line     = replace(line, "Anlageuniversum(Gruppe)", "Anlagegruppe");
+            replaced = 1;
+        }
+
+        output_file << line << '\n';
     }
+    output_file.close();
+    input_file.close();
 
-    output_file << line << '\n';
-  }
-  output_file.close();
-  input_file.close();
+    // delete old "Investment_Universe.csv"
+    if (std::remove(csv_filename)) { printf("Could not delete file."); }
 
-  // delete old "Investment_Universe.csv"
-  if (std::remove(csv_filename)) {
-    printf("Could not delete file.");
-  }
+    // rename "Investment_Universe.tmp.csv" -> "Investment_Universe.csv"
+    if (std::rename(csv_tmp_filename, csv_filename)) { printf("Could not rename."); }
 
-  // rename "Investment_Universe.tmp.csv" -> "Investment_Universe.csv"
-  if (std::rename(csv_tmp_filename, csv_filename)) {
-    printf("Could not rename.");
-  }
-
-  return true;
+    return true;
 }
 
-size_t write_callback(void *ptr, size_t size, size_t nmemb, FILE *stream) {
+size_t write_callback(void *ptr, size_t size, size_t nmemb, FILE *stream)
+{
     size_t written = fwrite(ptr, size, nmemb, stream);
     return written;
 }
 
-bool download(const char *url, const char *save_as_filename)
+bool download(char const *url, char const *save_as_filename)
 {
-  CURLcode res;
+    CURLcode res;
 
-  curl_global_init(CURL_GLOBAL_DEFAULT);
-  CURL *curl = curl_easy_init();
+    curl_global_init(CURL_GLOBAL_DEFAULT);
+    CURL *curl = curl_easy_init();
 
-  if (curl) {
-    //struct curl_slist *dns;
-    //dns = curl_slist_append(NULL, "wikifolio.blob.core.windows.net:443:191.239.203.0");
-    //curl_easy_setopt(curl, CURLOPT_RESOLVE, dns);
+    if (curl) {
+        // struct curl_slist *dns;
+        // dns = curl_slist_append(NULL, "wikifolio.blob.core.windows.net:443:191.239.203.0");
+        // curl_easy_setopt(curl, CURLOPT_RESOLVE, dns);
 
-    struct curl_slist *headers = NULL;
-    headers = curl_slist_append(headers, "Content-Type:application/octet-stream");
-    headers = curl_slist_append(headers, "Content-Transfer-Encoding: Binary");
-    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+        struct curl_slist *headers = NULL;
+        headers                    = curl_slist_append(headers, "Content-Type:application/octet-stream");
+        headers                    = curl_slist_append(headers, "Content-Transfer-Encoding: Binary");
+        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 
-    curl_easy_setopt(curl, CURLOPT_URL, url);
-    curl_easy_setopt(curl, CURLOPT_HTTPGET, 1L);
+        curl_easy_setopt(curl, CURLOPT_URL, url);
+        curl_easy_setopt(curl, CURLOPT_HTTPGET, 1L);
 
-    curl_easy_setopt(curl, CURLOPT_BUFFERSIZE, 102400L); //100Kb
-    curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-    curl_easy_setopt(curl, CURLOPT_AUTOREFERER, 1L);
-    curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 10L);
-    curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, "gzip, deflate, br"); // enable all supported built-in compressions
+        curl_easy_setopt(curl, CURLOPT_BUFFERSIZE, 102400L); // 100Kb
+        curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+        curl_easy_setopt(curl, CURLOPT_AUTOREFERER, 1L);
+        curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 10L);
+        curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, "gzip, deflate, br"); // enable all supported built-in
+                                                                              // compressions
 
-    //curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+        // curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
 
-    curl_easy_setopt(curl, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
+        curl_easy_setopt(curl, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
 
-    curl_easy_setopt(curl, CURLOPT_USE_SSL, CURLUSESSL_ALL);
-    curl_easy_setopt(curl, CURLOPT_USE_SSL, 0L);
-    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, false);
-    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, false);
+        curl_easy_setopt(curl, CURLOPT_USE_SSL, CURLUSESSL_ALL);
+        curl_easy_setopt(curl, CURLOPT_USE_SSL, 0L);
+        curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, false);
+        curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, false);
 
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
 
-    FILE* fp = fopen(save_as_filename, "wb");
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
+        FILE *fp = fopen(save_as_filename, "wb");
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
 
-    char error_buffer[CURL_ERROR_SIZE];
-    error_buffer[0] = '\0';
-    curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, error_buffer);
+        char error_buffer[CURL_ERROR_SIZE];
+        error_buffer[0] = '\0';
+        curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, error_buffer);
 
-    long http_code = 0;
-    res = curl_easy_perform(curl);
-    curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_code);
+        long http_code = 0;
+        res            = curl_easy_perform(curl);
+        curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_code);
 
-    if (res == CURLE_OK) {
-        //printf("Request was successful with status %d", http_code);
-    } else {
-      // file has size "0", because downloading it's content failed.
-      remove(save_as_filename);
-      printf("Request failed: %s", error_buffer);
+        if (res == CURLE_OK) {
+            // printf("Request was successful with status %d", http_code);
+        } else {
+            // file has size "0", because downloading it's content failed.
+            remove(save_as_filename);
+            printf("Request failed: %s", error_buffer);
+        }
+
+        fclose(fp);
     }
 
-    fclose(fp);
-  }
+    curl_easy_cleanup(curl);
+    curl_global_cleanup();
 
-  curl_easy_cleanup(curl);
-  curl_global_cleanup();
-
-  return (res == CURLE_OK) ? 1 : 0;
+    return (res == CURLE_OK) ? 1 : 0;
 }
 
-void createTable(sqlite3 *db) {
-  // Create Schema
-  // --------------------------------------------------------------
-  // CREATE TABLE Anlageuniversum ("ISIN TEXT, WKN TEXT, SecurityType TEXT, Bezeichnung TEXT, Emittent TEXT, Anlagegruppe TEXT, Anlageuniversum TEXT)
-  static const char *sql_table_schema = "CREATE TABLE Anlageuniversum ("
-                                        "ISIN TEXT,"
-                                        "WKN TEXT,"
-                                        "SecurityType TEXT,"
-                                        "Bezeichnung TEXT,"
-	  				                            "Emittent TEXT,"
-                                        "Anlagegruppe TEXT,"
-                                        "Anlageuniversum TEXT)";
+void createTable(sqlite3 *db)
+{
+    // Create Schema
+    // --------------------------------------------------------------
+    // CREATE TABLE Anlageuniversum ("ISIN TEXT, WKN TEXT, SecurityType TEXT, Bezeichnung TEXT, Emittent TEXT,
+    // Anlagegruppe TEXT, Anlageuniversum TEXT)
+    static char const *sql_table_schema =
+        "CREATE TABLE Anlageuniversum ("
+        "ISIN TEXT,"
+        "WKN TEXT,"
+        "SecurityType TEXT,"
+        "Bezeichnung TEXT,"
+        "Emittent TEXT,"
+        "Anlagegruppe TEXT,"
+        "Anlageuniversum TEXT)";
 
-  sqlite3_exec(db, sql_table_schema, nullptr, nullptr, nullptr);
+    sqlite3_exec(db, sql_table_schema, nullptr, nullptr, nullptr);
 }
 
 bool csv_to_sqlite()
 {
-  int r;
-  char *zErrMsg = 0;
+    int r;
+    char *zErrMsg = 0;
 
-  // Open SQLite Database
-  // --------------------
+    // Open SQLite Database
+    // --------------------
 
-  sqlite3 *db;
+    sqlite3 *db;
 
-  r = sqlite3_open(sqlite_filename, &db);
-  if(r != SQLITE_OK) {
-    printf("DB connection error: %s\n", sqlite3_errmsg(db));
-    sqlite3_close(db);
-	}
+    r = sqlite3_open(sqlite_filename, &db);
+    if (r != SQLITE_OK) {
+        printf("DB connection error: %s\n", sqlite3_errmsg(db));
+        sqlite3_close(db);
+    }
 
-  // set full synchronous
-  r = sqlite3_exec(db, "PRAGMA synchronous=2;", nullptr, nullptr, nullptr);
-  if (r != SQLITE_OK) {
-      printf("Failed(%d) to set synchronous by %s", r, sqlite_filename);
-      return 0;
-  }
+    // set full synchronous
+    r = sqlite3_exec(db, "PRAGMA synchronous=2;", nullptr, nullptr, nullptr);
+    if (r != SQLITE_OK) {
+        printf("Failed(%d) to set synchronous by %s", r, sqlite_filename);
+        return 0;
+    }
 
-  // Create Table
-  // --------------------
+    // Create Table
+    // --------------------
 
-  createTable(db);
+    createTable(db);
 
-  // Open CSV for reading
-  // --------------------
+    // Open CSV for reading
+    // --------------------
 
-  std::ifstream csv_file(csv_filename, std::ios::in);
-  if (!csv_file.is_open()) {
-		printf("Error opening CSV file.");
-	}
+    std::ifstream csv_file(csv_filename, std::ios::in);
+    if (!csv_file.is_open()) { printf("Error opening CSV file."); }
 
-  // Iterate CSV data, build INSERT statement, exec query
-  // --------------------
+    // Iterate CSV data, build INSERT statement, exec query
+    // --------------------
 
-  static const std::string sql_insert_stmt_tpl =
-      "INSERT INTO Anlageuniversum ( ISIN, WKN, SecurityType, Bezeichnung, Emittent, Anlagegruppe, Anlageuniversum ) VALUES ( {} );";
+    static const std::string sql_insert_stmt_tpl =
+        "INSERT INTO Anlageuniversum ( ISIN, WKN, SecurityType, Bezeichnung, Emittent, Anlagegruppe, Anlageuniversum ) "
+        "VALUES ( {} );";
 
-  std::string sql_insert_values, sql_insert_stmt, line, field;
+    std::string sql_insert_values, sql_insert_stmt, line, field;
 
-  // get first line - and ignore it, because it's expressed in the sql_table_schema (see createTable())
-  std::getline(csv_file, line);
+    // get first line - and ignore it, because it's expressed in the sql_table_schema (see createTable())
+    std::getline(csv_file, line);
 
-  // warp insert queries in an transaction block
-  r = sqlite3_exec(db, "BEGIN TRANSACTION;", nullptr, nullptr, &zErrMsg);
+    // warp insert queries in an transaction block
+    r = sqlite3_exec(db, "BEGIN TRANSACTION;", nullptr, nullptr, &zErrMsg);
 
-  if( r != SQLITE_OK )
-	{
-    fprintf(stderr, "[SQLite][Begin Transaction] Error: %d, %s, %s\n", r, zErrMsg, sqlite3_errmsg(db));
-    sqlite3_free(zErrMsg);
-		return 0;
-	}
-
-  while(std::getline(csv_file, line))
-  {
-      if(line.empty()) {
-        break;
-      }
-
-      std::stringstream lineStream(line);
-
-      while (std::getline(lineStream, field, ',')) {
-        sql_insert_values.append(field);
-        sql_insert_values.append(", ");
-      }
-      sql_insert_values.pop_back(); // comma
-      sql_insert_values.pop_back(); // nl?
-
-      lineStream.clear();
-
-      //printf("%s\n", sql_insert_values.c_str());
-
-      sql_insert_stmt = vformat(sql_insert_stmt_tpl, make_format_args(sql_insert_values.c_str()));
-
-      sql_insert_values.clear();
-
-      //printf("%s\n", sql_insert_stmt.c_str());
-
-      r= sqlite3_exec(db, sql_insert_stmt.c_str(), nullptr, nullptr, &zErrMsg);
-
-      if( r != SQLITE_OK )
-      {
-        fprintf(stderr, "[SQLite][Query Exec] Error: %d, %s\n", r, zErrMsg);
-        fprintf(stderr, "[SQLite][Query]: %s\n", sql_insert_stmt.c_str());
+    if (r != SQLITE_OK) {
+        fprintf(stderr, "[SQLite][Begin Transaction] Error: %d, %s, %s\n", r, zErrMsg, sqlite3_errmsg(db));
         sqlite3_free(zErrMsg);
         return 0;
-      }
+    }
 
-      sql_insert_stmt.clear();
-  }
+    while (std::getline(csv_file, line)) {
+        if (line.empty()) { break; }
 
-  r = sqlite3_exec(db, "END TRANSACTION;", nullptr, nullptr, &zErrMsg);
+        std::stringstream lineStream(line);
 
-  if( r != SQLITE_OK )
-	{
-		fprintf(stderr, "[SQLite][End Transaction] Error: %s\n", zErrMsg);
-    sqlite3_free(zErrMsg);
-		return 0;
-	}
+        while (std::getline(lineStream, field, ',')) {
+            sql_insert_values.append(field);
+            sql_insert_values.append(", ");
+        }
+        sql_insert_values.pop_back(); // comma
+        sql_insert_values.pop_back(); // nl?
 
-  sqlite3_close(db);
+        lineStream.clear();
 
-  return 1;
+        // printf("%s\n", sql_insert_values.c_str());
+
+        sql_insert_stmt = vformat(sql_insert_stmt_tpl, make_format_args(sql_insert_values.c_str()));
+
+        sql_insert_values.clear();
+
+        // printf("%s\n", sql_insert_stmt.c_str());
+
+        r = sqlite3_exec(db, sql_insert_stmt.c_str(), nullptr, nullptr, &zErrMsg);
+
+        if (r != SQLITE_OK) {
+            fprintf(stderr, "[SQLite][Query Exec] Error: %d, %s\n", r, zErrMsg);
+            fprintf(stderr, "[SQLite][Query]: %s\n", sql_insert_stmt.c_str());
+            sqlite3_free(zErrMsg);
+            return 0;
+        }
+
+        sql_insert_stmt.clear();
+    }
+
+    r = sqlite3_exec(db, "END TRANSACTION;", nullptr, nullptr, &zErrMsg);
+
+    if (r != SQLITE_OK) {
+        fprintf(stderr, "[SQLite][End Transaction] Error: %s\n", zErrMsg);
+        sqlite3_free(zErrMsg);
+        return 0;
+    }
+
+    sqlite3_close(db);
+
+    return 1;
 }
 
 int main(int argc, char *argv[])
 {
-  printf(
-    "Wikifolio Investment Universe Converter v%s\nCopyright (c) Jens A. Koch, 2021-%s.\n\n",
-    app_version::get_version().c_str(),
-    getYear().c_str()
-  );
+    printf(
+        "Wikifolio Investment Universe Converter v%s\nCopyright (c) Jens A. Koch, 2021-%s.\n\n",
+        app_version::get_version().c_str(),
+        getYear().c_str());
 
-  Timer total_application_timer;
+    Timer total_application_timer;
 
-  Timer download_timer;
+    Timer download_timer;
 
-  bool universe_downloaded = download(investment_universe_URL, xlsx_filename);
+    bool universe_downloaded = download(investment_universe_URL, xlsx_filename);
 
-  download_timer.stop("Download");
+    download_timer.stop("Download");
 
-  if (universe_downloaded) {
+    if (universe_downloaded) {
 
-    Timer xlsx_to_csv_timer;
+        Timer xlsx_to_csv_timer;
 
-    bool converted_to_csv = xlsx_to_csv();
+        bool converted_to_csv = xlsx_to_csv();
 
-    xlsx_to_csv_timer.stop("xlsx -> csv");
+        xlsx_to_csv_timer.stop("xlsx -> csv");
 
-    if (converted_to_csv) {
-      rename_header_columns();
+        if (converted_to_csv) { rename_header_columns(); }
     }
-  }
 
-  Timer csv_to_sqlite_timer;
+    Timer csv_to_sqlite_timer;
 
-  bool converted_to_sqlite = csv_to_sqlite();
+    bool converted_to_sqlite = csv_to_sqlite();
 
-  csv_to_sqlite_timer.stop("csv -> sqlite");
+    csv_to_sqlite_timer.stop("csv -> sqlite");
 
-  total_application_timer.stop("Total Runtime");
+    total_application_timer.stop("Total Runtime");
 
-  printf("Done.");
+    printf("Done.");
 
-  return EXIT_SUCCESS;
+    return EXIT_SUCCESS;
 }

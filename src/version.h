@@ -4,16 +4,18 @@
 #include <string_view>
 #include <sstream>
 
-class sem_version {
+class sem_version
+{
 public:
     int major;
     int minor;
     int patch;
-    constexpr sem_version() noexcept : major(0), minor(0), patch(0) {}
-    constexpr sem_version(int major, int minor, int patch) noexcept : major(major), minor(minor), patch(patch) {}
+    constexpr sem_version() noexcept : major(0), minor(0), patch(0) { }
+    constexpr sem_version(int major, int minor, int patch) noexcept : major(major), minor(minor), patch(patch) { }
 };
 
-class app_version {
+class app_version
+{
 public:
     std::string name;
     sem_version s_version;

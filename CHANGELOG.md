@@ -8,6 +8,11 @@ All notable changes to this project will be documented in this file.
 ### Bugfix
 
 ### Changed
+- Project Cleanup
+  - added EditorConfig and clang-format config
+  - applied clang-format to source
+- Simplified the Timer class
+  - it's no longer a template taking a chrono resolution
 - Changed things.
 
 ## [1.0.2] - 2022-04-16
