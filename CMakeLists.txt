@@ -9,12 +9,6 @@ set(CMAKE_FIND_LIBRARY_PREFIXES ";")
 set(CMAKE_FIND_LIBRARY_SUFFIXES ";")
 
 #-------------------------------------------------------------------
-# Setup Compiler
-#-------------------------------------------------------------------
-
-include(SetupCompiler)
-
-#-------------------------------------------------------------------
 # Setup VCPKG
 #-------------------------------------------------------------------
 
@@ -43,6 +37,13 @@ string(JSON APP_HOMEPAGE GET ${VCPKG_JSON_STRING} "homepage")
 #-------------------------------------------------------------------
 
 project(wiuc VERSION ${APP_VERSION} DESCRIPTION "wikifolio_investment_universe_converter" LANGUAGES C CXX)
+
+#-------------------------------------------------------------------
+# Setup Compiler
+#-------------------------------------------------------------------
+
+include(SetupCompiler)
+
 
 #-------------------------------------------------------------------
 # Versionize
