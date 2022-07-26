@@ -9,8 +9,8 @@ Konvertiert das [wikifolio.com Anlageuniversum](https://www.wikifolio.com/de/de/
 |   CI Service     | Compiler    | Target Triplet           | Build Type     | Status |
 |:---------------- |:----------- |:------------------------ |:--------------:|:------:|
 |  GitHub Actions  | VC16 VS2019 | x64-windows              | Release        |   👷🏼   |
-|                  | VC17 VS2022 | x64-windows              | Release        |   👷🏼   |
 |                  | VC16 VS2019 | x64-windows-static       | Release        |   🟢   |
+|                  | VC17 VS2022 | x64-windows              | Release        |   👷🏼   |
 |                  | VC17 VS2022 | x64-windows-static       | Release        |   🟢   |
 |                  | VC17 VS2022 | x64-windows-static       | RelWithDebInfo |   🟢   |
 |                  | GCC-9       | x64-linux                | Release        |   🟢   |
