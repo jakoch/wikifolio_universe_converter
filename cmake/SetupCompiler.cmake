@@ -18,6 +18,9 @@ if(WIN32)
         set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
     endif()
 
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
+    set(CMAKE_CXX_FLAGS_DEBUG   "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
+
 endif()
 
 #-------------------------------------------------------------------
@@ -39,7 +42,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "CLANG")
   set(LIBCXX_ENABLE_INCOMPLETE_FEATURES ON)
 
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++2b -stdlib=libc++ -Wall -Wextra -Werror -fexec-charset=UTF-8 -mtune=skylake")
-  #set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} some other flags")
+
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 endif()
 
@@ -102,7 +105,6 @@ if (MSVC)
   set(CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO_INIT "-INCREMENTAL:NO -LTCG -debug")
   set(CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO_INIT "-INCREMENTAL:NO -LTCG -debug")
 
-  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
-  set(CMAKE_CXX_FLAGS_DEBUG   "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
-
 endif()
+
+

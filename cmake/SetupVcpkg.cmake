@@ -10,7 +10,7 @@
 
 set(VCPKG_ENABLED ON)
 
-set(VCPKG_VERBOSE OFF)
+set(VCPKG_VERBOSE ON)
 
 if(DEFINED ENV{VCPKG_VERBOSE} AND NOT DEFINED VCPKG_VERBOSE)
     set(VCPKG_VERBOSE "$ENV{VCPKG_VERBOSE}" CACHE BOOL "")
@@ -23,6 +23,8 @@ endif()
 # See https://github.com/Microsoft/vcpkg/issues/1653
 #
 
+set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
+set(X_VCPKG_APPLOCAL_DEPS_INSTALL ON)
 set(VCPKG_APPLOCAL_DEPS_INSTALL ON)
 
 # Copy dependencies into the output directory for executables.
@@ -145,15 +147,17 @@ endif()
 message(STATUS "")
 message(STATUS "[VCPKG]  Configuration Overview:")
 message(STATUS "")
+message(STATUS "[INFO]   ENV.VCPKG_ROOT                -> '$ENV{VCPKG_ROOT}'")
+message(STATUS "[INFO]   ENV.BUILD_SHARED_LIBS         -> '$ENV{BUILD_SHARED_LIBS}'")
+message(STATUS "[INFO]   CMAKE_TOOLCHAIN_FILE          -> '${CMAKE_TOOLCHAIN_FILE}'")
+message(STATUS "")
+message(STATUS "[VCPKG]  VCPKG_ENABLED                 -> '${VCPKG_ENABLED}'")
 message(STATUS "[VCPKG]  VCPKG_VERBOSE                 -> '${VCPKG_VERBOSE}'")
 message(STATUS "[VCPKG]  VCPKG_APPLOCAL_DEPS           -> '${VCPKG_APPLOCAL_DEPS}'")
 message(STATUS "[VCPKG]  VCPKG_FEATURE_FLAGS           -> '${VCPKG_FEATURE_FLAGS}'")
-message(STATUS "[VCPKG]  ENV.VCPKG_ROOT                -> '$ENV{VCPKG_ROOT}'")
 message(STATUS "[VCPKG]  VCPKG_MANIFEST_FILE           -> '${VCPKG_MANIFEST_FILE}'")
-message(STATUS "[VCPKG]  VCPKG_TARGET_TRIPLET          -> '${VCPKG_TARGET_TRIPLET}'")
 message(STATUS "[VCPKG]  VCPKG_DIR                     -> '${VCPKG_DIR}'")
-message(STATUS "[INFO]   CMAKE_TOOLCHAIN_FILE          -> '${CMAKE_TOOLCHAIN_FILE}'")
-message(STATUS "[INFO]   BUILD_SHARED_LIBS             -> '$ENV{BUILD_SHARED_LIBS}'")
+message(STATUS "[VCPKG]  VCPKG_TARGET_TRIPLET          -> '${VCPKG_TARGET_TRIPLET}'")
 message(STATUS "")
 
 #

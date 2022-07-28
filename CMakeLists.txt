@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.19)
+cmake_minimum_required(VERSION 3.20)
 
 #-------------------------------------------------------------------
 # Setup CMake
@@ -8,11 +8,9 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 set(CMAKE_FIND_LIBRARY_PREFIXES ";")
 set(CMAKE_FIND_LIBRARY_SUFFIXES ";")
 
-#-------------------------------------------------------------------
-# Setup VCPKG
-#-------------------------------------------------------------------
-
-include(SetupVcpkg)
+# Generate CompilationDatabase in `compile_commands.json`.
+# The file is used by build tools and intellisense (VSCode, YouCompleteMe, etc).
+set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
 #-------------------------------------------------------------------
 # Build Options
@@ -39,11 +37,13 @@ string(JSON APP_HOMEPAGE GET ${VCPKG_JSON_STRING} "homepage")
 project(wiuc VERSION ${APP_VERSION} DESCRIPTION "wikifolio_investment_universe_converter" LANGUAGES C CXX)
 
 #-------------------------------------------------------------------
-# Setup Compiler
+# Setup Compiler and VCPKG & load additional includes
 #-------------------------------------------------------------------
 
 include(SetupCompiler)
+include(SetupVcpkg)
 
+include(ShowBuildTargetProperties)
 
 #-------------------------------------------------------------------
 # Versionize
@@ -117,3 +117,23 @@ target_include_directories(wiuc PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>"
 )
 target_include_directories(wiuc PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+
+#-------------------------------------------------------------------
+# FeatureSummary
+#-------------------------------------------------------------------
+
+include(FeatureSummary)
+feature_summary(WHAT ALL DESCRIPTION "[Build Summary]\n" FATAL_ON_MISSING_REQUIRED_PACKAGES)
+
+#-------------------------------------------------------------------
+# Display Compiler and Linker properties of Build Targets
+#-------------------------------------------------------------------
+
+show_build_target_properties(wiuc)
+
+#-------------------------------------------------------------------
+# Install
+#-------------------------------------------------------------------
+
+# use GNU install folders, see https://cmake.org/cmake/help/latest/module/GNUInstallDirs.html
+#include(GNUInstallDirs)
