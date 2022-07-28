@@ -114,7 +114,7 @@ XLSXReaderSheet& XLSXReaderSheet::operator >> (time_t& value)
 
 std::string getYear()
 {
-    std::time_t time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    static const std::time_t time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     std::stringstream ss;
     ss << std::put_time(std::localtime(&time), "%Y");
     return ss.str();
@@ -129,7 +129,7 @@ public:
         std::chrono::steady_clock>;
 
 private:
-    const Time::time_point start_time = Time::now();
+    inline static const Time::time_point start_time = Time::now();
 
 public:
     Timer() = default;
@@ -139,10 +139,9 @@ public:
         auto const stop_time   = Time::now();
         auto const time_diff   = stop_time - start_time;
         auto const ms_duration = std::chrono::duration_cast<std::chrono::milliseconds>(time_diff).count();
-        // const auto x = std::vformat(L"{:.2f}", std::make_format_args(ms_duration));
+        constexpr char const* fmt = "[{}] Time Elapsed: {}.{} sec\n";
         std::ostringstream strStream;
-        strStream
-            << format("[{}] Time Elapsed: {}.{} sec\n", time_point_name, (ms_duration / 1000), (ms_duration % 1000));
+        strStream << format(fmt, time_point_name, (ms_duration / 1000), (ms_duration % 1000));
         std::cout << strStream.str();
     }
 };
@@ -313,7 +312,7 @@ bool download(char const *url, char const *save_as_filename)
         curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_code);
 
         if (res == CURLE_OK) {
-            // printf("Request was successful with status %d", http_code);
+            // printf("Request was successful with status %i", http_code);
         } else {
             // file has size "0", because downloading it's content failed.
             remove(save_as_filename);
@@ -329,12 +328,8 @@ bool download(char const *url, char const *save_as_filename)
     return (res == CURLE_OK) ? 1 : 0;
 }
 
-void createTable(sqlite3 *db)
+int create_table(sqlite3 *db)
 {
-    // Create Schema
-    // --------------------------------------------------------------
-    // CREATE TABLE Anlageuniversum ("ISIN TEXT, WKN TEXT, SecurityType TEXT, Bezeichnung TEXT, Emittent TEXT,
-    // Anlagegruppe TEXT, Anlageuniversum TEXT)
     static char const *sql_table_schema =
         "CREATE TABLE Anlageuniversum ("
         "ISIN TEXT,"
@@ -345,7 +340,15 @@ void createTable(sqlite3 *db)
         "Anlagegruppe TEXT,"
         "Anlageuniversum TEXT)";
 
-    sqlite3_exec(db, sql_table_schema, nullptr, nullptr, nullptr);
+    int r = sqlite3_exec(db, sql_table_schema, nullptr, nullptr, nullptr);
+
+    if (r != SQLITE_OK) {
+        fprintf(stderr, "[SQLite][Error][%i]\nFailed to create table: %s\n", r, sqlite3_errmsg(db));
+        sqlite3_close(db);
+        return 0;
+    }
+
+    return r == SQLITE_OK;
 }
 
 bool csv_to_sqlite()
@@ -354,36 +357,40 @@ bool csv_to_sqlite()
     char *zErrMsg = 0;
 
     // Open SQLite Database
-    // --------------------
 
     sqlite3 *db;
 
     r = sqlite3_open(sqlite_filename, &db);
     if (r != SQLITE_OK) {
-        printf("DB connection error: %s\n", sqlite3_errmsg(db));
+        fprintf(stderr, "[SQLite][Error][%i]\nDB connection error: %s\n", r, sqlite3_errmsg(db));
         sqlite3_close(db);
+        return 0;
     }
 
-    // set full synchronous
+    // Set full synchronous
+
     r = sqlite3_exec(db, "PRAGMA synchronous=2;", nullptr, nullptr, nullptr);
     if (r != SQLITE_OK) {
-        printf("Failed(%d) to set synchronous by %s", r, sqlite_filename);
+        fprintf(stderr, "[SQLite][Error][%i]\nFailed to set synchronous for %s\n", r, sqlite_filename);
+        sqlite3_close(db);
         return 0;
     }
 
     // Create Table
-    // --------------------
 
-    createTable(db);
+    if (!create_table(db)) {
+        exit(EXIT_FAILURE);
+    };
 
     // Open CSV for reading
-    // --------------------
 
     std::ifstream csv_file(csv_filename, std::ios::in);
-    if (!csv_file.is_open()) { printf("Error opening CSV file."); }
+    if (!csv_file.is_open()) {
+        fprintf(stderr, "Error opening CSV file.");
+        exit(EXIT_FAILURE);
+    }
 
     // Iterate CSV data, build INSERT statement, exec query
-    // --------------------
 
     static const std::string sql_insert_stmt_tpl =
         "INSERT INTO Anlageuniversum ( ISIN, WKN, SecurityType, Bezeichnung, Emittent, Anlagegruppe, Anlageuniversum ) "
@@ -391,14 +398,14 @@ bool csv_to_sqlite()
 
     std::string sql_insert_values, sql_insert_stmt, line, field;
 
-    // get first line - and ignore it, because it's expressed in the sql_table_schema (see createTable())
+    // get first line and ignore it. it's the table header, which is set in sql_table_schema (see create_table()).
     std::getline(csv_file, line);
 
     // warp insert queries in an transaction block
     r = sqlite3_exec(db, "BEGIN TRANSACTION;", nullptr, nullptr, &zErrMsg);
 
     if (r != SQLITE_OK) {
-        fprintf(stderr, "[SQLite][Begin Transaction] Error: %d, %s, %s\n", r, zErrMsg, sqlite3_errmsg(db));
+        fprintf(stderr, "[SQLite][Error][%i]\nBegin Transaction: %s, %s\n", r, zErrMsg, sqlite3_errmsg(db));
         sqlite3_free(zErrMsg);
         return 0;
     }
@@ -426,10 +433,9 @@ bool csv_to_sqlite()
         // printf("%s\n", sql_insert_stmt.c_str());
 
         r = sqlite3_exec(db, sql_insert_stmt.c_str(), nullptr, nullptr, &zErrMsg);
-
         if (r != SQLITE_OK) {
-            fprintf(stderr, "[SQLite][Query Exec] Error: %d, %s\n", r, zErrMsg);
-            fprintf(stderr, "[SQLite][Query]: %s\n", sql_insert_stmt.c_str());
+            fprintf(stderr, "[SQLite][Error][%i]\nQuery Exec: %s\n", r, zErrMsg);
+            fprintf(stderr, "[SQLite][Error]\nQuery: %s\n", sql_insert_stmt.c_str());
             sqlite3_free(zErrMsg);
             return 0;
         }
@@ -440,7 +446,7 @@ bool csv_to_sqlite()
     r = sqlite3_exec(db, "END TRANSACTION;", nullptr, nullptr, &zErrMsg);
 
     if (r != SQLITE_OK) {
-        fprintf(stderr, "[SQLite][End Transaction] Error: %s\n", zErrMsg);
+        fprintf(stderr, "[SQLite][Error][%i]\nEnd Transaction: %s\n", r, zErrMsg);
         sqlite3_free(zErrMsg);
         return 0;
     }
@@ -450,8 +456,21 @@ bool csv_to_sqlite()
     return 1;
 }
 
-int main(int argc, char *argv[])
+bool file_exists(std::string filename) {
+    std::filesystem::path file = std::filesystem::current_path() / filename;
+    return std::filesystem::exists(file) && std::filesystem::is_regular_file(file);
+}
+
+/*std::string get_sqlite_database_version()
 {
+    return std::string(sqlite3_libversion());
+}*/
+
+int main(int const argc, char const *argv[])
+{
+    char const *name = argv[0];
+    (void)argc;
+
     printf(
         "Wikifolio Investment Universe Converter v%s\nCopyright (c) Jens A. Koch, 2021-%s.\n\n",
         app_version::get_version().c_str(),
@@ -459,11 +478,22 @@ int main(int argc, char *argv[])
 
     Timer total_application_timer;
 
-    Timer download_timer;
+    // Download
 
-    bool universe_downloaded = download(investment_universe_URL, xlsx_filename);
+    bool universe_downloaded = false;
 
-    download_timer.stop("Download");
+    if (file_exists(xlsx_filename)) {
+        std::cerr << "Download skipped. File already exists.\n";
+        universe_downloaded = true;
+    } else {
+        Timer download_timer;
+
+        universe_downloaded = download(investment_universe_URL, xlsx_filename);
+
+        download_timer.stop("Download");
+    }
+
+    // XLSX -> CSV
 
     if (universe_downloaded) {
 
@@ -476,6 +506,8 @@ int main(int argc, char *argv[])
         if (converted_to_csv) { rename_header_columns(); }
     }
 
+    // CSV -> SQLITE
+
     Timer csv_to_sqlite_timer;
 
     bool converted_to_sqlite = csv_to_sqlite();
@@ -484,7 +516,9 @@ int main(int argc, char *argv[])
 
     total_application_timer.stop("Total Runtime");
 
-    printf("Done.");
+    // FINI
+
+    std::cout << "Done.";
 
     return EXIT_SUCCESS;
 }

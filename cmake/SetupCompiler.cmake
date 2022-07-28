@@ -27,17 +27,15 @@ endif()
 # Define C++ Standard to use
 #-------------------------------------------------------------------
 
+set(CMAKE_CXX_STANDARD          20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS        ON)
+
 if(MSVC)
   set(CMAKE_CXX_STANDARD          23) # to get /std:c++latest on MSVC
-  set(CMAKE_CXX_STANDARD_REQUIRED ON)
-  set(CMAKE_CXX_EXTENSIONS        ON)
 endif()
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "CLANG")
-  set(CMAKE_CXX_STANDARD          20)
-  set(CMAKE_CXX_STANDARD_REQUIRED ON)
-  set(CMAKE_CXX_EXTENSIONS        ON)
-
   # enable incomplete features to get "std::format" support
   set(LIBCXX_ENABLE_INCOMPLETE_FEATURES ON)
 

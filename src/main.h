@@ -11,6 +11,7 @@
 #include <chrono>
 #include <iomanip>
 #include <type_traits>
+#include <filesystem>
 
 // use std::format on MSVC - use libfmt as polyfill on Linux
 #ifdef _WIN32
