@@ -5,18 +5,17 @@
 	"dockerFile": "Dockerfile",
 	"runArgs": [
 		// [optional] required for ptrace-based debuggers like for C++
-		"--cap-add=SYS_PTRACE", "--security-opt", "seccomp=unconfined",
+		"--cap-add=SYS_PTRACE",
+		"--security-opt",
+		"seccomp=unconfined",
 		"--privileged"
 	],
 
 	// Set *default* container specific settings.json values on container create.
 	"settings": {
-		"files.trimTrailingWhitespace": true,
-		"files.insertFinalNewline": true,
 		"terminal.integrated.defaultProfile.linux": "zsh",
-		"cmake.cmakePath": "cmake",
-		"cmake.ctestPath": "ctest",
-		"clangd.path": "clangd"
+		"files.trimTrailingWhitespace": true,
+		"files.insertFinalNewline": true
 	},
 
 	// Add the IDs of extensions you want installed when the container is created.
@@ -24,15 +23,5 @@
 		"editorconfig.editorconfig",
 		"ms-vscode.cpptools",
 		"ms-vscode.cmake-tools"
-	],
-
-	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [],
-
-	// Use 'postCreateCommand' to run commands after the container is created.
-	// "postCreateCommand": "gcc -v",
-
-	// Uncomment to connect as a non-root user. See https://aka.ms/vscode-remote/containers/non-root.
-	// Comment to be ROOT !
-	//"remoteUser": "coder"
+	]
 }

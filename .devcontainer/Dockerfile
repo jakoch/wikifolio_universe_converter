@@ -59,6 +59,8 @@ RUN apt-get update && \
     zsh \
     # iproute2 procps less gnupg
     fontconfig
+    # optional dependencies
+    doxygen graphviz ccache cppcheck
 
 # +-----------------------------+
 # | CMAKE - Latest Version      |
