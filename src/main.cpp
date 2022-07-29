@@ -134,12 +134,12 @@ private:
 public:
     Timer() = default;
 
-    inline void stop(char const *time_point_name)
+    void stop(char const *time_point_name)
     {
         auto const stop_time   = Time::now();
         auto const time_diff   = stop_time - start_time;
         auto const ms_duration = std::chrono::duration_cast<std::chrono::milliseconds>(time_diff).count();
-        constexpr char const* fmt = "[{}] Time Elapsed: {}.{} sec\n";
+        char constexpr const* fmt = "[{}] Time Elapsed: {}.{} sec\n";
         std::ostringstream strStream;
         strStream << format(fmt, time_point_name, (ms_duration / 1000), (ms_duration % 1000));
         std::cout << strStream.str();
