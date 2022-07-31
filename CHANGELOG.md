@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+## [vNext] - unreleased
 
 ### Added
 
@@ -23,7 +23,7 @@ All notable changes to this project will be documented in this file.
 
 ## [0.1.0] - 2021-09-20
 
-[Unreleased]: https://github.com/jakoch/wikifolio_universe_converter/compare/v1.3.0...HEAD
+[vNext]: https://github.com/jakoch/wikifolio_universe_converter/compare/v1.3.0...HEAD
 [1.0.3]: https://github.com/jakoch/wikifolio_universe_converter/compare/v1.0.2...v1.0.3
 [1.0.2]: https://github.com/jakoch/wikifolio_universe_converter/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/jakoch/wikifolio_universe_converter/compare/v0.2.0...v1.0.1
