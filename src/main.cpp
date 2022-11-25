@@ -401,7 +401,7 @@ bool csv_to_sqlite()
     // get first line and ignore it. it's the table header, which is set in sql_table_schema (see create_table()).
     std::getline(csv_file, line);
 
-    // warp insert queries in an transaction block
+    // wrap insert queries in transaction block
     r = sqlite3_exec(db, "BEGIN TRANSACTION;", nullptr, nullptr, &zErrMsg);
 
     if (r != SQLITE_OK) {
@@ -460,11 +460,6 @@ bool file_exists(std::string filename) {
     std::filesystem::path file = std::filesystem::current_path() / filename;
     return std::filesystem::exists(file) && std::filesystem::is_regular_file(file);
 }
-
-/*std::string get_sqlite_database_version()
-{
-    return std::string(sqlite3_libversion());
-}*/
 
 int main(int const argc, char const *argv[])
 {
