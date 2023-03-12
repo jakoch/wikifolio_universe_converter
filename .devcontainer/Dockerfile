@@ -5,21 +5,24 @@
 FROM debian:sid-slim
 
 # +-----------------------------+
-# | METADATA                    |
-# +-----------------------------+
-
-LABEL maintainer Jens A. Koch <jakoch@web.de>
-LABEL version="2022-01-27"
-LABEL description="C++ DevBox (LLVM 13 & GCC 11) (CMake & VCPKG) (zsh + p10k)"
-LABEL base.image="debian:sid-slim"
-
-# +-----------------------------+
 # | ARGS                        |
 # +-----------------------------+
 
 ARG USERNAME=vscode
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
+
+ARG LLVM_VERSION=15
+ARG GCC_VERSION=12
+
+# +-----------------------------+
+# | METADATA                    |
+# +-----------------------------+
+
+LABEL maintainer Jens A. Koch <jakoch@web.de>
+LABEL version="2022-01-27"
+LABEL description="C++ DevBox (LLVM ${LLVM_VERSION} & GCC ${GCC_VERSION}) (CMake & VCPKG) (zsh + p10k)"
+LABEL base.image="debian:sid-slim"
 
 # +-----------------------------+
 # | ENV                         |
@@ -58,7 +61,7 @@ RUN apt-get update && \
     # shell
     zsh \
     # iproute2 procps less gnupg
-    fontconfig
+    fontconfig \
     # optional dependencies
     doxygen graphviz ccache cppcheck
 
@@ -84,16 +87,16 @@ RUN version="$(curl -s https://api.github.com/repos/Kitware/CMake/releases/lates
 RUN curl -sS https://apt.llvm.org/llvm-snapshot.gpg.key | (OUT=$(apt-key add - 2>&1) || echo $OUT)
 
 # https://apt.llvm.org/unstable/pool/main/l/
-RUN add-apt-repository "deb https://apt.llvm.org/unstable/    llvm-toolchain-14  main" && \
+RUN add-apt-repository "deb https://apt.llvm.org/unstable/    llvm-toolchain-$LLVM_VERSION  main" && \
     apt-get -qq update && \
     apt-get install -qqy --no-install-recommends \
-    clang-14 lldb-14 lld-14 clangd-14 clang-format-14 clang-tidy-14 libc++-dev libc++abi-dev
+    clang-$LLVM_VERSION lldb-$LLVM_VERSION lld-$LLVM_VERSION clangd-$LLVM_VERSION clang-format-$LLVM_VERSION clang-tidy-$LLVM_VERSION libc++-dev libc++abi-dev
 
-ENV PATH="/usr/lib/llvm-14/bin:/usr/lib/llvm-14/include:${PATH}"
-ENV LD_LIBRARY_PATH="/usr/lib/llvm-14/lib:${LD_LIBRARY_PATH}"
+ENV PATH="/usr/lib/llvm-$LLVM_VERSION/bin:/usr/lib/llvm-$LLVM_VERSION/include:${PATH}"
+ENV LD_LIBRARY_PATH="/usr/lib/llvm-$$LLVM_VERSION/lib:${LD_LIBRARY_PATH}"
 
-ENV CC=/usr/bin/clang-14
-ENV CXX=/usr/bin/clang++-14
+ENV CC=/usr/bin/clang$LLVM_VERSION
+ENV CXX=/usr/bin/clang++$LLVM_VERSION
 
 # +-----------------------------+
 # | vcpkg                 ~225MB|
