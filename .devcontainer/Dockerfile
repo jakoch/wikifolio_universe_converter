@@ -2,7 +2,7 @@
 # | BASE IMAGE             ~30MB|        See https://hub.docker.com/_/debian
 # +-----------------------------+
 
-FROM debian:sid-slim
+FROM debian:bullseye-slim
 
 # +-----------------------------+
 # | METADATA                    |
@@ -10,8 +10,8 @@ FROM debian:sid-slim
 
 LABEL maintainer Jens A. Koch <jakoch@web.de>
 LABEL version="2022-01-27"
-LABEL description="C++ DevBox (LLVM 13 & GCC 11) (CMake & VCPKG) (zsh + p10k)"
-LABEL base.image="debian:sid-slim"
+LABEL description="C++ DevBox (LLVM 15 & GCC 11) (CMake & VCPKG) (zsh + p10k)"
+LABEL base.image="debian:bullseye-slim"
 
 # +-----------------------------+
 # | ARGS                        |
@@ -84,16 +84,16 @@ RUN version="$(curl -s https://api.github.com/repos/Kitware/CMake/releases/lates
 RUN curl -sS https://apt.llvm.org/llvm-snapshot.gpg.key | (OUT=$(apt-key add - 2>&1) || echo $OUT)
 
 # https://apt.llvm.org/unstable/pool/main/l/
-RUN add-apt-repository "deb https://apt.llvm.org/unstable/    llvm-toolchain-14  main" && \
+RUN add-apt-repository "deb https://apt.llvm.org/unstable/    llvm-toolchain-15  main" && \
     apt-get -qq update && \
     apt-get install -qqy --no-install-recommends \
-    clang-14 lldb-14 lld-14 clangd-14 clang-format-14 clang-tidy-14 libc++-dev libc++abi-dev
+    clang-15 lldb-15 lld-15 clangd-15 clang-format-15 clang-tidy-15 libc++-dev libc++abi-dev
 
-ENV PATH="/usr/lib/llvm-14/bin:/usr/lib/llvm-14/include:${PATH}"
-ENV LD_LIBRARY_PATH="/usr/lib/llvm-14/lib:${LD_LIBRARY_PATH}"
+ENV PATH="/usr/lib/llvm-15/bin:/usr/lib/llvm-15/include:${PATH}"
+ENV LD_LIBRARY_PATH="/usr/lib/llvm-15/lib:${LD_LIBRARY_PATH}"
 
-ENV CC=/usr/bin/clang-14
-ENV CXX=/usr/bin/clang++-14
+ENV CC=/usr/bin/clang-15
+ENV CXX=/usr/bin/clang++-15
 
 # +-----------------------------+
 # | vcpkg                 ~225MB|
