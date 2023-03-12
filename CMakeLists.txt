@@ -49,7 +49,7 @@ include(ShowBuildTargetProperties)
 # Versionize
 #-------------------------------------------------------------------
 
-configure_file("src/version.cpp.in" "version.cpp" @ONLY)
+configure_file("src/version.h.in" "version.h" @ONLY)
 
 #-------------------------------------------------------------------
 # Find Dependencies
@@ -78,11 +78,10 @@ find_package(xlsxio_read REQUIRED)
 # Setup Sources
 #-------------------------------------------------------------------
 
-set(SRC
+set(SOURCES
   src/main.h
   src/main.cpp
-  src/version.h
-  ${CMAKE_CURRENT_BINARY_DIR}/version.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/version.h
 )
 
 #-------------------------------------------------------------------
@@ -93,7 +92,7 @@ set(SRC
 # Build Target: wiuc                                    (executable)
 #-------------------------------------------------------------------
 
-add_executable(wiuc ${SRC})
+add_executable(wiuc ${SOURCES})
 
 if(MSVC)
   # Export symbols of xlsxio_read.
@@ -115,8 +114,10 @@ endif()
 
 target_include_directories(wiuc PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>"
+     # to include the generated "version.h"
+    ${CMAKE_CURRENT_BINARY_DIR}
 )
-target_include_directories(wiuc PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+set_target_properties(wiuc PROPERTIES LINK_FLAGS "/NODEFAULTLIB:LIBCMTD")
 
 #-------------------------------------------------------------------
 # FeatureSummary

@@ -1,9 +1,21 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+
 ## [vNext] - unreleased
 
 ### Added
+
+### Bugfix
+
+### Changed
+
+
+## [1.0.4] - 2023-03-12
+
+### Added
+- CLI options (-h,-v,-vj,-vo,-c)
+
 
 ### Bugfix
 
@@ -13,7 +25,9 @@ All notable changes to this project will be documented in this file.
   - applied clang-format to source
 - Simplified the Timer class
   - it's no longer a template taking a chrono resolution
-- Changed things.
+- reworked app_version
+
+## [1.0.3] - 2022-05-21
 
 ## [1.0.2] - 2022-04-16
 
@@ -23,7 +37,8 @@ All notable changes to this project will be documented in this file.
 
 ## [0.1.0] - 2021-09-20
 
-[vNext]: https://github.com/jakoch/wikifolio_universe_converter/compare/v1.3.0...HEAD
+[vNext]: https://github.com/jakoch/wikifolio_universe_converter/compare/v1.0.4...HEAD
+[1.0.4]: https://github.com/jakoch/wikifolio_universe_converter/compare/v1.0.3...v1.0.4
 [1.0.3]: https://github.com/jakoch/wikifolio_universe_converter/compare/v1.0.2...v1.0.3
 [1.0.2]: https://github.com/jakoch/wikifolio_universe_converter/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/jakoch/wikifolio_universe_converter/compare/v0.2.0...v1.0.1

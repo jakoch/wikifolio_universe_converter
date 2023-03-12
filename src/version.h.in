@@ -1,0 +1,67 @@
+#pragma once
+
+#include <string>
+#include <string_view>
+
+class semantic_version
+{
+public:
+    int major = @PROJECT_VERSION_MAJOR@;
+    int minor = @PROJECT_VERSION_MINOR@;
+    int patch = @PROJECT_VERSION_PATCH@;
+};
+
+class app_version
+{
+public:
+    static constexpr std::string_view nice_name   = "Wikifolio Investment Universe Converter";
+    static constexpr std::string_view name        = "@APP_NAME@";
+    static constexpr std::string_view version     = "@PROJECT_VERSION_MAJOR@.@PROJECT_VERSION_MINOR@.@PROJECT_VERSION_PATCH@";
+    static constexpr std::string_view license     = "@APP_LICENSE@";
+    static constexpr std::string_view description = "@APP_DESC@";
+    static constexpr std::string_view homepage    = "@APP_HOMEPAGE@";
+    static constexpr semantic_version semantic_version{@PROJECT_VERSION_MAJOR@, @PROJECT_VERSION_MINOR@, @PROJECT_VERSION_PATCH@};
+
+    static constexpr std::string_view get_version_json() noexcept {
+        return
+            "{\n  \"name\":        \"@APP_NAME@\",\n"
+            "  \"version\":     \"@PROJECT_VERSION_MAJOR@.@PROJECT_VERSION_MINOR@.@PROJECT_VERSION_PATCH@\",\n"
+            "  \"description\": \"@APP_DESC@\",\n"
+            "  \"license\":     \"@APP_LICENSE@\",\n"
+            "  \"homepage\":    \"@APP_HOMEPAGE@\",\n"
+            "  \"copyright\":   \"Copyright (c) Jens A. Koch.\"\n}";
+    }
+
+    /*
+    * Getters - c_str() types
+    */
+
+    static constexpr const char* get_name()
+    {
+        return name.data();
+    }
+    static constexpr const char* get_nice_name()
+    {
+        return nice_name.data();
+    }
+    static constexpr const char* get_license()
+    {
+        return license.data();
+    }
+    static constexpr const char* get_description()
+    {
+        return description.data();
+    }
+    static constexpr const char* get_version()
+    {
+        return version.data();
+    }
+    static constexpr const char* get_homepage()
+    {
+        return homepage.data();
+    }
+    static constexpr const char* get_copyright()
+    {
+        return std::string("Copyright (c) Jens A. Koch, 2021-" + std::string(__DATE__).substr(7, 4)).data();
+    }
+};
