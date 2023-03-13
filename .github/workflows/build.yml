@@ -251,3 +251,50 @@ jobs:
         with:
           name: ${{ env.ARTIFACT_NAME }}
           path: artifact/**/*
+
+# ---------------------------------------------------------------------------------------
+
+  github-release:
+
+# ---------------------------------------------------------------------------------------
+
+    name: Draft GitHub Release
+    runs-on: ubuntu-latest
+    needs:
+      - build-on-windows
+      - build-on-linux
+
+    # on tag push
+    #if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+
+    # Global environment variables
+    env:
+      TAG: ${{ github.ref_name }}
+      # TODO research, if this is needed?
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - name: 🤘 Checkout Code
+        uses: actions/checkout@v3 # https://github.com/actions/checkout
+
+      - name: 🔽 Download all artifacts from previous jobs
+        uses: actions/download-artifact@v3 # https://github.com/actions/download-artifact
+
+      - name: Display downloaded files
+        run: ls -R
+
+      - name: Extract Release Notes from Changelog
+        id: extract-release-notes
+        uses: ffurrer2/extract-release-notes@v1 # https://github.com/ffurrer2/extract-release-notes
+
+      - name: 📋 Create Draft Release
+        # https://cli.github.com/manual/gh_release_create
+        env:
+          RELEASE_NOTES: ${{ steps.extract-release-notes.outputs.release_notes }}
+        run: |
+          gh release create $TAG --title "Release $TAG" --notes "$RELEASE_NOTES" --draft
+
+      #- name: 📦 Create Github Release
+      #  # https://cli.github.com/manual/gh_release_upload
+      #  run: |
+      #    gh release upload $TAG
