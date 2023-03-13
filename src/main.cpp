@@ -1,3 +1,7 @@
+// Copyright 2022 Jens A. Koch.
+// SPDX-License-Identifier: MIT
+// This file is part of jakoch/wikifolio_universe_converter.
+
 #include "main.h"
 
 XLSXReader::XLSXReader(char const *filename)
