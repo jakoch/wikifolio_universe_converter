@@ -18,13 +18,11 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
 option(BUILD_SHARED_LIBS "Build shared libraries"               OFF)
 
-# VCPKG_TARGET_TRIPLET
-if(WIN32)
+# local dev.box VCPKG_TARGET_TRIPLET
+if(WIN32 AND NOT "$ENV{VCPKG_TARGET_TRIPLET}")
     set(VCPKG_TARGET_TRIPLET "x64-windows-static")
-elseif(APPLE)
-    set(VCPKG_TARGET_TRIPLET "x64-osx-static")
 elseif(UNIX AND NOT APPLE)
-    set(VCPKG_TARGET_TRIPLET "x64-linux-static")
+    set(VCPKG_TARGET_TRIPLET "x64-linux")
 endif()
 
 #-------------------------------------------------------------------
