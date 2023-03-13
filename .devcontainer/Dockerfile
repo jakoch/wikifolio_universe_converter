@@ -5,21 +5,24 @@
 FROM debian:bullseye-slim
 
 # +-----------------------------+
-# | METADATA                    |
-# +-----------------------------+
-
-LABEL maintainer Jens A. Koch <jakoch@web.de>
-LABEL version="2022-01-27"
-LABEL description="C++ DevBox (LLVM 15 & GCC 11) (CMake & VCPKG) (zsh + p10k)"
-LABEL base.image="debian:bullseye-slim"
-
-# +-----------------------------+
 # | ARGS                        |
 # +-----------------------------+
 
 ARG USERNAME=vscode
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
+
+ARG LLVM_VERSION=15
+ARG GCC_VERSION=12
+
+# +-----------------------------+
+# | METADATA                    |
+# +-----------------------------+
+
+LABEL maintainer Jens A. Koch <jakoch@web.de>
+LABEL version="2022-01-27"
+LABEL description="C++ DevBox (LLVM ${LLVM_VERSION} & GCC ${GCC_VERSION}) (CMake & VCPKG) (zsh + p10k)"
+LABEL base.image="debian:sid-slim"
 
 # +-----------------------------+
 # | ENV                         |
@@ -47,10 +50,8 @@ RUN apt-get update && \
     build-essential cppcheck valgrind ccache wget git jq \
     # required by Visual Studio
     openssh-server g++ gdb make ninja-build rsync zip sudo \
-    # required by VCPKG
-    curl unzip tar pkg-config \
-    # optional downloader for VCPKG
-    aria2 \
+    # required by VCPKG + optional downloader for VCPKG
+    curl unzip tar pkg-config aria2 \
     # required by LLVM
     zlib1g-dev \
     # locale
@@ -58,7 +59,7 @@ RUN apt-get update && \
     # shell
     zsh \
     # iproute2 procps less gnupg
-    fontconfig
+    fontconfig \
     # optional dependencies
     doxygen graphviz ccache cppcheck
 
@@ -84,16 +85,18 @@ RUN version="$(curl -s https://api.github.com/repos/Kitware/CMake/releases/lates
 RUN curl -sS https://apt.llvm.org/llvm-snapshot.gpg.key | (OUT=$(apt-key add - 2>&1) || echo $OUT)
 
 # https://apt.llvm.org/unstable/pool/main/l/
-RUN add-apt-repository "deb https://apt.llvm.org/unstable/    llvm-toolchain-15  main" && \
+RUN add-apt-repository "deb https://apt.llvm.org/unstable/    llvm-toolchain-$LLVM_VERSION  main" && \
     apt-get -qq update && \
     apt-get install -qqy --no-install-recommends \
-    clang-15 lldb-15 lld-15 clangd-15 clang-format-15 clang-tidy-15 libc++-dev libc++abi-dev
+    clang-$LLVM_VERSION lldb-$LLVM_VERSION lld-$LLVM_VERSION \
+    clangd-$LLVM_VERSION clang-format-$LLVM_VERSION clang-tidy-$LLVM_VERSION \
+    libc++-dev libc++abi-dev
 
-ENV PATH="/usr/lib/llvm-15/bin:/usr/lib/llvm-15/include:${PATH}"
-ENV LD_LIBRARY_PATH="/usr/lib/llvm-15/lib:${LD_LIBRARY_PATH}"
+ENV PATH="/usr/lib/llvm-$LLVM_VERSION/bin:/usr/lib/llvm-$LLVM_VERSION/include:${PATH}"
+ENV LD_LIBRARY_PATH="/usr/lib/llvm-$$LLVM_VERSION/lib:${LD_LIBRARY_PATH}"
 
-ENV CC=/usr/bin/clang-15
-ENV CXX=/usr/bin/clang++-15
+ENV CC=/usr/bin/clang$LLVM_VERSION
+ENV CXX=/usr/bin/clang++$LLVM_VERSION
 
 # +-----------------------------+
 # | vcpkg                 ~225MB|
