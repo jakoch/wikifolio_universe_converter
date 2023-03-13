@@ -18,6 +18,15 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
 option(BUILD_SHARED_LIBS "Build shared libraries"               OFF)
 
+# VCPKG_TARGET_TRIPLET
+if(WIN32)
+    set(VCPKG_TARGET_TRIPLET "x64-windows-static")
+elseif(APPLE)
+    set(VCPKG_TARGET_TRIPLET "x64-osx-static")
+elseif(UNIX AND NOT APPLE)
+    set(VCPKG_TARGET_TRIPLET "x64-linux-static")
+endif()
+
 #-------------------------------------------------------------------
 # Get Versioning Data
 #-------------------------------------------------------------------
@@ -48,6 +57,8 @@ include(ShowBuildTargetProperties)
 #-------------------------------------------------------------------
 # Versionize
 #-------------------------------------------------------------------
+
+string(TIMESTAMP CURRENT_YEAR "%Y")
 
 configure_file("src/version.h.in" "version.h" @ONLY)
 
