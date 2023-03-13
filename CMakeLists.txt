@@ -126,7 +126,10 @@ target_include_directories(wiuc PUBLIC
      # to include the generated "version.h"
     ${CMAKE_CURRENT_BINARY_DIR}
 )
-set_target_properties(wiuc PROPERTIES LINK_FLAGS "/NODEFAULTLIB:LIBCMTD")
+
+if(WIN32)
+  set_target_properties(wiuc PROPERTIES LINK_FLAGS "/NODEFAULTLIB:LIBCMTD")
+endif()
 
 #-------------------------------------------------------------------
 # FeatureSummary
