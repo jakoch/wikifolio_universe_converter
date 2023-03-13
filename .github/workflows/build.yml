@@ -8,7 +8,7 @@
 
 name: Build
 
-on: 
+on:
  - push
  - pull_request
  # You can manually run this workflow.
@@ -16,7 +16,11 @@ on:
 
 jobs:
 
+# ---------------------------------------------------------------------------------------
+
   build-on-windows:
+
+# ---------------------------------------------------------------------------------------
 
     name: ${{ matrix.config.job_name }}
 
@@ -138,11 +142,11 @@ jobs:
           name: ${{ env.ARTIFACT_NAME }}
           path: artifact/**/*
 
-      - name: 📦 Create Github Release (on tag)
-        uses: softprops/action-gh-release@v1 # https://github.com/softprops/action-gh-release
-        if: startsWith(github.ref, 'refs/tags/')
-        with:
-          files: artifact/**/*
+      #- name: 📦 Create Github Release (on tag)
+      #  uses: softprops/action-gh-release@v1 # https://github.com/softprops/action-gh-release
+      #  if: startsWith(github.ref, 'refs/tags/')
+      #  with:
+      #    files: artifact/**/*
 
 # ---------------------------------------------------------------------------------------
 
@@ -242,14 +246,8 @@ jobs:
       # The binary inside the zip is named "wiuc".
       #
       - name: 🔼 Upload Build Artifact (on every commit)
-        uses: actions/upload-artifact@v3 # https://github.com/actions/upload-artifact
         if: always()
+        uses: actions/upload-artifact@v3 # https://github.com/actions/upload-artifact
         with:
           name: ${{ env.ARTIFACT_NAME }}
           path: artifact/**/*
-
-      - name: 📦 Create Github Release (only on tag)
-        uses: softprops/action-gh-release@v1 # https://github.com/softprops/action-gh-release
-        if: startsWith(github.ref, 'refs/tags/')
-        with:
-          files: artifact/**/*
