@@ -282,51 +282,62 @@ jobs:
       #  We are waiting for the "extractArtifact" option, referencing:
       #  # https://github.com/actions/download-artifact/issues/143
       #
-      #- name: 🔽 Download all artifacts from previous jobs
-      #  uses: actions/download-artifact@v3 # https://github.com/actions/download-artifact
+      - name: 🔽 Download all artifacts from previous jobs
+        uses: actions/download-artifact@v3 # https://github.com/actions/download-artifact
       #   with:
       #     extractArtifact: false # not yet available
 
+      # Then we have a non-working Workaround, which fails with ID not found.
       # Workaround to download all artifact archives (not extracting them!)
-      # filters the artifacts for "Release"
-      - name: 🔽 Download all artifacts from previous jobs
-        uses: actions/github-script@v6 # https://github.com/actions/script
-        with:
-          script: |
-            // Query: select all artifacts from this workflow
-            const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              run_id: context.payload.workflow_run.id
-            });
-            if(!artifacts) {
-              console.log(`Could not fetch artifacts from run ID ${context.payload.workflow_run.id}`)
-              return;
-            }
-            console.log(artifacts);
-            // Query: filter artifacts by name
-            const matchedArtifacts = artifacts.data.artifacts.filter((artifact) => {
-              return artifact.name.includes("Release")
-                  && artifact.name.endsWith('zip');
-            });
-            console.log(matchedArtifacts);
-            const fs = require('fs');
-            matchedArtifacts.forEach(async (artifact) => {
-              const download = await github.rest.actions.downloadArtifact({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                artifact_id: artifact.id,
-                archive_format: 'zip',
-              });
-              fs.writeFileSync(`${{ github.workspace }}/${artifact.name}.zip`, Buffer.from(download.data));
-            });
+      # Filters artifacts by name: must contain "Release" and "zip".
+      #- name: 🔽 Download all artifacts from previous jobs
+      #  uses: actions/github-script@v6 # https://github.com/actions/script
+      #  with:
+      #    script: |
+      #      // Query: select all artifacts from this workflow
+      #      const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
+      #        owner: context.repo.owner,
+      #        repo: context.repo.repo,
+      #        run_id: context.payload.workflow_run.id
+      #      });
+      #      if(!artifacts) {
+      #        console.log(`Could not fetch artifacts from run ID ${context.payload.workflow_run.id}`)
+      #        return;
+      #      }
+      #      console.log(artifacts);
+      #      // Query: filter artifacts by name
+      #      const matchedArtifacts = artifacts.data.artifacts.filter((artifact) => {
+      #        return artifact.name.includes("Release")
+      #            && artifact.name.endsWith('zip');
+      #      });
+      #      console.log(matchedArtifacts);
+      #      const fs = require('fs');
+      #      matchedArtifacts.forEach(async (artifact) => {
+      #        const download = await github.rest.actions.downloadArtifact({
+      #          owner: context.repo.owner,
+      #          repo: context.repo.repo,
+      #          artifact_id: artifact.id,
+      #          archive_format: 'zip',
+      #        });
+      #        fs.writeFileSync(`${{ github.workspace }}/${artifact.name}.zip`, Buffer.from(download.data));
+      #      });
 
       - name: Display downloaded files
         run: |
           ls -R
-          rm -f *-Clang10-*.zip
-          rm -f *-GCC9-*.zip
-          rm -f *-VC16-*.zip
+
+      #- name: Delete all non-release artifacts
+      #  run: |
+      #    rm -f *-Clang10-*.zip
+      #    rm -f *-GCC9-*.zip
+      #    rm -f *-VC16-*.zip
+      #    ls -R
+
+      - name: Delete all non-release artifact folders
+        run: |
+          rm -f *-Clang10-*
+          rm -f *-GCC9-*
+          rm -f *-VC16-*
           ls -R
 
       # The regexp uses named groups for matching:
@@ -342,13 +353,34 @@ jobs:
       # - apt install rename
       # - rename -n --verbose (for verbose dry-run)
       #
-      - name: Rename archives using a wild named group regexp.
+      #- name: Rename archive files using a wild named group regexp.
+      #  env:
+      #    ARTIFACT_REGEXP: '(?P<name>wiuc)-(?P<version>.*)-(?P<commit>.*)-(?P<compiler>.*)-(?P<arch>.*)-(?P<os>.*)-(?P<linktype>.*)-Release.zip'
+      #    RELEASE_REGEXP: '$+{name}-$+{version}-$+{compiler}-$+{arch}-$+{os}.zip'
+      #  run: |
+      #    rename "s/$ARTIFACT_REGEXP/$RELEASE_REGEXP/" *.zip
+      #    ls -R
+
+      - name: Rename archive folders using a wildcard named group regexp
         env:
-          ARTIFACT_REGEXP: '(?P<name>wiuc)-(?P<version>.*)-(?P<commit>.*)-(?P<compiler>.*)-(?P<arch>.*)-(?P<os>.*)-(?P<linktype>.*)-Release.zip'
-          RELEASE_REGEXP: '$+{name}-$+{version}-$+{compiler}-$+{arch}-$+{os}.zip'
+          ARTIFACT_REGEXP: '(?P<name>wiuc)-(?P<version>.*)-(?P<commit>.*)-(?P<compiler>.*)-(?P<arch>.*)-(?P<os>.*)-(?P<linktype>.*)-Release'
+          RELEASE_REGEXP: '${name}-${version}-${compiler}-${arch}-${os}'
         run: |
-          rename "s/$ARTIFACT_REGEXP/$RELEASE_REGEXP/" *.zip
-          ls -R
+          for dir in *; do
+            if [[ -d $dir && $dir =~ $ARTIFACT_REGEXP ]]; then
+              new_name=$(echo "$dir" | sed -E "s/$ARTIFACT_REGEXP/$RELEASE_REGEXP/")
+              mv -vd "$dir" "$new_name"
+            fi
+          done
+
+      - name: Zip release folders
+        env:
+          RELEASE_REGEXP: '${name}-${version}-${compiler}-${arch}-${os}'
+        run: |
+          for dir in $(find . -type d -name "*$(echo $RELEASE_REGEXP | sed 's/-/\\&/g')*"); do
+            zip -r "${dir}.zip" "$dir"
+            rm -r "$dir"
+          done
 
       - name: Extract Release Notes from Changelog
         id: extract-release-notes
@@ -361,8 +393,7 @@ jobs:
         run: |
           gh release create $TAG --title "Release $TAG" --notes "$RELEASE_NOTES" --draft
 
-      # --clobber = Overwrite existing assets of the same name
       - name: 📦 Create Github Release
         # https://cli.github.com/manual/gh_release_upload
         run: |
-          gh release upload $TAG *.zip --clobber
+          gh release upload $TAG *.zip
