@@ -475,9 +475,9 @@ static std::string printHelpText(char const * const program_name)
             "Options:\n"
             "  -c,  --convert        Convert from XLSX to SQLite and CSV\n"
             "  -h,  --help           Display this help message\n"
-            "  -v,  --version        Display version information\n"
-            "  -vj, --version-json   Display version information as JSON\n"
-            "  -vo, --version-only   Display version number only\n",
+            "  -V,  --version        Display version information\n"
+            "  -Vj, --version-json   Display version information as JSON\n"
+            "  -Vo, --version-only   Display version number only\n",
             app_version::get_nice_name(),
             app_version::get_copyright(),
             program_name);
@@ -503,17 +503,17 @@ int main(int const argc, char const *argv[])
         std::cout << printHelpText(name) << std::endl;
         return EXIT_SUCCESS;
     }
-    else if (argc == 2 && (std::string(argv[1]) == "-v" || std::string(argv[1]) == "--version"))
+    else if (argc == 2 && (std::string(argv[1]) == "-V" || std::string(argv[1]) == "--version"))
     {
         printf("%s v%s\n", app_version::get_nice_name(), app_version::get_version());
         return EXIT_SUCCESS;
     }
-    else if (argc == 2 && std::string(argv[1]) == "-vo" || std::string(argv[1]) == "--version-only")
+    else if (argc == 2 && std::string(argv[1]) == "-Vo" || std::string(argv[1]) == "--version-only")
     {
         printf("%s\n", app_version::get_version());
         return EXIT_SUCCESS;
     }
-    else if (argc == 2 && std::string(argv[1]) == "-vj" || std::string(argv[1]) == "--version-json")
+    else if (argc == 2 && std::string(argv[1]) == "-Vj" || std::string(argv[1]) == "--version-json")
     {
         std::cout << app_version::get_version_json() << std::endl;
         return EXIT_SUCCESS;
