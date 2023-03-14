@@ -341,11 +341,12 @@ jobs:
           rm -rf *-VC16-*
           ls -R wiuc*
 
+      # zip with -j to only include files of the folder and not the folder itself
       - name: Zip release folders
         env:
           RELEASE_REGEXP: '${name}-${version}-${compiler}-${arch}-${os}'
         run: |
-          for dir in ./wiuc*/ ; do zip -r "${dir%/}.zip" "$dir"; done
+          for dir in ./wiuc*/ ; do zip -jr "${dir%/}.zip" "$dir"; done
           ls -R
 
       # The regexp uses named groups for matching:
