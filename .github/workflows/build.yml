@@ -371,7 +371,7 @@ jobs:
           RELEASE_REGEXP: '$+{name}-$+{version}-$+{compiler}-$+{arch}-$+{os}.zip'
         run: |
           for file in *.zip; do
-            rename -n "s/$ARTIFACT_REGEXP/$RELEASE_REGEXP/" "$file"
+            rename "s/$ARTIFACT_REGEXP/$RELEASE_REGEXP/" "$file"
           done
           ls -R
 
