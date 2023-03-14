@@ -335,9 +335,17 @@ jobs:
 
       - name: Delete all non-release artifact folders
         run: |
-          rm -f *-Clang10-*
-          rm -f *-GCC9-*
-          rm -f *-VC16-*
+          rm -rf *-RelWithDebInfo
+          rm -rf *-Clang10-*
+          rm -rf *-GCC9-*
+          rm -rf *-VC16-*
+          ls -R wiuc*
+
+      - name: Zip release folders
+        env:
+          RELEASE_REGEXP: '${name}-${version}-${compiler}-${arch}-${os}'
+        run: |
+          for dir in ./wiuc*/ ; do zip -r "${dir%/}.zip" "$dir"; done
           ls -R
 
       # The regexp uses named groups for matching:
@@ -353,34 +361,13 @@ jobs:
       # - apt install rename
       # - rename -n --verbose (for verbose dry-run)
       #
-      #- name: Rename archive files using a wild named group regexp.
-      #  env:
-      #    ARTIFACT_REGEXP: '(?P<name>wiuc)-(?P<version>.*)-(?P<commit>.*)-(?P<compiler>.*)-(?P<arch>.*)-(?P<os>.*)-(?P<linktype>.*)-Release.zip'
-      #    RELEASE_REGEXP: '$+{name}-$+{version}-$+{compiler}-$+{arch}-$+{os}.zip'
-      #  run: |
-      #    rename "s/$ARTIFACT_REGEXP/$RELEASE_REGEXP/" *.zip
-      #    ls -R
-
-      - name: Rename archive folders using a wildcard named group regexp
+      - name: Rename archive files using a wild named group regexp.
         env:
-          ARTIFACT_REGEXP: '(?P<name>wiuc)-(?P<version>.*)-(?P<commit>.*)-(?P<compiler>.*)-(?P<arch>.*)-(?P<os>.*)-(?P<linktype>.*)-Release'
-          RELEASE_REGEXP: '${name}-${version}-${compiler}-${arch}-${os}'
+          ARTIFACT_REGEXP: '(?P<name>wiuc)-(?P<version>.*)-(?P<commit>.*)-(?P<compiler>.*)-(?P<arch>.*)-(?P<os>.*)-(?P<linktype>.*)-Release.zip'
+          RELEASE_REGEXP: '$+{name}-$+{version}-$+{compiler}-$+{arch}-$+{os}.zip'
         run: |
-          for dir in *; do
-            if [[ -d $dir && $dir =~ $ARTIFACT_REGEXP ]]; then
-              new_name=$(echo "$dir" | sed -E "s/$ARTIFACT_REGEXP/$RELEASE_REGEXP/")
-              mv -vd "$dir" "$new_name"
-            fi
-          done
-
-      - name: Zip release folders
-        env:
-          RELEASE_REGEXP: '${name}-${version}-${compiler}-${arch}-${os}'
-        run: |
-          for dir in $(find . -type d -name "*$(echo $RELEASE_REGEXP | sed 's/-/\\&/g')*"); do
-            zip -r "${dir}.zip" "$dir"
-            rm -r "$dir"
-          done
+          rename "s/$ARTIFACT_REGEXP/$RELEASE_REGEXP/" *.zip
+          ls -R
 
       - name: Extract Release Notes from Changelog
         id: extract-release-notes
