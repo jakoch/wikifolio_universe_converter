@@ -293,25 +293,35 @@ jobs:
         uses: actions/github-script@v6 # https://github.com/actions/script
         with:
           script: |
+            // Query: select all artifacts from this workflow
             const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              run_id: ${{ github.event.workflow_run.id }}
-            });
-            console.log(artifacts);
-            const matchedArtifacts = artifacts.data.artifacts.filter((artifact) => {
-              return artifact.name.includes("Release") && artifact.name.endsWith('zip');
-            });
-            console.log(matchedArtifacts);
-            const fs = require('fs');
-            for (const artifact of matchedArtifacts) {
-              const download = await github.rest.actions.downloadArtifact({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                artifact_id: artifact.id,
-                archive_format: 'zip',
-              });
-              fs.writeFileSync(`${{github.workspace}}/${artifact.name}.zip`, Buffer.from(download.data));
+                run_id: context.payload.workflow_run.id
+            });
+            if(!artifacts) {
+              console.log(`Could not fetch artifacts from run ID ${context.payload.workflow_run.id}`)
+              return;
+            }
+            console.log(artifacts);
+
+            // Query: filter artifacts by name
+            const matchedArtifacts = artifacts.data.artifacts.filter((artifact) => {
+                return artifact.name.includes("Release")
+                    && artifact.name.endsWith('zip');
+            });
+            console.log(matchedArtifacts);
+
+            // Download each matchedArtifact
+            const fs = require('fs');
+            for (const artifact of matchedArtifacts) {
+                const download = await github.rest.actions.downloadArtifact({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    artifact_id: artifact.id,
+                    archive_format: 'zip',
+                });
+                fs.writeFileSync(`${{ github.workspace }}/${artifact.name}.zip`, Buffer.from(download.data));
             }
 
       - name: Display downloaded files
