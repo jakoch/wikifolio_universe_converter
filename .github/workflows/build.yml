@@ -361,6 +361,9 @@ jobs:
       # - apt install rename
       # - rename -n --verbose (for verbose dry-run)
       #
+      - name: Install rename
+        run: sudo apt update && sudo apt install -y rename
+
       - name: Rename archive files using a wild named group regexp.
         env:
           ARTIFACT_REGEXP: '(?P<name>wiuc)-(?P<version>.*)-(?P<commit>.*)-(?P<compiler>.*)-(?P<arch>.*)-(?P<os>.*)-(?P<linktype>.*)-Release.zip'
