@@ -11,13 +11,11 @@ All notable changes to this project will be documented in this file.
 ### Changed
 
 
-## [1.0.4] - 2023-03-12
+## [1.0.4] - 2023-03-14
 
 ### Added
 - CLI options (-h,-V,-Vj,-Vo,-c)
   - help, version, version-only, version-json, convert
-
-### Bugfix
 
 ### Changed
 - Project Cleanup
@@ -26,6 +24,7 @@ All notable changes to this project will be documented in this file.
 - Simplified the Timer class
   - it's no longer a template taking a chrono resolution
 - reworked app_version
+- added automatic Github Releases on tag
 
 ## [1.0.3] - 2022-05-21
 
