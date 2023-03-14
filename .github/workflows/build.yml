@@ -277,11 +277,69 @@ jobs:
       - name: 🤘 Checkout Code
         uses: actions/checkout@v3 # https://github.com/actions/checkout
 
+
+      #
+      #  this downloads all artifact zip archivesand extracts them into folders.
+      #  so we have to zip them for release again.... ¯\_(ツ)_/¯
+      #  we are waiting for the "extractArtifact" option, see below.
+      #
+      #- name: 🔽 Download all artifacts from previous jobs
+      #  uses: actions/download-artifact@v3 # https://github.com/actions/download-artifact
+      #   with:
+      #     extractArtifact: false # https://github.com/actions/download-artifact/issues/143
+
+      # workaround to download all artifact archives (not extracting them!)
       - name: 🔽 Download all artifacts from previous jobs
-        uses: actions/download-artifact@v3 # https://github.com/actions/download-artifact
+        uses: actions/github-script@v6
+        with:
+          script: |
+            let allArtifacts = await github.rest.actions.listWorkflowRunArtifacts({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: context.payload.workflow_run.id,
+            });
+            for (const artifact of allArtifacts.data.artifacts)
+            {
+              let download = await github.rest.actions.downloadArtifact({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                artifact_id: artifact.id,
+                archive_format: 'zip',
+              });
+
+              let fs = require('fs');
+              fs.writeFileSync(`${process.env.GITHUB_WORKSPACE}/${artifact.name}.zip`, Buffer.from(download.data));
+            }
 
       - name: Display downloaded files
-        run: ls -R
+        run: |
+          ls -R
+          rm -f *-RelWithDebInfo.zip
+          rm -f *-Clang10-*.zip
+          rm -f *-GCC9-*.zip
+          rm -f *-VC16-*.zip
+          ls -R
+
+      # The regexp uses named groups for matching:
+      # IN   (?P<name>wiuc)-(?P<version>.*)-(?P<commit>.*)-(?P<compiler>.*)-(?P<arch>.*)-(?P<os>.*)-(?P<linktype>.*)-Release.zip
+      #
+      # And only some of the matched groups for building the filename:
+      # OUT  $+{name}-$+{version}-$+{compiler}-$+{arch}-$+{os}.zip/
+      #
+      # wiuc-1.0.4-4f5b959-VC17-x64-windows-static-Release.zip -> wiuc-1.0.4-VC17-x64-win.zip
+      #
+      # dev notes:
+      # - regepx developed using "ls *.zip | grep -oP 'regexp'"
+      # - apt install rename
+      # - rename -n --verbose (for verbose dry-run)
+      #
+      - name: Rename archives using a wild named group regexp.
+        env:
+          ARTIFACT_REGEXP: '(?P<name>wiuc)-(?P<version>.*)-(?P<commit>.*)-(?P<compiler>.*)-(?P<arch>.*)-(?P<os>.*)-(?P<linktype>.*)-Release.zip'
+          RELEASE_REGEXP: '$+{name}-$+{version}-$+{compiler}-$+{arch}-$+{os}.zip'
+        run: |
+          rename "s/$ARTIFACT_REGEXP/$RELEASE_REGEXP/" *.zip
+          ls -R
 
       - name: Extract Release Notes from Changelog
         id: extract-release-notes
@@ -294,7 +352,8 @@ jobs:
         run: |
           gh release create $TAG --title "Release $TAG" --notes "$RELEASE_NOTES" --draft
 
-      #- name: 📦 Create Github Release
-      #  # https://cli.github.com/manual/gh_release_upload
-      #  run: |
-      #    gh release upload $TAG
+      # --clobber = Overwrite existing assets of the same name
+      - name: 📦 Create Github Release
+        # https://cli.github.com/manual/gh_release_upload
+        run: |
+          gh release upload $TAG *.zip --clobber
