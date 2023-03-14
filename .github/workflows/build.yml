@@ -349,6 +349,9 @@ jobs:
           for dir in ./wiuc*/ ; do zip -jr "${dir%/}.zip" "$dir"; done
           ls -R
 
+      - name: Delete release folders
+        run: find . -maxdepth 1 -type d -name 'wiuc*' -exec rm -r {} +
+
       # The regexp uses named groups for matching:
       # IN   (?P<name>wiuc)-(?P<version>.*)-(?P<commit>.*)-(?P<compiler>.*)-(?P<arch>.*)-(?P<os>.*)-(?P<linktype>.*)-Release.zip
       #
@@ -365,7 +368,7 @@ jobs:
       - name: Install rename
         run: sudo apt update && sudo apt install -y rename
 
-      - name: Rename archive files using a wild named group regexp.
+      - name: Rename zip files using a named group regexp
         env:
           ARTIFACT_REGEXP: '(?P<name>wiuc)-(?P<version>.*)-(?P<commit>.*)-(?P<compiler>.*)-(?P<arch>.*)-(?P<os>.*)-(?P<linktype>.*)-Release.zip'
           RELEASE_REGEXP: '$+{name}-$+{version}-$+{compiler}-$+{arch}-$+{os}.zip'
