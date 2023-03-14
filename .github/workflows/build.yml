@@ -337,8 +337,6 @@ jobs:
 
       # zip with -j to only include files of the folder and not the folder itself
       - name: Zip release folders
-        env:
-          RELEASE_REGEXP: '${name}-${version}-${compiler}-${arch}-${os}'
         run: |
           for dir in ./wiuc*/ ; do zip -jr "${dir%/}.zip" "$dir"; done
           ls -R
@@ -361,12 +359,10 @@ jobs:
 
       - name: Rename zip files using a named group regexp
         env:
-          ARTIFACT_REGEXP: '(?P<name>wiuc)-(?P<version>.*)-(?P<commit>.*)-(?P<compiler>.*)-(?P<arch>.*)-(?P<os>.*)-(?:(?P<linktype>[^-]*)-)?Release.zip'
+          ARTIFACT_REGEXP: '^(?P<name>wiuc)-(?P<version>[\d.]+)-(?P<commit>[\da-f]+)-(?P<compiler>[A-Za-z\d]+)-(?P<arch>[A-Za-z\d]+)-(?P<os>linux|windows|mac)-?(?P<linktype>static)?-Release\.zip$'
           RELEASE_REGEXP: '$+{name}-$+{version}-$+{compiler}-$+{arch}-$+{os}.zip'
         run: |
-          for file in *.zip; do
-            rename "s/$ARTIFACT_REGEXP/$RELEASE_REGEXP/" "$file"
-          done
+          for file in *.zip; do (rename -n "s/$ARTIFACT_REGEXP/$RELEASE_REGEXP/" "$file"); done
           ls -R
 
       - name: Extract Release Notes from Changelog
