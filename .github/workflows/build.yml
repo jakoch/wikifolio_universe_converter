@@ -362,14 +362,16 @@ jobs:
       # ->
       # wiuc-1.0.4-VC17-x64-windows.zip
       #
+      - name: Install rename
+        run: sudo apt update && sudo apt install -y rename
+
       - name: Rename zip files using a named group regexp
         env:
           ARTIFACT_REGEXP: '(?P<name>wiuc)-(?P<version>.*)-(?P<commit>.*)-(?P<compiler>.*)-(?P<arch>.*)-(?P<os>.*)-(?P<linktype>.*)-Release.zip'
           RELEASE_REGEXP: '$+{name}-$+{version}-$+{compiler}-$+{arch}-$+{os}.zip'
         run: |
           for file in *.zip; do
-            new_name=$(echo "$file" | sed -E "s/$ARTIFACT_REGEXP/$RELEASE_REGEXP/")
-            mv "$file" "$new_name"
+            rename -n "s/$ARTIFACT_REGEXP/$RELEASE_REGEXP/" "$file"
           done
           ls -R
 
