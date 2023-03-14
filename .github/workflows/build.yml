@@ -289,32 +289,34 @@ jobs:
       #     extractArtifact: false # https://github.com/actions/download-artifact/issues/143
 
       # workaround to download all artifact archives (not extracting them!)
+      # filters the artifacts for "Release"
       - name: 🔽 Download all artifacts from previous jobs
         uses: actions/github-script@v6
         with:
           script: |
-            let allArtifacts = await github.rest.actions.listWorkflowRunArtifacts({
+            const allArtifacts = await github.rest.actions.listWorkflowRunArtifacts({
               owner: context.repo.owner,
               repo: context.repo.repo,
               run_id: context.payload.workflow_run.id,
             });
-            for (const artifact of allArtifacts.data.artifacts)
-            {
-              let download = await github.rest.actions.downloadArtifact({
+            const matchedArtifacts = allArtifacts.data.artifacts.filter((artifact) => {
+              return artifact.name.includes("Release") && artifact.name.endsWith('.zip');
+            })[0];
+            console.log(matchedArtifacts);
+            if (matchedArtifacts) {
+              const download = await github.rest.actions.downloadArtifact({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                artifact_id: artifact.id,
+                artifact_id: matchedArtifacts.id,
                 archive_format: 'zip',
               });
-
-              let fs = require('fs');
-              fs.writeFileSync(`${process.env.GITHUB_WORKSPACE}/${artifact.name}.zip`, Buffer.from(download.data));
+              const fs = require('fs');
+              fs.writeFileSync(`${process.env.GITHUB_WORKSPACE}/${matchedArtifacts.name}.zip`, Buffer.from(download.data));
             }
 
       - name: Display downloaded files
         run: |
           ls -R
-          rm -f *-RelWithDebInfo.zip
           rm -f *-Clang10-*.zip
           rm -f *-GCC9-*.zip
           rm -f *-VC16-*.zip
