@@ -301,18 +301,17 @@ jobs:
             console.log(artifacts);
             const matchedArtifacts = artifacts.data.artifacts.filter((artifact) => {
               return artifact.name.includes("Release") && artifact.name.endsWith('zip');
-            })[0];
+            });
             console.log(matchedArtifacts);
-            if (matchedArtifacts) {
-              const download = await github.rest.actions.downloadArtifact({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                artifact_id: matchedArtifacts.id,
-                archive_format: 'zip',
-              });
-              const fs = require('fs');
-              fs.writeFileSync(`${{github.workspace}}/${matchedArtifacts.name}.zip`, Buffer.from(download.data));
-            }
+            const download = await github.rest.actions.downloadArtifact({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              artifact_id: matchedArtifacts.id,
+              archive_format: 'zip',
+            });
+            const fs = require('fs');
+            fs.writeFileSync(`${{github.workspace}}/${matchedArtifacts.name}.zip`, Buffer.from(download.data));
+
 
       - name: Display downloaded files
         run: |
