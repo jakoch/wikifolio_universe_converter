@@ -290,20 +290,17 @@ jobs:
       # workaround to download all artifact archives (not extracting them!)
       # filters the artifacts for "Release"
       - name: 🔽 Download all artifacts from previous jobs
-        env:
-          ACTIONS_STEP_DEBUG: true
         uses: actions/github-script@v6 # https://github.com/actions/script
         with:
-          debug: true
           script: |
-            const allArtifacts = await github.rest.actions.listWorkflowRunArtifacts({
+            const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              run_id: context.payload.workflow_run.id,
+              run_id: ${{ github.event.workflow_run.id }},
             });
-            console.log(allArtifacts);
-            const matchedArtifacts = allArtifacts.data.artifacts.filter((artifact) => {
-              return artifact.name.includes("Release") && artifact.name.endsWith('.zip');
+            console.log(artifacts);
+            const matchedArtifacts = artifacts.data.artifacts.filter((artifact) => {
+              return artifact.name.includes("Release") && artifact.name.endsWith('zip');
             })[0];
             console.log(matchedArtifacts);
             if (matchedArtifacts) {
@@ -314,7 +311,7 @@ jobs:
                 archive_format: 'zip',
               });
               const fs = require('fs');
-              fs.writeFileSync(`${process.env.GITHUB_WORKSPACE}/${matchedArtifacts.name}.zip`, Buffer.from(download.data));
+              fs.writeFileSync(`${{github.workspace}}/${matchedArtifacts.name}.zip`, Buffer.from(download.data));
             }
 
       - name: Display downloaded files
