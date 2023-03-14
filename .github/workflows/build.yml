@@ -335,9 +335,9 @@ jobs:
 
       - name: Delete all non-release artifact folders
         run: |
-          rm -f *-Clang10-*
-          rm -f *-GCC9-*
-          rm -f *-VC16-*
+          rm -rf *-Clang10-*
+          rm -rf *-GCC9-*
+          rm -rf *-VC16-*
           ls -R
 
       # The regexp uses named groups for matching:
