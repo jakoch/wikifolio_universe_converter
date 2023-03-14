@@ -358,22 +358,19 @@ jobs:
       # And only some of the matched groups for building the filename:
       # OUT  $+{name}-$+{version}-$+{compiler}-$+{arch}-$+{os}.zip/
       #
-      # wiuc-1.0.4-4f5b959-VC17-x64-windows-static-Release.zip -> wiuc-1.0.4-VC17-x64-win.zip
+      # wiuc-1.0.4-4f5b959-VC17-x64-windows-static-Release.zip
+      # ->
+      # wiuc-1.0.4-VC17-x64-windows.zip
       #
-      # dev notes:
-      # - regepx developed using "ls *.zip | grep -oP 'regexp'"
-      # - apt install rename
-      # - rename -n --verbose (for verbose dry-run)
-      #
-      - name: Install rename
-        run: sudo apt update && sudo apt install -y rename
-
       - name: Rename zip files using a named group regexp
         env:
           ARTIFACT_REGEXP: '(?P<name>wiuc)-(?P<version>.*)-(?P<commit>.*)-(?P<compiler>.*)-(?P<arch>.*)-(?P<os>.*)-(?P<linktype>.*)-Release.zip'
           RELEASE_REGEXP: '$+{name}-$+{version}-$+{compiler}-$+{arch}-$+{os}.zip'
         run: |
-          rename "s/$ARTIFACT_REGEXP/$RELEASE_REGEXP/" *.zip
+          for file in *.zip; do
+            new_name=$(echo "$file" | sed -E "s/$ARTIFACT_REGEXP/$RELEASE_REGEXP/")
+            mv "$file" "$new_name"
+          done
           ls -R
 
       - name: Extract Release Notes from Changelog
