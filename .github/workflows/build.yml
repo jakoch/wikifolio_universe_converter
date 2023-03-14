@@ -294,6 +294,7 @@ jobs:
           ACTIONS_STEP_DEBUG: true
         uses: actions/github-script@v6 # https://github.com/actions/script
         with:
+          debug: true
           script: |
             const allArtifacts = await github.rest.actions.listWorkflowRunArtifacts({
               owner: context.repo.owner,
