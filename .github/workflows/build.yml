@@ -274,14 +274,18 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
-      #  This downloads all artifact zip archivesand extracts them into folders.
-      #  so we have to zip them for release again.... ¯\_(ツ)_/¯
-      #  we are waiting for the "extractArtifact" option, see below.
+      - name: 🤘 Checkout repository
+        uses: actions/checkout@v3 # https://github.com/actions/checkout
+
+      #  This downloads all artifact zip archives and extracts them into folders.
+      #  So we have to zip them for release again.... ¯\_(ツ)_/¯
+      #  We are waiting for the "extractArtifact" option, referencing:
+      #  # https://github.com/actions/download-artifact/issues/143
       #
       #- name: 🔽 Download all artifacts from previous jobs
       #  uses: actions/download-artifact@v3 # https://github.com/actions/download-artifact
       #   with:
-      #     extractArtifact: false # https://github.com/actions/download-artifact/issues/143
+      #     extractArtifact: false # not yet available
 
       # Workaround to download all artifact archives (not extracting them!)
       # filters the artifacts for "Release"
@@ -300,14 +304,12 @@ jobs:
               return;
             }
             console.log(artifacts);
-
             // Query: filter artifacts by name
             const matchedArtifacts = artifacts.data.artifacts.filter((artifact) => {
               return artifact.name.includes("Release")
                   && artifact.name.endsWith('zip');
             });
             console.log(matchedArtifacts);
-
             const fs = require('fs');
             matchedArtifacts.forEach(async (artifact) => {
               const download = await github.rest.actions.downloadArtifact({
