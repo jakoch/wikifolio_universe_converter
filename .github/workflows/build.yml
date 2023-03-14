@@ -335,6 +335,7 @@ jobs:
 
       - name: Delete all non-release artifact folders
         run: |
+          rm -rf *-RelWithDebInfo
           rm -rf *-Clang10-*
           rm -rf *-GCC9-*
           rm -rf *-VC16-*
@@ -372,6 +373,7 @@ jobs:
               mv -vd "$dir" "$new_name"
             fi
           done
+          ls -R
 
       - name: Zip release folders
         env:
@@ -381,6 +383,7 @@ jobs:
             zip -r "${dir}.zip" "$dir"
             rm -r "$dir"
           done
+          ls -R
 
       - name: Extract Release Notes from Changelog
         id: extract-release-notes
