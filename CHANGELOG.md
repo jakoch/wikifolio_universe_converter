@@ -14,8 +14,8 @@ All notable changes to this project will be documented in this file.
 ## [1.0.4] - 2023-03-12
 
 ### Added
-- CLI options (-h,-v,-vj,-vo,-c)
-
+- CLI options (-h,-V,-Vj,-Vo,-c)
+  - help, version, version-only, version-json, convert
 
 ### Bugfix
 
