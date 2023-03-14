@@ -302,12 +302,12 @@ jobs:
             }
             console.log(artifacts);
 
-      #      // Query: filter artifacts by name
-      #      const matchedArtifacts = artifacts.data.artifacts.filter((artifact) => {
-      #        return artifact.name.includes("Release")
-      #            && artifact.name.endsWith('zip');
-      #      });
-      #      console.log(matchedArtifacts);
+            // Query: filter artifacts by name
+            const matchedArtifacts = artifacts.data.artifacts.filter((artifact) => {
+              return artifact.name.includes("Release")
+                  && artifact.name.endsWith('zip');
+            });
+            console.log(matchedArtifacts);
 
       #      const fs = require('fs');
       #      matchedArtifacts.forEach(async (artifact) => {
