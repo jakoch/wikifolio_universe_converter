@@ -362,7 +362,7 @@ jobs:
           ARTIFACT_REGEXP: '^(?P<name>wiuc)-(?P<version>[\d.]+)-(?P<commit>[\da-f]+)-(?P<compiler>[A-Za-z\d]+)-(?P<arch>[A-Za-z\d]+)-(?P<os>linux|windows|mac)-?(?P<linktype>static)?-Release\.zip$'
           RELEASE_REGEXP: '$+{name}-$+{version}-$+{compiler}-$+{arch}-$+{os}.zip'
         run: |
-          for file in *.zip; do (rename -n "s/$ARTIFACT_REGEXP/$RELEASE_REGEXP/" "$file"); done
+          for file in *.zip; do (rename "s/$ARTIFACT_REGEXP/$RELEASE_REGEXP/" "$file"); done
           ls -R
 
       - name: Extract Release Notes from Changelog
