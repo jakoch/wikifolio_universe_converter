@@ -266,6 +266,7 @@ jobs:
 
     # on tag push
     #if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     # Global environment variables
     env:
@@ -274,11 +275,7 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
-      - name: 🤘 Checkout Code
-        uses: actions/checkout@v3 # https://github.com/actions/checkout
-
-      #
-      #  this downloads all artifact zip archivesand extracts them into folders.
+      #  This downloads all artifact zip archivesand extracts them into folders.
       #  so we have to zip them for release again.... ¯\_(ツ)_/¯
       #  we are waiting for the "extractArtifact" option, see below.
       #
@@ -287,32 +284,41 @@ jobs:
       #   with:
       #     extractArtifact: false # https://github.com/actions/download-artifact/issues/143
 
-      # workaround to download all artifact archives (not extracting them!)
+      # Workaround to download all artifact archives (not extracting them!)
       # filters the artifacts for "Release"
       - name: 🔽 Download all artifacts from previous jobs
         uses: actions/github-script@v6 # https://github.com/actions/script
         with:
           script: |
+            // Query: select all artifacts from this workflow
             const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              run_id: ${{ github.event.workflow_run.id }}
+              run_id: context.payload.workflow_run.id
             });
+            if(!artifacts) {
+              console.log(`Could not fetch artifacts from run ID ${context.payload.workflow_run.id}`)
+              return;
+            }
             console.log(artifacts);
+
+            // Query: filter artifacts by name
             const matchedArtifacts = artifacts.data.artifacts.filter((artifact) => {
-              return artifact.name.includes("Release") && artifact.name.endsWith('zip');
+              return artifact.name.includes("Release")
+                  && artifact.name.endsWith('zip');
             });
             console.log(matchedArtifacts);
-            const fs = require('fs');
-            for (const artifact of matchedArtifacts) {
-              const download = await github.rest.actions.downloadArtifact({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                artifact_id: artifact.id,
-                archive_format: 'zip',
-              });
-              fs.writeFileSync(`${{github.workspace}}/${artifact.name}.zip`, Buffer.from(download.data));
-            }
+
+      #      const fs = require('fs');
+      #      matchedArtifacts.forEach(async (artifact) => {
+      #        const download = await github.rest.actions.downloadArtifact({
+      #          owner: context.repo.owner,
+      #          repo: context.repo.repo,
+      #          artifact_id: artifact.id,
+      #          archive_format: 'zip',
+      #        });
+      #        fs.writeFileSync(`${{ github.workspace }}/${artifact.name}.zip`, Buffer.from(download.data));
+      #      };
 
       - name: Display downloaded files
         run: |
