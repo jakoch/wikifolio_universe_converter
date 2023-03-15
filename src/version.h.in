@@ -1,4 +1,4 @@
-// Copyright 2022 Jens A. Koch.
+// Copyright 2021-2023 Jens A. Koch.
 // SPDX-License-Identifier: MIT
 // This file is part of jakoch/wikifolio_universe_converter.
 

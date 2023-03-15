@@ -1,4 +1,4 @@
-// Copyright 2022 Jens A. Koch.
+// Copyright 2021-2023 Jens A. Koch.
 // SPDX-License-Identifier: MIT
 // This file is part of jakoch/wikifolio_universe_converter.
 
@@ -19,6 +19,7 @@
 #include <type_traits>
 #include <filesystem>
 #include <unordered_map>
+#include <algorithm>     // std::all_of
 
 // use std::format on MSVC - use libfmt as polyfill on Linux
 #ifdef _WIN32
