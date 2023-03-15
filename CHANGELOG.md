@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ## [vNext] - unreleased
 
 ### Added
+added specify an output folder for content generation, close #3
 
 ### Bugfix
 

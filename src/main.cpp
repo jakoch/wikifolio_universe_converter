@@ -184,17 +184,9 @@ std::string escape_string(std::string const &s)
     return o.str();
 }
 
-char const *investment_universe_URL =
-    "https://wikifolio.blob.core.windows.net/prod-documents/Investment_Universe.de.xlsx";
-
-char const *xlsx_filename    = "Investment_Universe.de.xlsx";
-char const *csv_tmp_filename = "Investment_Universe.tmp.csv";
-char const *csv_filename     = "Investment_Universe.csv";
-char const *sqlite_filename  = "Investment_Universe.sqlite";
-
-bool xlsx_to_csv()
+bool xlsx_to_csv(std::string const &xlsx_filename, std::string const &csv_filename)
 {
-    XLSXReader *file = new XLSXReader(xlsx_filename);
+    XLSXReader *file = new XLSXReader(xlsx_filename.c_str());
     XLSXSheet *sheet = file->OpenSheet(NULL, XLSXIOREAD_SKIP_EMPTY_ROWS);
 
     if (sheet == nullptr) {
@@ -229,10 +221,10 @@ bool xlsx_to_csv()
     return true;
 };
 
-bool rename_header_columns()
+bool rename_header_columns(std::string const &csv_filename, std::string const &csv_tmp_filename)
 {
-    std::fstream input_file(csv_filename, std::ios::in);
-    std::ofstream output_file(csv_tmp_filename);
+    std::fstream input_file(csv_filename.c_str(), std::ios::in);
+    std::ofstream output_file(csv_tmp_filename.c_str());
 
     std::string line;
     bool replaced = 0;
@@ -252,10 +244,10 @@ bool rename_header_columns()
     input_file.close();
 
     // delete old "Investment_Universe.csv"
-    if (std::remove(csv_filename)) { printf("Could not delete file."); }
+    if (std::remove(csv_filename.c_str())) { printf("Could not delete file."); }
 
     // rename "Investment_Universe.tmp.csv" -> "Investment_Universe.csv"
-    if (std::rename(csv_tmp_filename, csv_filename)) { printf("Could not rename."); }
+    if (std::rename(csv_tmp_filename.c_str(), csv_filename.c_str())) { printf("Could not rename."); }
 
     return true;
 }
@@ -266,7 +258,7 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, FILE *stream)
     return written;
 }
 
-bool download(char const *url, char const *save_as_filename)
+bool download(char const *url, std::string const &save_as_filename)
 {
     CURLcode res;
 
@@ -279,8 +271,8 @@ bool download(char const *url, char const *save_as_filename)
         // curl_easy_setopt(curl, CURLOPT_RESOLVE, dns);
 
         struct curl_slist *headers = NULL;
-        headers                    = curl_slist_append(headers, "Content-Type:application/octet-stream");
-        headers                    = curl_slist_append(headers, "Content-Transfer-Encoding: Binary");
+        headers = curl_slist_append(headers, "Content-Type:application/octet-stream");
+        headers = curl_slist_append(headers, "Content-Transfer-Encoding: Binary");
         curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 
         curl_easy_setopt(curl, CURLOPT_URL, url);
@@ -304,7 +296,7 @@ bool download(char const *url, char const *save_as_filename)
 
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
 
-        FILE *fp = fopen(save_as_filename, "wb");
+        FILE *fp = fopen(save_as_filename.c_str(), "wb");
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
 
         char error_buffer[CURL_ERROR_SIZE];
@@ -316,10 +308,10 @@ bool download(char const *url, char const *save_as_filename)
         curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_code);
 
         if (res == CURLE_OK) {
-            // printf("Request was successful with status %i", http_code);
+            //printf("Request was successful with status %i", http_code);
         } else {
             // file has size "0", because downloading it's content failed.
-            remove(save_as_filename);
+            remove(save_as_filename.c_str());
             printf("Request failed: %s", error_buffer);
         }
 
@@ -355,7 +347,7 @@ int create_table(sqlite3 *db)
     return r == SQLITE_OK;
 }
 
-bool csv_to_sqlite()
+bool csv_to_sqlite(std::string const &csv_filename, std::string const &sqlite_filename)
 {
     int r;
     char *zErrMsg = 0;
@@ -364,7 +356,7 @@ bool csv_to_sqlite()
 
     sqlite3 *db;
 
-    r = sqlite3_open(sqlite_filename, &db);
+    r = sqlite3_open(sqlite_filename.c_str(), &db);
     if (r != SQLITE_OK) {
         fprintf(stderr, "[SQLite][Error][%i]\nDB connection error: %s\n", r, sqlite3_errmsg(db));
         sqlite3_close(db);
@@ -375,7 +367,7 @@ bool csv_to_sqlite()
 
     r = sqlite3_exec(db, "PRAGMA synchronous=2;", nullptr, nullptr, nullptr);
     if (r != SQLITE_OK) {
-        fprintf(stderr, "[SQLite][Error][%i]\nFailed to set synchronous for %s\n", r, sqlite_filename);
+        fprintf(stderr, "[SQLite][Error][%i]\nFailed to set synchronous for %s\n", r, sqlite_filename.c_str());
         sqlite3_close(db);
         return 0;
     }
@@ -388,7 +380,7 @@ bool csv_to_sqlite()
 
     // Open CSV for reading
 
-    std::ifstream csv_file(csv_filename, std::ios::in);
+    std::ifstream csv_file(csv_filename.c_str(), std::ios::in);
     if (!csv_file.is_open()) {
         fprintf(stderr, "Error opening CSV file.");
         exit(EXIT_FAILURE);
@@ -460,24 +452,60 @@ bool csv_to_sqlite()
     return 1;
 }
 
-bool file_exists(std::string filename) {
+std::string getFile(std::string const &file_type, std::string const &output_folder)
+{
+    static const std::unordered_map<std::string, char const *> files{
+        {"xlsx", "Investment_Universe.de.xlsx"},
+        {"csv_tmp", "Investment_Universe.tmp.csv"},
+        {"csv", "Investment_Universe.csv"},
+        {"sqlite", "Investment_Universe.sqlite"}};
+
+    auto it = files.find(file_type);
+    if (it == files.end()) {
+        throw std::invalid_argument("Invalid fileType argument");
+    }
+
+    std::filesystem::path path(output_folder);
+    path.append(it->second);
+
+    return path.string();
+}
+
+bool file_exists(std::string const &filename)
+{
     std::filesystem::path file = std::filesystem::current_path() / filename;
     return std::filesystem::exists(file) && std::filesystem::is_regular_file(file);
 }
 
+void create_folder_if_not_exists(std::string const &folder_path)
+{
+    std::filesystem::path folder(folder_path);
+    if (!std::filesystem::exists(folder)) {
+        std::filesystem::create_directory(folder);
+    }
+}
+
+bool is_alnum(std::string const &str)
+{
+    return std::all_of(str.begin(), str.end(), [](char c) {
+        return std::isalnum(static_cast<unsigned char>(c));
+    });
+}
+
 static std::string printHelpText(char const * const program_name)
 {
-    char help_text[400];
+    char help_text[500];
     sprintf(help_text,
             "%s\n"
             "%s\n\n"
             "Usage: %s [OPTIONS]\n\n"
             "Options:\n"
-            "  -c,  --convert        Convert from XLSX to SQLite and CSV\n"
-            "  -h,  --help           Display this help message\n"
-            "  -V,  --version        Display version information\n"
-            "  -Vj, --version-json   Display version information as JSON\n"
-            "  -Vo, --version-only   Display version number only\n",
+            "  -c,   --convert        Convert from XLSX to SQLite and CSV\n"
+            "    -o, --out <dir>      Set output folder (default is current directory)\n"
+            "  -h,   --help           Display this help message\n"
+            "  -V,   --version        Display version information\n"
+            "  -Vj,  --version-json   Display version information as JSON\n"
+            "  -Vo,  --version-only   Display version number only\n",
             app_version::get_nice_name(),
             app_version::get_copyright(),
             program_name);
@@ -485,6 +513,18 @@ static std::string printHelpText(char const * const program_name)
     return std::string(help_text);
 }
 
+// conservative approach for chars in a folder name
+// allowed chars: 0-9,a-z,A-Z,_,-,/,.
+bool is_valid_folder_name(const std::string& folder)
+{
+    static const std::string char_whitelist = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_-/.";
+    for (const char c : folder){
+        if (char_whitelist.find(c) == std::string::npos){
+            return false;
+        }
+    }
+    return true;
+}
 
 int main(int const argc, char const *argv[])
 {
@@ -518,24 +558,50 @@ int main(int const argc, char const *argv[])
         std::cout << app_version::get_version_json() << std::endl;
         return EXIT_SUCCESS;
     }
-    else if (argc == 2 && std::string(argv[1]) == "-c" || std::string(argv[1]) == "--convert")
+    else if (argc >= 2 && std::string(argv[1]) == "-c" || std::string(argv[1]) == "--convert")
     {
 
-        printf("%s v%s\n%s.\n\n", app_version::get_nice_name(), app_version::get_version(), app_version::get_copyright());
+        printf("%s v%s\n%s\n\n", app_version::get_nice_name(), app_version::get_version(), app_version::get_copyright());
 
         Timer total_application_timer;
+
+        // Output Folder
+
+        // The output folder set via "-o" or "--out".
+        // The default output folder is the current directory.
+        std::string outputFolder = ".";
+
+        if (argc == 4 && (std::string(argv[2]) == "-o" || std::string(argv[2]) == "--out")) {
+            outputFolder = std::string(argv[3]);
+
+            if( ! is_valid_folder_name(outputFolder)) {
+                std::cerr << "Error: Invalid output folder name. Please use only these chars: 0-9a-zA-Z_-/.\n";
+                return EXIT_FAILURE;
+            }
+        }
+
+        create_folder_if_not_exists(outputFolder);
+
+        printf("Using output folder: %s\n", outputFolder.c_str());
+
+        auto xlsx_file = getFile("xlsx", outputFolder);
+        auto csv_file = getFile("csv", outputFolder);
+        auto csv_tmp_file = getFile("csv_tmp", outputFolder);
+        auto sqlite_file = getFile("sqlite", outputFolder);
 
         // Download
 
         bool universe_downloaded = false;
 
-        if (file_exists(xlsx_filename)) {
+        if (file_exists(xlsx_file)) {
             std::cerr << "Download skipped. File already exists.\n";
             universe_downloaded = true;
         } else {
             Timer download_timer;
 
-            universe_downloaded = download(investment_universe_URL, xlsx_filename);
+            char const *xlsx_url = "https://wikifolio.blob.core.windows.net/prod-documents/Investment_Universe.de.xlsx";
+
+            universe_downloaded = download(xlsx_url, xlsx_file);
 
             download_timer.stop("Download");
         }
@@ -546,18 +612,18 @@ int main(int const argc, char const *argv[])
 
             Timer xlsx_to_csv_timer;
 
-            bool converted_to_csv = xlsx_to_csv();
+            bool converted_to_csv = xlsx_to_csv(xlsx_file, csv_file);
 
             xlsx_to_csv_timer.stop("xlsx -> csv");
 
-            if (converted_to_csv) { rename_header_columns(); }
+            if (converted_to_csv) { rename_header_columns(csv_file, csv_tmp_file); }
         }
 
         // CSV -> SQLITE
 
         Timer csv_to_sqlite_timer;
 
-        bool converted_to_sqlite = csv_to_sqlite();
+        bool converted_to_sqlite = csv_to_sqlite(csv_file, sqlite_file);
 
         csv_to_sqlite_timer.stop("csv -> sqlite");
 

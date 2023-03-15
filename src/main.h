@@ -18,6 +18,7 @@
 #include <iomanip>
 #include <type_traits>
 #include <filesystem>
+#include <unordered_map>
 
 // use std::format on MSVC - use libfmt as polyfill on Linux
 #ifdef _WIN32
