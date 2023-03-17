@@ -518,7 +518,9 @@ std::string format_status(std::string status_message = "Status update.", int ind
 
 static std::string printHelpText(char const * const program_name)
 {
-    std::string help_text_header = std::format(
+    // note: do not use std::format(), only format(), see header.
+
+    std::string help_text_header = format(
         "{} {}\n"
         "{}\n\n"
         "{} {} [OPTIONS] [ARGUMENTS]\n\n"
@@ -531,7 +533,7 @@ static std::string printHelpText(char const * const program_name)
         format_status("Options:", 0, Color::Yellow).c_str()
     );
 
-    std::string help_text_body = std::format(
+    std::string help_text_body = format(
         "{}\t\tDisplay this help message\n"
         "{}\tConvert from XLSX to SQLite and CSV\n"
         "{}\tSet output folder (default is current directory)\n"
@@ -596,7 +598,7 @@ int main(int const argc, char const *argv[])
     }
     else if (argc >= 2 && std::string(argv[1]) == "-c" || std::string(argv[1]) == "--convert")
     {
-        std::string app_header = std::format(
+        std::string app_header = format(
             "{} {}\n"
             "{}\n\n",
             format_status(app_version::get_nice_name(), 0, Color::Yellow).c_str(),
