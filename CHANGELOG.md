@@ -5,12 +5,16 @@ All notable changes to this project will be documented in this file.
 ## [vNext] - unreleased
 
 ### Added
-added specify an output folder for content generation, close #3
 
 ### Bugfix
 
 ### Changed
 
+## [1.0.5] - 2023-03-14
+
+### Added
+- added specify an output folder for content generation (wiuc -c -o data), close #3
+- CLI color output
 
 ## [1.0.4] - 2023-03-14
 
@@ -37,7 +41,8 @@ added specify an output folder for content generation, close #3
 
 ## [0.1.0] - 2021-09-20
 
-[vNext]: https://github.com/jakoch/wikifolio_universe_converter/compare/v1.0.4...HEAD
+[vNext]: https://github.com/jakoch/wikifolio_universe_converter/compare/v1.0.5...HEAD
+[1.0.5]: https://github.com/jakoch/wikifolio_universe_converter/compare/v1.0.4...v1.0.5
 [1.0.4]: https://github.com/jakoch/wikifolio_universe_converter/compare/v1.0.3...v1.0.4
 [1.0.3]: https://github.com/jakoch/wikifolio_universe_converter/compare/v1.0.2...v1.0.3
 [1.0.2]: https://github.com/jakoch/wikifolio_universe_converter/compare/v1.0.1...v1.0.2
