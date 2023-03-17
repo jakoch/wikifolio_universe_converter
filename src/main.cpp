@@ -492,33 +492,69 @@ bool is_alnum(std::string const &str)
     });
 }
 
+enum class Color {
+    Red = 31,
+    Yellow = 33,
+    Green = 32,
+    Blue = 34,
+    Purple = 35,
+    Cyan = 36,
+    Light_Grey = 37
+};
+
+void print_status(std::string status_message = "Status update.", int indent_spaces = 0, Color color = Color::Light_Grey) {
+    std::string escape_code = "\033[0;" + std::to_string(static_cast<int>(color)) + "m";
+    std::string reset_code = "\033[0m";
+    std::string indentation(indent_spaces, ' ');
+    std::cout << indentation << escape_code << status_message << reset_code << std::endl;
+}
+
+std::string format_status(std::string status_message = "Status update.", int indent_spaces = 0, Color color = Color::Light_Grey) {
+    std::string escape_code = "\033[0;" + std::to_string(static_cast<int>(color)) + "m";
+    std::string reset_code = "\033[0m";
+    std::string indentation(indent_spaces, ' ');
+    return indentation + escape_code + status_message + reset_code; // + "\n"
+}
+
 static std::string printHelpText(char const * const program_name)
 {
-    char help_text[500];
-    sprintf(help_text,
-            "%s\n"
-            "%s\n\n"
-            "Usage: %s [OPTIONS]\n\n"
-            "Options:\n"
-            "  -c,   --convert        Convert from XLSX to SQLite and CSV\n"
-            "    -o, --out <dir>      Set output folder (default is current directory)\n"
-            "  -h,   --help           Display this help message\n"
-            "  -V,   --version        Display version information\n"
-            "  -Vj,  --version-json   Display version information as JSON\n"
-            "  -Vo,  --version-only   Display version number only\n",
-            app_version::get_nice_name(),
-            app_version::get_copyright(),
-            program_name);
+    std::string help_text_header = std::format(
+        "{} {}\n"
+        "{}\n\n"
+        "{} {} [OPTIONS] [ARGUMENTS]\n\n"
+        "{}\n",
+        format_status(app_version::get_nice_name(), 0, Color::Yellow).c_str(),
+        format_status(app_version::get_version(), 0, Color::Yellow).c_str(),
+        app_version::get_copyright(),
+        format_status("Usage:", 0, Color::Yellow).c_str(),
+        program_name,
+        format_status("Options:", 0, Color::Yellow).c_str()
+    );
 
-    return std::string(help_text);
+    std::string help_text_body = std::format(
+        "{}\t\tDisplay this help message\n"
+        "{}\tConvert from XLSX to SQLite and CSV\n"
+        "{}\tSet output folder (default is current directory)\n"
+        "{}\tDisplay version information\n"
+        "{}\tDisplay version information as JSON\n"
+        "{}\tDisplay version number only\n",
+        format_status("-h,   --help", 2, Color::Green).c_str(),
+        format_status("-c,   --convert", 2, Color::Green).c_str(),
+        format_status("-o, --out <dir>", 4, Color::Green).c_str(),
+        format_status("-V,   --version", 2, Color::Green).c_str(),
+        format_status("-Vj,  --version-json", 2, Color::Green).c_str(),
+        format_status("-Vo,  --version-only", 2, Color::Green).c_str()
+    );
+
+    return help_text_header + help_text_body;
 }
 
 // conservative approach for chars in a folder name
 // allowed chars: 0-9,a-z,A-Z,_,-,/,.
-bool is_valid_folder_name(const std::string& folder)
+bool is_valid_folder_name(std::string const &folder)
 {
     static const std::string char_whitelist = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_-/.";
-    for (const char c : folder){
+    for (char const c : folder) {
         if (char_whitelist.find(c) == std::string::npos){
             return false;
         }
@@ -560,8 +596,14 @@ int main(int const argc, char const *argv[])
     }
     else if (argc >= 2 && std::string(argv[1]) == "-c" || std::string(argv[1]) == "--convert")
     {
-
-        printf("%s v%s\n%s\n\n", app_version::get_nice_name(), app_version::get_version(), app_version::get_copyright());
+        std::string app_header = std::format(
+            "{} {}\n"
+            "{}\n\n",
+            format_status(app_version::get_nice_name(), 0, Color::Yellow).c_str(),
+            format_status(app_version::get_version(), 0, Color::Yellow).c_str(),
+            app_version::get_copyright()
+        );
+        std::cout << app_header;
 
         Timer total_application_timer;
 
@@ -582,7 +624,7 @@ int main(int const argc, char const *argv[])
 
         create_folder_if_not_exists(outputFolder);
 
-        printf("Using output folder: %s\n", outputFolder.c_str());
+        print_status("Using output folder: " + outputFolder + "\n", 0, Color::Blue);
 
         auto xlsx_file = getFile("xlsx", outputFolder);
         auto csv_file = getFile("csv", outputFolder);
@@ -631,7 +673,7 @@ int main(int const argc, char const *argv[])
 
         // FINI
 
-        std::cout << "Done.";
+        print_status("Done.", 0, Color::Green);
 
         return EXIT_SUCCESS;
     }
