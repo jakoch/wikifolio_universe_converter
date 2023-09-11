@@ -48,7 +48,7 @@ jobs:
 
     steps:
       - name: 🤘 Checkout Code
-        uses: actions/checkout@v3 # https://github.com/actions/checkout
+        uses: actions/checkout@v4 # https://github.com/actions/checkout
 
       - name: ℹ Show Tool Versions
         run: |
@@ -170,7 +170,7 @@ jobs:
 
     steps:
       - name: 🤘 Checkout Code
-        uses: actions/checkout@v3 # https://github.com/actions/checkout
+        uses: actions/checkout@v4 # https://github.com/actions/checkout
 
       # Build Artifact Name: wiuc-1.0.1-0cda6a2-Clang12-x64-linux-Release
       - name: ✏ Fetch Versioning Data & Set Artifact Name
@@ -269,7 +269,7 @@ jobs:
 
     steps:
       - name: 🤘 Checkout repository
-        uses: actions/checkout@v3 # https://github.com/actions/checkout
+        uses: actions/checkout@v4 # https://github.com/actions/checkout
 
       #  This downloads all artifact zip archives and extracts them into folders.
       #  So we have to zip them for release again.... ¯\_(ツ)_/¯
