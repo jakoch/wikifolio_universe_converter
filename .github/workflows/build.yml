@@ -277,7 +277,7 @@ jobs:
       #  # https://github.com/actions/download-artifact/issues/143
       #
       - name: 🔽 Download all artifacts from previous jobs
-        uses: actions/download-artifact@v3 # https://github.com/actions/download-artifact
+        uses: actions/download-artifact@v4 # https://github.com/actions/download-artifact
       #   with:
       #     extractArtifact: false # not yet available
 
