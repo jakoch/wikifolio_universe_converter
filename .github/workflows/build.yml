@@ -96,7 +96,7 @@ jobs:
 
       - name: 🎯 Cache VCPKG
         id: cache-vcpkg
-        uses: actions/cache@v3 # https://github.com/actions/cache
+        uses: actions/cache@v4 # https://github.com/actions/cache
         with:
           # https://github.com/microsoft/vcpkg/blob/master/docs/users/binarycaching.md#configuration
           path: ~\AppData\Local\vcpkg\archives\
@@ -204,7 +204,7 @@ jobs:
 
       - name: 🎯 Cache VCPKG
         id: cache-vcpkg
-        uses: actions/cache@v3 # https://github.com/actions/cache
+        uses: actions/cache@v4 # https://github.com/actions/cache
         with:
           # https://github.com/microsoft/vcpkg/blob/master/docs/users/binarycaching.md#configuration
           path: /home/runner/.cache/vcpkg/archives/
