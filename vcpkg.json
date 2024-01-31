@@ -11,11 +11,14 @@
     {
       "name": "curl",
       "default-features": false,
-      "features": [ "openssl" ]
+      "features": [
+        "openssl"
+      ]
     },
     {
       "name": "fmt",
       "platform": "linux"
     }
-  ]
+  ],
+  "builtin-baseline": "1f619be01b436b796dab797dd1e1721c5676f8ac"
 }
