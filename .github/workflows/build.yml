@@ -102,7 +102,7 @@ jobs:
 
       - name: 🎯 Setup VCPKG Cache
         id: cache-vcpkg
-        uses: actions/cache@v3 # https://github.com/actions/cache
+        uses: actions/cache@v4 # https://github.com/actions/cache
         with:
           # https://github.com/microsoft/vcpkg/blob/master/docs/users/binarycaching.md#configuration
           path: ~\AppData\Local\vcpkg\archives\
@@ -134,7 +134,7 @@ jobs:
           copy build\${{ matrix.config.preset }}\wiuc.exe artifact\
 
       - name: 🔼 Upload Build Artifact (on commit)
-        uses: actions/upload-artifact@v3 # https://github.com/actions/upload-artifact
+        uses: actions/upload-artifact@v4 # https://github.com/actions/upload-artifact
         if: always()
         with:
           name: ${{ env.ARTIFACT_NAME }}
@@ -211,7 +211,7 @@ jobs:
 
       - name: 🎯 Cache VCPKG
         id: cache-vcpkg
-        uses: actions/cache@v3 # https://github.com/actions/cache
+        uses: actions/cache@v4 # https://github.com/actions/cache
         with:
           # https://github.com/microsoft/vcpkg/blob/master/docs/users/binarycaching.md#configuration
           path: /home/runner/.cache/vcpkg/archives/
@@ -237,7 +237,7 @@ jobs:
       #
       - name: 🔼 Upload Build Artifact (on every commit)
         if: always()
-        uses: actions/upload-artifact@v3 # https://github.com/actions/upload-artifact
+        uses: actions/upload-artifact@v4 # https://github.com/actions/upload-artifact
         with:
           name: ${{ env.ARTIFACT_NAME }}
           path: artifact/**/*
@@ -273,7 +273,7 @@ jobs:
       #  # https://github.com/actions/download-artifact/issues/143
       #
       - name: 🔽 Download all artifacts from previous jobs
-        uses: actions/download-artifact@v3 # https://github.com/actions/download-artifact
+        uses: actions/download-artifact@v4 # https://github.com/actions/download-artifact
       #   with:
       #     extractArtifact: false # not yet available
 
