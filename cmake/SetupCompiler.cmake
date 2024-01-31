@@ -44,6 +44,15 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "CLANG")
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 endif()
 
+if(NOT WIN32)
+    set(STATIC_CXX_LIB true)
+    if(STATIC_CXX_LIB)
+        if(CMAKE_CXX_COMPILER STREQUAL "GCC")
+            set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")
+        endif()
+    endif()
+endif()
+
 #-------------------------------------------------------------------
 # Compiler Flags
 #-------------------------------------------------------------------

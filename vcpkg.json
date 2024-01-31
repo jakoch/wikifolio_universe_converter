@@ -1,6 +1,6 @@
 {
   "name": "wikifolio-investment-universe-converter",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Converts the wikifolio.com investment universe from it's XLSX-spreadsheet form into CSV files and a SQLite Database.",
   "homepage": "https://github.com/jakoch/wikifolio_universe_converter",
   "license": "MIT",

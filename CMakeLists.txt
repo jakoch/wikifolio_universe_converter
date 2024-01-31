@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.20)
 #-------------------------------------------------------------------
 # Setup CMake
 #-------------------------------------------------------------------
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 set(CMAKE_FIND_LIBRARY_PREFIXES ";")
 set(CMAKE_FIND_LIBRARY_SUFFIXES ";")
@@ -17,13 +17,6 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 #-------------------------------------------------------------------
 
 option(BUILD_SHARED_LIBS "Build shared libraries"               OFF)
-
-# local dev.box VCPKG_TARGET_TRIPLET
-if(WIN32 AND NOT "$ENV{VCPKG_TARGET_TRIPLET}")
-    set(VCPKG_TARGET_TRIPLET "x64-windows-static")
-elseif(UNIX AND NOT APPLE)
-    set(VCPKG_TARGET_TRIPLET "x64-linux")
-endif()
 
 #-------------------------------------------------------------------
 # Get Versioning Data
@@ -41,7 +34,7 @@ string(JSON APP_HOMEPAGE GET ${VCPKG_JSON_STRING} "homepage")
 # Project
 #-------------------------------------------------------------------
 
-project(wiuc VERSION ${APP_VERSION} DESCRIPTION "wikifolio_investment_universe_converter" LANGUAGES C CXX)
+project(wiuc VERSION ${APP_VERSION} DESCRIPTION "wikifolio_investment_universe_converter" LANGUAGES CXX)
 
 #-------------------------------------------------------------------
 # Setup Compiler and VCPKG & load additional includes
@@ -64,21 +57,19 @@ configure_file("src/version.h.in" "version.h" @ONLY)
 # Find Dependencies
 #-------------------------------------------------------------------
 
-list(APPEND CMAKE_PREFIX_PATH "${VCPKG_DIR}")
-list(APPEND CMAKE_PREFIX_PATH "${VCPKG_DIR}/lib")
-list(APPEND CMAKE_PREFIX_PATH "${VCPKG_DIR}/debug/lib")
-
+#find_package(SQLite3 CONFIG REQUIRED)
 find_package(unofficial-sqlite3 CONFIG REQUIRED)
 
 find_package(CURL CONFIG REQUIRED)
 
+# use fmt as polyfill on linux
 if(NOT MSVC)
   find_package(fmt CONFIG REQUIRED)
 endif()
 
 find_package(expat CONFIG REQUIRED)
 
-find_package(minizip CONFIG REQUIRED)
+find_package(unofficial-minizip CONFIG REQUIRED)
 
 include(Findxlsxio_read)
 find_package(xlsxio_read REQUIRED)
@@ -111,8 +102,9 @@ endif()
 target_link_libraries(wiuc
     PRIVATE
       ${xlsxio_read_LIBRARY}
-      minizip::minizip
+      unofficial::minizip::minizip
       expat::expat
+      #SQLite::SQLite3
       unofficial::sqlite3::sqlite3
       CURL::libcurl
 )
@@ -123,13 +115,9 @@ endif()
 
 target_include_directories(wiuc PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>"
-     # to include the generated "version.h"
+    # to include the generated "version.h"
     ${CMAKE_CURRENT_BINARY_DIR}
 )
-
-if(WIN32)
-  set_target_properties(wiuc PROPERTIES LINK_FLAGS "/NODEFAULTLIB:LIBCMTD")
-endif()
 
 #-------------------------------------------------------------------
 # FeatureSummary

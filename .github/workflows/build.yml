@@ -14,6 +14,11 @@ on:
  # You can manually run this workflow.
  - workflow_dispatch
 
+# improve CI concurrency by automatically cancelling outdated jobs
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
 jobs:
 
 # ---------------------------------------------------------------------------------------
@@ -33,14 +38,18 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - { os: windows-2019, compiler: "VC16", vcpkg_target_triplet: x64-windows-static, build_type: Release, job_name: "Windows | VC16 | static | Release"}
-          - { os: windows-2022, compiler: "VC17", vcpkg_target_triplet: x64-windows-static, build_type: Release, job_name: "Windows | VC17 | static | Release"}
-          - { os: windows-2022, compiler: "VC17", vcpkg_target_triplet: x64-windows-static, build_type: RelWithDebInfo, job_name: "Windows | VC17 | static | RelWithDebInfo"}
+          # Compiler Versions Overview for Github Actions Windows Images (10-2023)
+          # ----------------------------------------------------------------------
+          # OS↓ Compiler->| VC    | Clang-Cl | GNU C++ | LLVM Clang
+          # --------------|-------|----------|---------|--------------------------
+          #  windows-2019 | 16.11 |          | 8.1.0   | 16.0.6
+          #  windows-2022 | 17.7  |          | 12.2.0  | 16.0.6
+          - { os: windows-2019, preset: "vc16-x64-windows-static-rel-ci", job_name: "Win | VC-16 | Release"        }
+          - { os: windows-2022, preset: "vc17-x64-windows-static-rel-ci", job_name: "Win | VC-17 | Release"        }
+          - { os: windows-2022, preset: "vc17-x64-windows-static-rdi-ci", job_name: "Win | VC-17 | RelWithDebInfo" }
 
     env:
-      PLATFORM: x64
       VCPKG_ROOT: C:\vcpkg
-      BUILD_SHARED_LIBS: OFF
 
     defaults:
       run:
@@ -48,40 +57,29 @@ jobs:
 
     steps:
       - name: 🤘 Checkout Code
-        uses: actions/checkout@v3 # https://github.com/actions/checkout
+        uses: actions/checkout@v4 # https://github.com/actions/checkout
 
-      - name: ℹ Show Tool Versions
-        run: |
-          date /T
-          time /T
-          curl -V
-          cmake --version
-          vcpkg version
-          echo NUMBER_OF_PROCESSORS=%NUMBER_OF_PROCESSORS%
+      # https://community.chocolatey.org/packages/ninja
+      # https://community.chocolatey.org/packages/ccache
+      # https://community.chocolatey.org/packages/cmake
+      - name: 🔽 Install Ninja
+        run: choco install ninja ccache cmake
 
-      # Build Artifact Name: wiuc-1.0.1-0cda6a2-VC17-x64-static-Release
+      # Build Artifact Name: wiuc-1.0.1-0cda6a2-vc17-static-rdi
       - name: ✏ Fetch Versioning Data & Set Artifact Name
         shell: pwsh
         run: |
-          $NAME="wiuc"
+          $NAME=$(jq -r .name vcpkg.json)
           $VERSION=$(jq -r .version vcpkg.json)
           $SHORT_HASH=$($env:GITHUB_SHA.substring(0,7))
-          $COMPILER="${{ matrix.config.compiler }}"
-          $TRIPLET="${{ matrix.config.vcpkg_target_triplet }}"
-          $BUILD_TYPE="${{ matrix.config.build_type }}"
-          $ARTIFACT_NAME="$NAME-$VERSION-$SHORT_HASH-$COMPILER-$TRIPLET-$BUILD_TYPE"
+          $PRESET=$('${{matrix.config.preset}}').replace('-x64-windows', '').replace('-ci', '')
+          $ARTIFACT_NAME="$NAME-$VERSION-$SHORT_HASH-$PRESET"
           echo "Artifact Name:" $ARTIFACT_NAME
           echo "ARTIFACT_NAME=$($ARTIFACT_NAME)" >> $env:GITHUB_ENV
           echo "VERSION=$($VERSION)" >> $env:GITHUB_ENV
 
-      - name: 📥 Setup VC16 Environment (➔ vcvarsall)
-        if: matrix.config.compiler == 'VC16'
-        run: call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" %PLATFORM%
-
-      # https://github.com/actions/virtual-environments/blob/main/images/win/Windows2022-Readme.md#visual-studio-enterprise-2022
-      - name: 📥 Setup VC17 Environment (→ vcvars64)
-        if: matrix.config.compiler == 'VC17'
-        run: call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+      - name: 🛠️ Setup Visual Studio Developer Command Prompt
+        uses: ilammy/msvc-dev-cmd@v1
 
       - name: 🔽 Update VCPKG
         run: |
@@ -89,51 +87,51 @@ jobs:
           git reset --hard
           git pull --quiet
           bootstrap-vcpkg.bat -disableMetrics
-          vcpkg version
+          vcpkg integrate
 
-      #- name: 🔽 Integrate VCPKG
-      #  run: vcpkg integrate install --triplet=${{ matrix.config.VCPKG_TARGET_TRIPLET }} --feature-flags=manifests
+      # Reminder: This step requires that the CMakePresets for CI contain
+      # "CMAKE_CXX_COMPILER_LAUNCHER": "sccache".
+      - name: 🎯 Setup Build Cache
+        uses: hendrikmuhs/ccache-action@v1
+        with:
+          variant: sccache
+          key: cache-build-${{ matrix.config.preset }}-${{ github.ref }}
+          restore-keys: |
+            cache-build-${{ matrix.config.preset }}-${{ github.ref }}
+            cache-build-${{ matrix.config.preset }}
 
-      - name: 🎯 Cache VCPKG
+      - name: 🎯 Setup VCPKG Cache
         id: cache-vcpkg
         uses: actions/cache@v3 # https://github.com/actions/cache
         with:
           # https://github.com/microsoft/vcpkg/blob/master/docs/users/binarycaching.md#configuration
           path: ~\AppData\Local\vcpkg\archives\
-          key: cache-vcpkg-${{ matrix.config.compiler }}-${{ matrix.config.vcpkg_target_triplet }}-${{ github.ref }}-${{ github.run_number }}
+          key: cache-win-vcpkg-${{ matrix.config.preset }}-${{ github.ref }}
           restore-keys: |
-            cache-vcpkg-${{ matrix.config.compiler }}-${{ matrix.config.vcpkg_target_triplet }}-${{ github.ref }}
-            cache-vcpkg-${{ matrix.config.compiler }}-${{ matrix.config.vcpkg_target_triplet }}
+            cache-vcpkg-${{ matrix.config.preset }}-${{ github.ref }}
+            cache-vcpkg-${{ matrix.config.preset }}
 
-      - name: ✏ CMake ➔ Configure (including VCPKG → Install Dependencies)
-        run: |
-          if "${{ matrix.config.compiler }}" == "VC16"; set "GENERATOR=Visual Studio 16 2019"
-          if "${{ matrix.config.compiler }}" == "VC17"; set "GENERATOR=Visual Studio 17 2022"
-          echo %GENERATOR%
-          mkdir build && cd build
-          cmake -G "%GENERATOR%" -A x64 ..                                                     ^
-                -DCMAKE_BUILD_TYPE=${{ matrix.config.build_type }}                             ^
-                -DCMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_ROOT }}/scripts/buildsystems/vcpkg.cmake  ^
-                -DVCPKG_TARGET_TRIPLET=${{ matrix.config.vcpkg_target_triplet }}               ^
-                -DBUILD_SHARED_LIBS=${{ env.BUILD_SHARED_LIBS }}                               ^
-                -DCMAKE_VERBOSE_MAKEFILE=ON
+      - name: ✏ CMake ➔ Configure
+        run: cmake --preset=${{matrix.config.PRESET}}
 
       - name: 🙏 CMake ➔ Build
-        run: cmake --build build --config ${{ matrix.config.build_type }} -j %NUMBER_OF_PROCESSORS%
+        run: cmake --build --preset=${{matrix.config.PRESET}}
 
       - name: 📦 CMake ➔ Install
-        run: cmake --install build --config ${{ matrix.config.build_type }} --prefix build/wiuc-%VERSION% --verbose
+        run: cmake --install build --prefix build/wiuc-%VERSION% --verbose
 
+        # dir /S /B vcpkg_installed
+        # dir /S /B build\vcpkg_installed\x64-windows-static
       - name: ❔ CHECK important folders, to see if everything is present (after building)
         run: |
-          dir build
-          dir /S /B build\vcpkg_installed\${{ matrix.config.vcpkg_target_triplet }}
-          dir /S /B build\${{ matrix.config.build_type }}
+          dir /S /B build
+          dir /S /B install
+          dir /S /B build\${{ matrix.config.preset }}
 
       - name: 🚥 Prepare Build Artifact (copy to packaging folder and rename)
         run: |
           mkdir artifact
-          copy build\${{ matrix.config.build_type }}\wiuc.exe artifact\
+          copy build\${{ matrix.config.preset }}\wiuc.exe artifact\
 
       - name: 🔼 Upload Build Artifact (on commit)
         uses: actions/upload-artifact@v3 # https://github.com/actions/upload-artifact
@@ -159,29 +157,32 @@ jobs:
       fail-fast: false
       matrix:
         config:
-        - { os: ubuntu-20.04, compiler: "GCC-9",    vcpkg_target_triplet: x64-linux, build_type: Release, apt_packages: "g++-9",    cc: "gcc-9",    cxx: "g++-9",      job_name: "Linux | GCC-9 | Release"}
-        - { os: ubuntu-22.04, compiler: "GCC-11",   vcpkg_target_triplet: x64-linux, build_type: Release, apt_packages: "g++-11",   cc: "gcc-11",   cxx: "g++-11",     job_name: "Linux | GCC-11 | Release"}
-        - { os: ubuntu-20.04, compiler: "Clang-10", vcpkg_target_triplet: x64-linux, build_type: Release, apt_packages: "clang-10", cc: "clang-10", cxx: "clang++-10", job_name: "Linux | Clang-10 | Release"}
-        - { os: ubuntu-22.04, compiler: "Clang-14", vcpkg_target_triplet: x64-linux, build_type: Release, apt_packages: "clang-14", cc: "clang-14", cxx: "clang++-14", job_name: "Linux | Clang-14 | Release"}
+        # Compiler Versions Overview for Github Actions Linux Images (10-2023)
+        # ------------------------------------------------------------------------
+        # OS↓ Compiler->| GNU C++                       | LLVM Clang
+        # --------------|-------------------------------|-------------------------
+        # ubuntu-20.04  | 9.4.0, 10.5.0                 | 10.0.0, 11.0.0, 12.0.0
+        # ubuntu-22.04  | 9.5.0, 10.5.0, 11.4.0, 12.3.0 | 13.0.1, 14.0.0
+        - { os: ubuntu-20.04, preset: "gcc9-x64-linux-rel-ci",    apt_packages: "g++-9",    job_name: "Linux | GCC-9    | Release" }
+        - { os: ubuntu-22.04, preset: "gcc12-x64-linux-rel-ci",   apt_packages: "g++-12",   job_name: "Linux | GCC-12   | Release" }
+        - { os: ubuntu-20.04, preset: "clang10-x64-linux-rel-ci", apt_packages: "clang-10", job_name: "Linux | Clang-10 | Release" }
+        - { os: ubuntu-22.04, preset: "clang14-x64-linux-rel-ci", apt_packages: "clang-14", job_name: "Linux | Clang-14 | Release" }
 
     env:
       VCPKG_ROOT: /usr/local/share/vcpkg
-      BUILD_SHARED_LIBS: ON
 
     steps:
       - name: 🤘 Checkout Code
-        uses: actions/checkout@v3 # https://github.com/actions/checkout
+        uses: actions/checkout@v4 # https://github.com/actions/checkout
 
-      # Build Artifact Name: wiuc-1.0.1-0cda6a2-Clang12-x64-linux-Release
+      # Build Artifact Name: wiuc-1.0.1-0cda6a2-clang17-x64-linux-rel
       - name: ✏ Fetch Versioning Data & Set Artifact Name
         run: |
           NAME='wiuc'
           VERSION=$(jq -r .version vcpkg.json)
           SHORT_HASH=`echo $GITHUB_SHA | cut -c1-8`
-          COMPILER=`echo ${{ matrix.config.compiler }} | sed 's/-//'`
-          TRIPLET="${{ matrix.config.vcpkg_target_triplet }}"
-          BUILD_TYPE="${{ matrix.config.build_type }}"
-          ARTIFACT_NAME="$NAME-$VERSION-$SHORT_HASH-$COMPILER-$TRIPLET-$BUILD_TYPE"
+          PRESET=`echo ${{ matrix.config.preset }} | sed 's/-ci//'`
+          ARTIFACT_NAME="$NAME-$VERSION-$SHORT_HASH-$COMPILER-$TRIPLET-$PRESET"
           echo "Artifact Name: $ARTIFACT_NAME"
           echo "ARTIFACT_NAME=$ARTIFACT_NAME" >> $GITHUB_ENV
           echo "VERSION=$VERSION" >> $GITHUB_ENV
@@ -197,10 +198,16 @@ jobs:
           git reset --hard
           git pull --quiet
           ./bootstrap-vcpkg.sh -disableMetrics
-          vcpkg version
 
-      #- name: 🔽 Integrate VCPKG
-      #  run: vcpkg integrate install --triplet=${{ matrix.config.vcpkg_target_triplet }} --feature-flags=manifests
+      # Reminder: This step requires that the CMakePresets for CI contain
+      # "CMAKE_CXX_COMPILER_LAUNCHER": "sccache".
+      - name: 🎯 Setup Build Cache
+        uses: hendrikmuhs/ccache-action@v1
+        with:
+          key: cache-build-${{ matrix.config.preset }}-${{ github.ref }}
+          restore-keys: |
+            cache-build-${{ matrix.config.preset }}-${{ github.ref }}
+            cache-build-${{ matrix.config.preset }}
 
       - name: 🎯 Cache VCPKG
         id: cache-vcpkg
@@ -208,27 +215,16 @@ jobs:
         with:
           # https://github.com/microsoft/vcpkg/blob/master/docs/users/binarycaching.md#configuration
           path: /home/runner/.cache/vcpkg/archives/
-          key: cache-vcpkg-${{ matrix.config.compiler }}-${{ matrix.config.vcpkg_target_triplet }}-${{ github.ref }}-${{ github.run_number }}
+          key: cache-vcpkg-${{ matrix.config.preset }}-${{ github.ref }}
           restore-keys: |
-            cache-vcpkg-${{ matrix.config.compiler }}-${{ matrix.config.vcpkg_target_triplet }}-${{ github.ref }}
-            cache-vcpkg-${{ matrix.config.compiler }}-${{ matrix.config.vcpkg_target_triplet }}
+            cache-vcpkg-${{ matrix.config.preset }}-${{ github.ref }}
+            cache-vcpkg-${{ matrix.config.preset }}
 
-      - name: ✏ CMake ➔ Configure (including VCPKG → Install Dependencies)
-        run: |
-          cmake -S ${{ github.workspace }} -B ../build                                         \
-                -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}                                    \
-                -DCMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_ROOT }}/scripts/buildsystems/vcpkg.cmake  \
-                -DVCPKG_TARGET_TRIPLET=${{ matrix.config.vcpkg_target_triplet }}               \
-                -DBUILD_SHARED_LIBS=${{ env.BUILD_SHARED_LIBS }}                               \
-                -DCMAKE_VERBOSE_MAKEFILE=ON
-        env:
-          CC: ${{matrix.config.cc}}
-          CXX: ${{matrix.config.cxx}}
+      - name: ✏ CMake ➔ Configure
+        run: cmake --preset=${{matrix.config.PRESET}}
 
-      - name: 🙏 CMake → Build
-        run: |
-          cd ../build
-          cmake --build . --config ${{ matrix.config.build_type }}
+      - name: 🙏 CMake ➔ Build
+        run: cmake --build --preset=${{matrix.config.PRESET}}
 
       - name: 🚥 Prepare Build Artifact (copy to packaging folder)
         run: |
@@ -269,7 +265,7 @@ jobs:
 
     steps:
       - name: 🤘 Checkout repository
-        uses: actions/checkout@v3 # https://github.com/actions/checkout
+        uses: actions/checkout@v4 # https://github.com/actions/checkout
 
       #  This downloads all artifact zip archives and extracts them into folders.
       #  So we have to zip them for release again.... ¯\_(ツ)_/¯

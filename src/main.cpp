@@ -1,4 +1,4 @@
-// Copyright 2021-2023 Jens A. Koch.
+// Copyright 2021-2024 Jens A. Koch.
 // SPDX-License-Identifier: MIT
 // This file is part of jakoch/wikifolio_universe_converter.
 
@@ -109,6 +109,17 @@ XLSXSheet &XLSXSheet::operator>>(double &value)
     GetNextCellFloat(value);
     return *this;
 }
+
+void* XLSXSheet::operator new(std::size_t size)
+{
+    return std::malloc(size);
+}
+
+void XLSXSheet::operator delete(void* ptr)
+{
+    std::free(ptr);
+}
+
 /*
 XLSXReaderSheet& XLSXReaderSheet::operator >> (time_t& value)
 {
@@ -420,9 +431,11 @@ bool csv_to_sqlite(std::string const &csv_filename, std::string const &sqlite_fi
 
         lineStream.clear();
 
-        // printf("%s\n", sql_insert_values.c_str());
 
-        sql_insert_stmt = vformat(sql_insert_stmt_tpl, make_format_args(sql_insert_values.c_str()));
+        std::string sql_insert_values_str = sql_insert_values.c_str();
+        // printf("%s\n", sql_insert_values_str);
+        auto sql_insert_args = make_format_args(sql_insert_values_str);
+        sql_insert_stmt = vformat(sql_insert_stmt_tpl, sql_insert_args);
 
         sql_insert_values.clear();
 
@@ -516,9 +529,9 @@ std::string format_status(std::string status_message = "Status update.", int ind
     return indentation + escape_code + status_message + reset_code; // + "\n"
 }
 
-static std::string printHelpText(char const * const program_name)
+void printHelpText(std::string program_name)
 {
-    // note: do not use std::format(), only format(), see header.
+    // Note: do not use std::format(), only format(), because we are using fmt as polyfill, see header.
 
     std::string help_text_header = format(
         "{} {}\n"
@@ -542,13 +555,15 @@ static std::string printHelpText(char const * const program_name)
         "{}\tDisplay version number only\n",
         format_status("-h,   --help", 2, Color::Green).c_str(),
         format_status("-c,   --convert", 2, Color::Green).c_str(),
-        format_status("-o, --out <dir>", 4, Color::Green).c_str(),
+        format_status("-o,   --out <dir>", 2, Color::Green).c_str(),
         format_status("-V,   --version", 2, Color::Green).c_str(),
         format_status("-Vj,  --version-json", 2, Color::Green).c_str(),
         format_status("-Vo,  --version-only", 2, Color::Green).c_str()
     );
 
-    return help_text_header + help_text_body;
+   const std::string help_text = help_text_header + help_text_body;
+
+   printf("%s", help_text.c_str());
 }
 
 // conservative approach for chars in a folder name
@@ -566,7 +581,7 @@ bool is_valid_folder_name(std::string const &folder)
 
 int main(int const argc, char const *argv[])
 {
-    char const *name = argv[0];
+    const std::string name = "wiuc";
     (void)argc;
 
     // default action
@@ -578,7 +593,7 @@ int main(int const argc, char const *argv[])
     // Check for command line arguments
     if (argc == 2 && (std::string(argv[1]) == "-h" || std::string(argv[1]) == "--help"))
     {
-        std::cout << printHelpText(name) << std::endl;
+        printHelpText(name);
         return EXIT_SUCCESS;
     }
     else if (argc == 2 && (std::string(argv[1]) == "-V" || std::string(argv[1]) == "--version"))

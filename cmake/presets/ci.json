@@ -1,0 +1,66 @@
+{
+  "version": 4,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 25,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "vc16-x64-windows-static-rel-ci",
+      "inherits": [
+        "vc16-x64-windows-static",
+        "build-folders-ci",
+        "condition-is-ci"
+      ]
+    },
+    {
+      "name": "vc17-x64-windows-static-rel-ci",
+      "inherits": [
+        "vc17-x64-windows-static",
+        "build-folders-ci",
+        "condition-is-ci"
+      ]
+    },
+    {
+      "name": "vc17-x64-windows-static-rdi-ci",
+      "inherits": [
+        "vc17-x64-windows-static",
+        "build-folders-ci",
+        "condition-is-ci"
+      ]
+    },
+    {
+      "name": "gcc9-x64-linux-rel-ci",
+      "inherits": [
+        "gcc9-x64-linux-rel",
+        "build-folders-ci",
+        "condition-is-ci"
+      ]
+    },
+    {
+      "name": "gcc12-x64-linux-rel-ci",
+      "inherits": [
+        "gcc12-x64-linux-rel",
+        "build-folders-ci",
+        "condition-is-ci"
+      ]
+    },
+    {
+      "name": "clang10-x64-linux-rel-ci",
+      "inherits": [
+        "clang10-x64-linux-rel",
+        "build-folders-ci",
+        "condition-is-ci"
+      ]
+    },
+    {
+      "name": "clang14-x64-linux-rel-ci",
+      "inherits": [
+        "clang14-x64-linux-rel",
+        "build-folders-ci",
+        "condition-is-ci"
+      ]
+    }
+  ]
+}

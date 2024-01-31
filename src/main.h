@@ -1,4 +1,4 @@
-// Copyright 2021-2023 Jens A. Koch.
+// Copyright 2021-2024 Jens A. Koch.
 // SPDX-License-Identifier: MIT
 // This file is part of jakoch/wikifolio_universe_converter.
 
@@ -77,6 +77,8 @@ public:
     XLSXSheet &operator>>(std::string &value);
     XLSXSheet &operator>>(int64_t &value);
     XLSXSheet &operator>>(double &value);
+    void* operator new(std::size_t size);
+    void operator delete(void* ptr);
 
     friend class XLSXReader;
 };

@@ -1,4 +1,4 @@
-// Copyright 2021-2023 Jens A. Koch.
+// Copyright 2021-2024 Jens A. Koch.
 // SPDX-License-Identifier: MIT
 // This file is part of jakoch/wikifolio_universe_converter.
 
@@ -15,6 +15,7 @@
  * APP_DESC
  * APP_HOMEPAGE
  * CURRENT_YEAR
+ * VERSION_ID
  */
 
 #include <string>
@@ -39,6 +40,7 @@ public:
     static constexpr std::string_view homepage    = "@APP_HOMEPAGE@";
     static constexpr std::string_view copyright   = "Copyright (c) Jens A. Koch, 2021-@CURRENT_YEAR@.";
     static constexpr semantic_version semver{@PROJECT_VERSION_MAJOR@, @PROJECT_VERSION_MINOR@, @PROJECT_VERSION_PATCH@};
+    static constexpr int version_id = @PROJECT_VERSION_MAJOR@ * 10000 + @PROJECT_VERSION_MINOR@ * 100 + @PROJECT_VERSION_PATCH@;
 
     static constexpr std::string_view get_version_json() noexcept {
         return
@@ -81,5 +83,9 @@ public:
     static constexpr char const *get_copyright()
     {
         return copyright.data();
+    }
+    static constexpr int const *get_version_num()
+    {
+        return &version_id;
     }
 };

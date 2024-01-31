@@ -1,0 +1,569 @@
+{
+  "version": 4,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 25,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "vcpkg-triplet-x64-linux",
+      "hidden": true,
+      "description": "Set vcpkg target_triplet (shared | dynamic).",
+      "cacheVariables": {
+        "BUILD_SHARED_LIBS": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "VCPKG_TARGET_TRIPLET": {
+          "type": "STRING",
+          "value": "x64-linux"
+        }
+      },
+      "inherits": [
+        "vcpkg-default-config"
+      ]
+    },
+    {
+      "name": "gcc-x64-linux-base",
+      "hidden": true,
+      "vendor": {
+        "microsoft.com/VisualStudioSettings/CMake/1.0": {
+          "intelliSenseMode": "linux-gcc-x64"
+        }
+      },
+      "inherits": [
+        "condition-is-linux",
+        "cmake-default-config",
+        "cmake-enable-warnings",
+        "generator-ninja",
+        "build-folders-default",
+        "vcpkg-triplet-x64-linux"
+      ]
+    },
+    {
+      "name": "compiler-gcc9-linux",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER": "g++-9"
+      }
+    },
+    {
+      "name": "compiler-gcc10-linux",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER": "g++-10"
+      }
+    },
+    {
+      "name": "compiler-gcc11-linux",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER": "g++-11"
+      }
+    },
+    {
+      "name": "compiler-gcc12-linux",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER": "g++-12"
+      }
+    },
+    {
+      "name": "compiler-gcc13-linux",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER": "g++-13"
+      }
+    },
+    {
+      "name": "gcc9-x64-linux",
+      "hidden": true,
+      "inherits": [
+        "gcc-x64-linux-base",
+        "compiler-gcc9-linux"
+      ]
+    },
+    {
+      "name": "gcc10-x64-linux",
+      "hidden": true,
+      "inherits": [
+        "gcc-x64-linux-base",
+        "compiler-gcc10-linux"
+      ]
+    },
+    {
+      "name": "gcc11-x64-linux",
+      "hidden": true,
+      "inherits": [
+        "gcc-x64-linux-base",
+        "compiler-gcc11-linux"
+      ]
+    },
+    {
+      "name": "gcc12-x64-linux",
+      "hidden": true,
+      "inherits": [
+        "gcc-x64-linux-base",
+        "compiler-gcc12-linux"
+      ]
+    },
+    {
+      "name": "gcc13-x64-linux",
+      "hidden": true,
+      "inherits": [
+        "gcc-x64-linux-base",
+        "compiler-gcc13-linux"
+      ]
+    },
+    {
+      "name": "clang-x64-linux-base",
+      "hidden": true,
+      "vendor": {
+        "microsoft.com/VisualStudioSettings/CMake/1.0": {
+          "intelliSenseMode": "linux-gcc-x64"
+        }
+      },
+      "inherits": [
+        "condition-is-linux",
+        "cmake-default-config",
+        "cmake-enable-warnings",
+        "generator-ninja",
+        "build-folders-default",
+        "vcpkg-triplet-x64-linux"
+      ]
+    },
+    {
+      "name": "compiler-clang10-linux",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER": "clang-10"
+      }
+    },
+    {
+      "name": "compiler-clang11-linux",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER": "clang-11"
+      }
+    },
+    {
+      "name": "compiler-clang12-linux",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER": "clang-12"
+      }
+    },
+    {
+      "name": "compiler-clang13-linux",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER": "clang-13"
+      }
+    },
+    {
+      "name": "compiler-clang14-linux",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER": "clang-14"
+      }
+    },
+    {
+      "name": "compiler-clang15-linux",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER": "clang-15"
+      }
+    },
+    {
+      "name": "compiler-clang16-linux",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER": "clang-16"
+      }
+    },
+    {
+      "name": "compiler-clang17-linux",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER": "clang-17"
+      }
+    },
+    {
+      "name": "clang17-x64-linux",
+      "hidden": true,
+      "inherits": [
+        "clang-x64-linux-base",
+        "compiler-clang17-linux"
+      ]
+    },
+    {
+      "name": "clang16-x64-linux",
+      "hidden": true,
+      "inherits": [
+        "clang-x64-linux-base",
+        "compiler-clang16-linux"
+      ]
+    },
+    {
+      "name": "clang15-x64-linux",
+      "hidden": true,
+      "inherits": [
+        "clang-x64-linux-base",
+        "compiler-clang15-linux"
+      ]
+    },
+    {
+      "name": "clang14-x64-linux",
+      "hidden": true,
+      "inherits": [
+        "clang-x64-linux-base",
+        "compiler-clang14-linux"
+      ]
+    },
+    {
+      "name": "clang13-x64-linux",
+      "hidden": true,
+      "inherits": [
+        "clang-x64-linux-base",
+        "compiler-clang13-linux"
+      ]
+    },
+    {
+      "name": "clang12-x64-linux",
+      "hidden": true,
+      "inherits": [
+        "clang-x64-linux-base",
+        "compiler-clang12-linux"
+      ]
+    },
+    {
+      "name": "clang11-x64-linux",
+      "hidden": true,
+      "inherits": [
+        "clang-x64-linux-base",
+        "compiler-clang11-linux"
+      ]
+    },
+    {
+      "name": "clang10-x64-linux",
+      "hidden": true,
+      "inherits": [
+        "clang-x64-linux-base",
+        "compiler-clang10-linux"
+      ]
+    },
+    {
+      "name": "gcc13-x64-linux-rel",
+      "displayName": "GCC13-Release",
+      "inherits": "gcc13-x64-linux",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "gcc13-x64-linux-rdi",
+      "displayName": "GCC13-RelWithDebInfo",
+      "inherits": "gcc13-x64-linux",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      }
+    },
+    {
+      "name": "gcc13-x64-linux-dbg",
+      "displayName": "GCC13-Debug",
+      "inherits": "gcc13-x64-linux",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "gcc12-x64-linux-rel",
+      "displayName": "GCC12-Release",
+      "inherits": "gcc12-x64-linux",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "gcc12-x64-linux-rdi",
+      "displayName": "GCC12-RelWithDebInfo",
+      "inherits": "gcc12-x64-linux",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      }
+    },
+    {
+      "name": "gcc12-x64-linux-dbg",
+      "displayName": "GCC12-Debug",
+      "inherits": "gcc12-x64-linux",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "gcc11-x64-linux-rel",
+      "displayName": "GCC11-Release",
+      "inherits": "gcc11-x64-linux",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "gcc11-x64-linux-rdi",
+      "displayName": "GCC11-RelWithDebInfo",
+      "inherits": "gcc11-x64-linux",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      }
+    },
+    {
+      "name": "gcc11-x64-linux-dbg",
+      "displayName": "GCC11-Debug",
+      "inherits": "gcc11-x64-linux",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "gcc10-x64-linux-rel",
+      "displayName": "GCC10-Release",
+      "inherits": "gcc10-x64-linux",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "gcc10-x64-linux-rdi",
+      "displayName": "GCC10-RelWithDebInfo",
+      "inherits": "gcc10-x64-linux",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      }
+    },
+    {
+      "name": "gcc10-x64-linux-dbg",
+      "displayName": "GCC10-Debug",
+      "inherits": "gcc10-x64-linux",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "gcc9-x64-linux-rel",
+      "displayName": "GCC9-Release",
+      "inherits": "gcc9-x64-linux",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "gcc9-x64-linux-rdi",
+      "displayName": "GCC9-RelWithDebInfo",
+      "inherits": "gcc9-x64-linux",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      }
+    },
+    {
+      "name": "gcc9-x64-linux-dbg",
+      "displayName": "GCC9-Debug",
+      "inherits": "gcc9-x64-linux",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "clang17-x64-linux-rel",
+      "displayName": "Clang17-Release",
+      "inherits": "clang17-x64-linux",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "clang17-x64-linux-rdi",
+      "displayName": "Clang17-RelWithDebInfo",
+      "inherits": "clang17-x64-linux",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      }
+    },
+    {
+      "name": "clang17-x64-linux-dbg",
+      "displayName": "Clang17-Debug",
+      "inherits": "clang17-x64-linux",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "clang16-x64-linux-rel",
+      "displayName": "Clang16-Release",
+      "inherits": "clang16-x64-linux",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "clang16-x64-linux-rdi",
+      "displayName": "Clang16-RelWithDebInfo",
+      "inherits": "clang16-x64-linux",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      }
+    },
+    {
+      "name": "clang16-x64-linux-dbg",
+      "displayName": "Clang16-Debug",
+      "inherits": "clang16-x64-linux",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "clang15-x64-linux-rel",
+      "displayName": "Clang15-Release",
+      "inherits": "clang15-x64-linux",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "clang15-x64-linux-rdi",
+      "displayName": "Clang15-RelWithDebInfo",
+      "inherits": "clang15-x64-linux",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      }
+    },
+    {
+      "name": "clang15-x64-linux-dbg",
+      "displayName": "Clang15-Debug",
+      "inherits": "clang15-x64-linux",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "clang14-x64-linux-rel",
+      "displayName": "Clang14-Release",
+      "inherits": "clang14-x64-linux",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "clang14-x64-linux-rdi",
+      "displayName": "Clang14-RelWithDebInfo",
+      "inherits": "clang14-x64-linux",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      }
+    },
+    {
+      "name": "clang14-x64-linux-dbg",
+      "displayName": "Clang14-Debug",
+      "inherits": "clang14-x64-linux",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "clang13-x64-linux-rel",
+      "displayName": "Clang13-Release",
+      "inherits": "clang13-x64-linux",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "clang13-x64-linux-rdi",
+      "displayName": "Clang13-RelWithDebInfo",
+      "inherits": "clang13-x64-linux",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      }
+    },
+    {
+      "name": "clang13-x64-linux-dbg",
+      "displayName": "Clang13-Debug",
+      "inherits": "clang13-x64-linux",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "clang12-x64-linux-rel",
+      "displayName": "Clang12-Release",
+      "inherits": "clang12-x64-linux",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "clang12-x64-linux-rdi",
+      "displayName": "Clang12-RelWithDebInfo",
+      "inherits": "clang12-x64-linux",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      }
+    },
+    {
+      "name": "clang12-x64-linux",
+      "displayName": "Clang12-Debug",
+      "inherits": "clang12-x64-linux",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "clang11-x64-linux-rel",
+      "displayName": "Clang11-Release",
+      "inherits": "clang11-x64-linux",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "clang11-x64-linux-rdi",
+      "displayName": "Clang11-RelWithDebInfo",
+      "inherits": "clang11-x64-linux",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      }
+    },
+    {
+      "name": "clang11-x64-linux-dbg",
+      "displayName": "Clang11-Debug",
+      "inherits": "clang11-x64-linux",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "clang10-x64-linux-rel",
+      "displayName": "Clang10-Release",
+      "inherits": "clang10-x64-linux",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "clang10-x64-linux-rdi",
+      "displayName": "Clang10-RelWithDebInfo",
+      "inherits": "clang10-x64-linux",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      }
+    },
+    {
+      "name": "clang10-x64-linux-dbg",
+      "displayName": "Clang10-Debug",
+      "inherits": "clang10-x64-linux",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    }
+  ]
+}

@@ -8,8 +8,6 @@
 # Environment Variables: https://vcpkg.readthedocs.io/en/latest/users/config-environment/
 #
 
-set(VCPKG_ENABLED ON)
-
 set(VCPKG_VERBOSE ON)
 
 if(DEFINED ENV{VCPKG_VERBOSE} AND NOT DEFINED VCPKG_VERBOSE)
@@ -117,29 +115,19 @@ source_group("vcpkg" FILES
 )
 
 #
-# Set the BUILD_SHARED_LIBS based on the triplet if not set.
+# Check to make sure the VCPKG_TARGET_TRIPLET matches BUILD_SHARED_LIBS
 #
-if(NOT DEFINED ENV{BUILD_SHARED_LIBS})
-    if ("${VCPKG_TARGET_TRIPLET}" MATCHES ".*-static")
-        set(BUILD_SHARED_LIBS OFF)
-    else()
+if (DEFINED VCPKG_TARGET_TRIPLET AND "${VCPKG_TARGET_TRIPLET}" MATCHES ".*-static")
+    if (BUILD_SHARED_LIBS)
+        message(FATAL_ERROR "When the VCPKG_TARGET_TRIPLET ends with '-static' the BUILD_SHARED_LIBS must be 'OFF'.")
+    endif()
+else()
+    if (NOT BUILD_SHARED_LIBS)
+        #message(FATAL_ERROR "When the VCPKG_TARGET_TRIPLET does not end with '-static' the BUILD_SHARED_LIBS must be 'ON'.")
         set(BUILD_SHARED_LIBS ON)
     endif()
 endif()
 
-# --- VCPKG_DIR is the root folder for all compiled packages, e.g. /project/vcpkg_installed/x64-linux
-#
-# Please use this variable to point to the locations of your packages share folder, e.g.
-# set(spdlog_DIR "${VCPKG_DIR}/share/spdlog")
-# find_package(spdlog CONFIG REQUIRED)
-#
-if(NOT DEFINED VCPKG_DIR)
-    if(WIN32)
-        set(VCPKG_DIR "${CMAKE_SOURCE_DIR}/vcpkg_installed/${VCPKG_TARGET_TRIPLET}")
-    else()
-        set(VCPKG_DIR "${CMAKE_SOURCE_DIR}/build/${CMAKE_BUILD_TYPE}/vcpkg_installed/${VCPKG_TARGET_TRIPLET}")
-    endif()
-endif()
 
 #
 # Print VCPKG configuration overview
@@ -148,45 +136,13 @@ message(STATUS "")
 message(STATUS "[VCPKG]  Configuration Overview:")
 message(STATUS "")
 message(STATUS "[INFO]   ENV.VCPKG_ROOT                -> '$ENV{VCPKG_ROOT}'")
-message(STATUS "[INFO]   ENV.BUILD_SHARED_LIBS         -> '$ENV{BUILD_SHARED_LIBS}'")
+message(STATUS "[INFO]   BUILD_SHARED_LIBS             -> '${BUILD_SHARED_LIBS}'")
 message(STATUS "[INFO]   CMAKE_TOOLCHAIN_FILE          -> '${CMAKE_TOOLCHAIN_FILE}'")
 message(STATUS "")
-message(STATUS "[VCPKG]  VCPKG_ENABLED                 -> '${VCPKG_ENABLED}'")
 message(STATUS "[VCPKG]  VCPKG_VERBOSE                 -> '${VCPKG_VERBOSE}'")
 message(STATUS "[VCPKG]  VCPKG_APPLOCAL_DEPS           -> '${VCPKG_APPLOCAL_DEPS}'")
 message(STATUS "[VCPKG]  VCPKG_FEATURE_FLAGS           -> '${VCPKG_FEATURE_FLAGS}'")
 message(STATUS "[VCPKG]  VCPKG_MANIFEST_FILE           -> '${VCPKG_MANIFEST_FILE}'")
-message(STATUS "[VCPKG]  VCPKG_DIR                     -> '${VCPKG_DIR}'")
+message(STATUS "[VCPKG]  VCPKG_INSTALLED_DIR           -> '${VCPKG_INSTALLED_DIR}'")
 message(STATUS "[VCPKG]  VCPKG_TARGET_TRIPLET          -> '${VCPKG_TARGET_TRIPLET}'")
 message(STATUS "")
-
-#
-# Check to make sure the VCPKG_TARGET_TRIPLET matches BUILD_SHARED_LIBS
-#
-if ("${VCPKG_TARGET_TRIPLET}" MATCHES ".*-static")
-    if (BUILD_SHARED_LIBS)
-        message(FATAL_ERROR "When the VCPKG_TARGET_TRIPLET ends with '-static' the BUILD_SHARED_LIBS must be 'OFF'.")
-    endif()
-else()
-    if (NOT BUILD_SHARED_LIBS)
-        message(FATAL_ERROR "When the VCPKG_TARGET_TRIPLET does not end with '-static' the BUILD_SHARED_LIBS must be 'ON'.")
-    endif()
-endif()
-
-function(vcpkg_uninstall package)
-    if(WIN32)
-        set(VCPKG_EXECUTABLE "$ENV{VCPKG_ROOT}/vcpkg.exe")
-    else()
-        set(VCPKG_EXECUTABLE "$ENV{VCPKG_ROOT}/vcpkg")
-    endif()
-
-    set(VCPKG_INSTALL_ROOT "${CMAKE_BINARY_DIR}/vcpkg_installed")
-
-    message(STATUS "Running vcpkg remove '${package}'.")
-    execute_process(
-        COMMAND "${VCPKG_EXECUTABLE}"
-        "--vcpkg-root=$ENV{VCPKG_ROOT}"
-        "--x-install-root=${VCPKG_INSTALL_ROOT}"
-        "--triplet=${VCPKG_TARGET_TRIPLET}"
-        "remove" "${package}")
-endfunction()
