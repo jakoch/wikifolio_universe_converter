@@ -8,7 +8,8 @@
   "include": [
     "cmake/presets/base.json",
     "cmake/presets/windows.json",
-    "cmake/presets/linux.json"
+    "cmake/presets/linux.json",
+    "cmake/presets/ci.json"
   ],
   "configurePresets": [
     {
