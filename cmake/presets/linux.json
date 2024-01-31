@@ -510,7 +510,7 @@
       }
     },
     {
-      "name": "clang12-x64-linux",
+      "name": "clang12-x64-linux-dbg",
       "displayName": "Clang12-Debug",
       "inherits": "clang12-x64-linux",
       "cacheVariables": {
