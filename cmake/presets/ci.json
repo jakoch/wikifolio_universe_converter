@@ -1,13 +1,19 @@
 {
-  "version": 4,
+  "version": 5,
   "cmakeMinimumRequired": {
     "major": 3,
     "minor": 25,
     "patch": 0
   },
+  "include": [
+    "base.json",
+    "windows.json",
+    "linux.json"
+  ],
   "configurePresets": [
     {
       "name": "vc16-x64-windows-static-rel-ci",
+      "displayName": "VC16 Release (CI)",
       "inherits": [
         "vc16-x64-windows-static",
         "build-folders-ci",
@@ -16,19 +22,27 @@
     },
     {
       "name": "vc17-x64-windows-static-rel-ci",
+      "displayName": "VC17 Release (CI)",
       "inherits": [
         "vc17-x64-windows-static",
         "build-folders-ci",
         "condition-is-ci"
-      ]
+      ],
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER_LAUNCHER": "sccache"
+      }
     },
     {
       "name": "vc17-x64-windows-static-rdi-ci",
+      "displayName": "VC17 RelWithDebInfo (CI)",
       "inherits": [
         "vc17-x64-windows-static",
         "build-folders-ci",
         "condition-is-ci"
-      ]
+      ],
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER_LAUNCHER": "sccache"
+      }
     },
     {
       "name": "gcc9-x64-linux-rel-ci",

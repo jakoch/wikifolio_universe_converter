@@ -54,26 +54,6 @@
       }
     },
     {
-      "name": "vc17-x64-windows-static-rel-ci",
-      "displayName": "VC17 Release (CI)",
-      "inherits": ["vc17-x64-windows-rel", "condition-is-ci"],
-      "binaryDir": "build",
-      "installDir": "install",
-      "cacheVariables": {
-        "CMAKE_CXX_COMPILER_LAUNCHER": "sccache"
-      }
-    },
-    {
-      "name": "vc17-x64-windows-static-dbg-ci",
-      "displayName": "VC17 Debug (CI)",
-      "inherits": ["vc17-x64-windows-dbg", "condition-is-ci"],
-      "binaryDir": "build",
-      "installDir": "install",
-      "cacheVariables": {
-        "CMAKE_CXX_COMPILER_LAUNCHER": "sccache"
-      }
-    },
-    {
       "name": "clangcl-x64-windows-dbg",
       "displayName": "ClangCL Debug",
       "inherits": "clangcl-x64-windows",
