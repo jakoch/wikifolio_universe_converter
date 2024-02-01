@@ -78,17 +78,24 @@ jobs:
       - name: 🛠️ Setup Visual Studio Developer Command Prompt
         uses: ilammy/msvc-dev-cmd@v1
 
-      - name: Set VCPKG_ROOT to ENV
+      - name: 🔽 Set VCPKG_ROOT to ENV
         shell: pwsh
         run: |
           $VCPKG_ROOT=$($env:VCPKG_INSTALLATION_ROOT)
           echo "VCPKG_ROOT=$($VCPKG_ROOT)" >> $env:GITHUB_ENV
 
-      - name: 🔽 Update VCPKG
+      - name: 🔽 Update VCPKG to latest TAG
+        shell: bash
         run: |
-          cd ${{ env.VCPKG_ROOT }}
-          git reset --hard
-          git pull --quiet
+          set -euo pipefail
+
+          cd "${{ env.VCPKG_ROOT }}"
+          git fetch --tags
+          LATEST_VCPKG_TAG=$(git describe --tags --abbrev=0)
+          git checkout $LATEST_VCPKG_TAG
+
+      - name: 🔽 Bootstrap + Integrate VCPKG
+        run: |
           bootstrap-vcpkg.bat -disableMetrics
           vcpkg integrate
 
