@@ -1,20 +1,18 @@
 {
-  "version": 5,
+  "version": 6,
   "cmakeMinimumRequired": {
     "major": 3,
     "minor": 25,
     "patch": 0
   },
   "include": [
-    "cmake/presets/base.json",
     "cmake/presets/windows.json",
-    "cmake/presets/linux.json",
-    "cmake/presets/ci.json"
+    "cmake/presets/base.json"
   ],
   "configurePresets": [
     {
       "name": "vc17-x64-windows-rel",
-      "displayName": "VC17-Release",
+      "displayName": "VC17 Release",
       "inherits": "vc17-x64-windows-static",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release"
@@ -22,7 +20,7 @@
     },
     {
       "name": "vc17-x64-windows-dbg",
-      "displayName": "VC17-Debug",
+      "displayName": "VC17 Debug",
       "inherits": "vc17-x64-windows-static",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug"
@@ -30,7 +28,7 @@
     },
     {
       "name": "vc17-x64-windows-rdi",
-      "displayName": "VC17-RelWithDebInfo",
+      "displayName": "VC17 RelWithDebInfo",
       "inherits": "vc17-x64-windows-static",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "RelWithDebInfo"
@@ -39,7 +37,7 @@
     {
       "name": "vc17-x64-windows-dbg-asan",
       "hidden": true,
-      "displayName": "VC17-Debug-ASAN",
+      "displayName": "VC17 Debug ASAN",
       "inherits": "vc17-x64-windows-dbg",
       "cacheVariables": {
         "X_ENABLE_ASAN": "ON"
@@ -47,7 +45,7 @@
     },
     {
       "name": "vc17-x64-windows-dbg-ana",
-      "displayName": "VC17-Analysis",
+      "displayName": "VC17 Analysis",
       "inherits": "vc17-x64-windows-dbg",
       "cacheVariables": {
         "X_ENABLE_ANALYSIS": "ON"
@@ -55,24 +53,24 @@
     },
     {
       "name": "clangcl-x64-windows-dbg",
-      "displayName": "ClangCL-Debug",
-      "inherits": "clangcl-x64-windows",
+      "displayName": "ClangCL Debug",
+      "inherits": "clangcl-x64-windows-static",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug"
       }
     },
     {
       "name": "clangcl-x64-windows-rel",
-      "displayName": "ClangCL-Release",
-      "inherits": "clangcl-x64-windows",
+      "displayName": "ClangCL Release",
+      "inherits": "clangcl-x64-windows-static",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release"
       }
     },
     {
       "name": "clangcl-x64-windows-rdi",
-      "displayName": "ClangCL-RelWithDebInfo",
-      "inherits": "clangcl-x64-windows",
+      "displayName": "ClangCL RelWithDebInfo",
+      "inherits": "clangcl-x64-windows-static",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "RelWithDebInfo"
       }
@@ -81,7 +79,6 @@
   "buildPresets": [
     {
       "name": "vc17-x64-windows-rel",
-      "displayName": "wiuc",
       "configurePreset": "vc17-x64-windows-rel",
       "targets": [
         "wiuc"
@@ -89,7 +86,6 @@
     },
     {
       "name": "vc17-x64-windows-dbg",
-      "displayName": "wiuc",
       "configurePreset": "vc17-x64-windows-dbg",
       "targets": [
         "wiuc"
@@ -97,7 +93,6 @@
     },
     {
       "name": "clangcl-x64-windows-rel",
-      "displayName": "wiuc",
       "configurePreset": "clangcl-x64-windows-rel",
       "targets": [
         "wiuc"
@@ -105,40 +100,7 @@
     },
     {
       "name": "clangcl-x64-windows-dbg",
-      "displayName": "wiuc",
       "configurePreset": "clangcl-x64-windows-dbg",
-      "targets": [
-        "wiuc"
-      ]
-    },
-    {
-      "name": "clang17-x64-linux-rel",
-      "displayName": "wiuc",
-      "configurePreset": "clang17-x64-linux-rel",
-      "targets": [
-        "wiuc"
-      ]
-    },
-    {
-      "name": "clang17-x64-linux-dbg",
-      "displayName": "wiuc",
-      "configurePreset": "clang17-x64-linux-dbg",
-      "targets": [
-        "wiuc"
-      ]
-    },
-    {
-      "name": "gcc12-x64-linux-rel",
-      "displayName": "wiuc",
-      "configurePreset": "gcc12-x64-linux-rel",
-      "targets": [
-        "wiuc"
-      ]
-    },
-    {
-      "name": "gcc12-x64-linux-dbg",
-      "displayName": "wiuc",
-      "configurePreset": "gcc12-x64-linux-dbg",
       "targets": [
         "wiuc"
       ]

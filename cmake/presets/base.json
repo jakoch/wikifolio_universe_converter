@@ -1,5 +1,10 @@
 {
-  "version": 5,
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 25,
+    "patch": 0
+  },
   "configurePresets": [
     {
       "name": "cmake-default-config",
@@ -115,7 +120,7 @@
           "type": "BOOL",
           "value": "ON"
         },
-        "CMAKE_TOOLCHAIN_FILE": {
+        "MACRO_EXPANSION_NOT_WORKING__CMAKE_TOOLCHAIN_FILE": {
           "type": "FILEPATH",
           "value": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
         },

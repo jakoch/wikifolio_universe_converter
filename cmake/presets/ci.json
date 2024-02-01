@@ -1,9 +1,12 @@
 {
-  "version": 5,
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 25,
+    "patch": 0
+  },
   "include": [
-    "base.json",
-    "windows.json",
-    "linux.json"
+    "base.json"
   ],
   "configurePresets": [
     {

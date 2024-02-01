@@ -31,18 +31,25 @@ string(JSON APP_DESC     GET ${VCPKG_JSON_STRING} "description")
 string(JSON APP_HOMEPAGE GET ${VCPKG_JSON_STRING} "homepage")
 
 #-------------------------------------------------------------------
+# Setup VCPKG
+#-------------------------------------------------------------------
+
+if(DEFINED ENV{VCPKG_ROOT} AND NOT DEFINED CMAKE_TOOLCHAIN_FILE)
+  set(CMAKE_TOOLCHAIN_FILE $ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake CACHE STRING "")
+  message("CMAKE_TOOLCHAIN_FILE was set to ${CMAKE_TOOLCHAIN_FILE}")
+endif()
+
+#-------------------------------------------------------------------
 # Project
 #-------------------------------------------------------------------
 
 project(wiuc VERSION ${APP_VERSION} DESCRIPTION "wikifolio_investment_universe_converter" LANGUAGES CXX)
 
 #-------------------------------------------------------------------
-# Setup Compiler and VCPKG & load additional includes
+# Setup Compiler & load additional includes
 #-------------------------------------------------------------------
 
 include(SetupCompiler)
-include(SetupVcpkg)
-
 include(ShowBuildTargetProperties)
 
 #-------------------------------------------------------------------

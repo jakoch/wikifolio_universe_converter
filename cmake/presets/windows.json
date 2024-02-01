@@ -1,5 +1,10 @@
 {
-  "version": 5,
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 25,
+    "patch": 0
+  },
   "include": [
     "base.json"
   ],
@@ -175,7 +180,7 @@
       ]
     },
     {
-      "name": "clangcl-x64-windows",
+      "name": "clangcl-x64-windows-static",
       "hidden": true,
       "description": "Use Clang-CL (MSVC) as compiler on Windows.",
       "cacheVariables": {
@@ -200,9 +205,9 @@
       ]
     },
     {
-      "name": "clang-x64-windows",
+      "name": "clang-x64-windows-static",
       "hidden": true,
-      "description": "Use Clang (native; LLVM) as compiler on Windows.",
+      "description": "Use Clang (native LLVM) as compiler on Windows.",
       "vendor": {
         "microsoft.com/VisualStudioSettings/CMake/1.0": {
           "intelliSenseMode": "windows-clang-x64"
