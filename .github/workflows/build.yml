@@ -81,7 +81,7 @@ jobs:
       - name: Set VCPKG_ROOT to ENV
         shell: pwsh
         run: |
-          VCPKG_ROOT=$($env:VCPKG_INSTALLATION_ROOT)
+          $VCPKG_ROOT=$($env:VCPKG_INSTALLATION_ROOT)
           echo "VCPKG_ROOT=$($VCPKG_ROOT)" >> $env:GITHUB_ENV
 
       - name: 🔽 Update VCPKG
