@@ -192,7 +192,7 @@ jobs:
         run: |
           sudo apt update -qq
           sudo apt install ${{ matrix.config.apt_packages }} -y
-          ln -s /usr/bin/ninja /usr/bin/ninja-build
+          sudo ln -s /usr/bin/ninja /usr/bin/ninja-build
 
       - name: 🔽 Update VCPKG
         run: |
