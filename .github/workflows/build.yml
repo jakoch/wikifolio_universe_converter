@@ -163,10 +163,10 @@ jobs:
         # --------------|-------------------------------|-------------------------
         # ubuntu-20.04  | 9.4.0, 10.5.0                 | 10.0.0, 11.0.0, 12.0.0
         # ubuntu-22.04  | 9.5.0, 10.5.0, 11.4.0, 12.3.0 | 13.0.1, 14.0.0
-        - { os: ubuntu-20.04, preset: "gcc9-x64-linux-rel-ci",    apt_packages: "g++-9",    job_name: "Linux | GCC-9    | Release" }
-        - { os: ubuntu-22.04, preset: "gcc12-x64-linux-rel-ci",   apt_packages: "g++-12",   job_name: "Linux | GCC-12   | Release" }
-        - { os: ubuntu-20.04, preset: "clang10-x64-linux-rel-ci", apt_packages: "clang-10", job_name: "Linux | Clang-10 | Release" }
-        - { os: ubuntu-22.04, preset: "clang14-x64-linux-rel-ci", apt_packages: "clang-14", job_name: "Linux | Clang-14 | Release" }
+        - { os: ubuntu-20.04, preset: "gcc9-x64-linux-rel-ci",    apt_packages: "g++-9 ninja-build",    job_name: "Linux | GCC-9    | Release" }
+        - { os: ubuntu-22.04, preset: "gcc12-x64-linux-rel-ci",   apt_packages: "g++-12 ninja-build",   job_name: "Linux | GCC-12   | Release" }
+        - { os: ubuntu-20.04, preset: "clang10-x64-linux-rel-ci", apt_packages: "clang-10 ninja-build", job_name: "Linux | Clang-10 | Release" }
+        - { os: ubuntu-22.04, preset: "clang14-x64-linux-rel-ci", apt_packages: "clang-14 ninja-build", job_name: "Linux | Clang-14 | Release" }
 
     env:
       CI: true
@@ -192,6 +192,7 @@ jobs:
         run: |
           sudo apt update -qq
           sudo apt install ${{ matrix.config.apt_packages }} -y
+          ln -s /usr/bin/ninja /usr/bin/ninja-build
 
       - name: 🔽 Update VCPKG
         run: |
