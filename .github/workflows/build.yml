@@ -125,7 +125,7 @@ jobs:
         run: cmake --preset=${{matrix.config.PRESET}}
 
       - name: 🙏 CMake ➔ Build
-        run: cmake --build
+        run: cmake --build --preset=${{matrix.config.PRESET}}
 
       - name: 📦 CMake ➔ Install
         run: cmake --install build --prefix build/wiuc-%VERSION% --verbose
