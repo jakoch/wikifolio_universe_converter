@@ -1,10 +1,5 @@
 {
   "version": 5,
-  "cmakeMinimumRequired": {
-    "major": 3,
-    "minor": 25,
-    "patch": 0
-  },
   "include": [
     "base.json"
   ],

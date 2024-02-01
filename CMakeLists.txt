@@ -9,7 +9,7 @@ set(CMAKE_FIND_LIBRARY_PREFIXES ";")
 set(CMAKE_FIND_LIBRARY_SUFFIXES ";")
 
 # Generate CompilationDatabase in `compile_commands.json`.
-# The file is used by build tools and intellisense (VSCode, YouCompleteMe, etc).
+# The file is used by build tools and IntelliSense (VSCode, YouCompleteMe, etc).
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
 #-------------------------------------------------------------------
@@ -62,7 +62,7 @@ find_package(unofficial-sqlite3 CONFIG REQUIRED)
 
 find_package(CURL CONFIG REQUIRED)
 
-# use fmt as polyfill on linux
+# use fmt as polyfill on Linux
 if(NOT MSVC)
   find_package(fmt CONFIG REQUIRED)
 endif()
