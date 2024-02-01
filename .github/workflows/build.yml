@@ -38,12 +38,12 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          # Compiler Versions Overview for Github Actions Windows Images (10-2023)
+          # Compiler Versions Overview for Github Actions Windows Images (01-2024)
           # ----------------------------------------------------------------------
           # OS↓ Compiler->| VC    | Clang-Cl | GNU C++ | LLVM Clang
           # --------------|-------|----------|---------|--------------------------
           #  windows-2019 | 16.11 |          | 8.1.0   | 16.0.6
-          #  windows-2022 | 17.7  |          | 12.2.0  | 16.0.6
+          #  windows-2022 | 17.8  |          | 12.2.0  | 16.0.6
           - { os: windows-2019, preset: "vc16-x64-windows-static-rel-ci", job_name: "Win | VC-16 | Release"        }
           - { os: windows-2022, preset: "vc17-x64-windows-static-rel-ci", job_name: "Win | VC-17 | Release"        }
           - { os: windows-2022, preset: "vc17-x64-windows-static-rdi-ci", job_name: "Win | VC-17 | RelWithDebInfo" }
@@ -115,7 +115,7 @@ jobs:
         run: cmake --preset=${{matrix.config.PRESET}}
 
       - name: 🙏 CMake ➔ Build
-        run: cmake --build --preset=${{matrix.config.PRESET}}
+        run: cmake --build
 
       - name: 📦 CMake ➔ Install
         run: cmake --install build --prefix build/wiuc-%VERSION% --verbose
@@ -157,16 +157,16 @@ jobs:
       fail-fast: false
       matrix:
         config:
-        # Compiler Versions Overview for Github Actions Linux Images (10-2023)
+        # Compiler Versions Overview for Github Actions Linux Images (01-2024)
         # ------------------------------------------------------------------------
-        # OS↓ Compiler->| GNU C++                       | LLVM Clang
-        # --------------|-------------------------------|-------------------------
-        # ubuntu-20.04  | 9.4.0, 10.5.0                 | 10.0.0, 11.0.0, 12.0.0
-        # ubuntu-22.04  | 9.5.0, 10.5.0, 11.4.0, 12.3.0 | 13.0.1, 14.0.0
+        # OS↓ Compiler->| GNU C++                                | LLVM Clang
+        # --------------|----------------------------------------|-------------------------
+        # ubuntu-20.04  | 9.4.0, 10.5.0                          | 10.0.0, 11.0.0, 12.0.0
+        # ubuntu-22.04  | 9.5.0, 10.5.0, 11.4.0, 12.3.0, 13.1.0  | 13.0.1, 14.0.0, 15.0.7
         - { os: ubuntu-20.04, preset: "gcc9-x64-linux-rel-ci",    apt_packages: "g++-9 ninja-build",    job_name: "Linux | GCC-9    | Release" }
-        - { os: ubuntu-22.04, preset: "gcc12-x64-linux-rel-ci",   apt_packages: "g++-12 ninja-build",   job_name: "Linux | GCC-12   | Release" }
+        - { os: ubuntu-22.04, preset: "gcc13-x64-linux-rel-ci",   apt_packages: "g++-13 ninja-build",   job_name: "Linux | GCC-13   | Release" }
         - { os: ubuntu-20.04, preset: "clang10-x64-linux-rel-ci", apt_packages: "clang-10 ninja-build", job_name: "Linux | Clang-10 | Release" }
-        - { os: ubuntu-22.04, preset: "clang14-x64-linux-rel-ci", apt_packages: "clang-14 ninja-build", job_name: "Linux | Clang-14 | Release" }
+        - { os: ubuntu-22.04, preset: "clang15-x64-linux-rel-ci", apt_packages: "clang-15 ninja-build", job_name: "Linux | Clang-15 | Release" }
 
     env:
       CI: true
