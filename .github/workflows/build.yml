@@ -48,10 +48,6 @@ jobs:
           - { os: windows-2022, preset: "vc17-x64-windows-static-rel-ci", job_name: "Win | VC-17 | Release"        }
           - { os: windows-2022, preset: "vc17-x64-windows-static-rdi-ci", job_name: "Win | VC-17 | RelWithDebInfo" }
 
-    env:
-      CI: true
-      VCPKG_ROOT: ${{ github.workspace }}\vcpkg
-
     defaults:
       run:
         shell: cmd
@@ -82,10 +78,17 @@ jobs:
       - name: 🛠️ Setup Visual Studio Developer Command Prompt
         uses: ilammy/msvc-dev-cmd@v1
 
+      - name: Set VCPKG_ROOT to ENV
+        shell: pwsh
+        run: |
+          VCPKG_ROOT=$($env:VCPKG_INSTALLATION_ROOT)
+          echo "VCPKG_ROOT=$($VCPKG_ROOT)" >> $env:GITHUB_ENV
+
       - name: 🔽 Update VCPKG
         run: |
-          git clone https://github.com/microsoft/vcpkg ${{ env.VCPKG_ROOT }}
-          cd "${{ env.VCPKG_ROOT }}"
+          cd ${{ env.VCPKG_ROOT }}
+          git reset --hard
+          git pull --quiet
           bootstrap-vcpkg.bat -disableMetrics
           vcpkg integrate
 
