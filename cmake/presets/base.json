@@ -101,9 +101,9 @@
     },
     {
       "name": "generator-ninja-multi",
-      "displayName": "generator ninja multi-config. ignore preset - it must not be hidden!",
+      "displayName": "ignore",
       "hidden": false,
-      "description": "Set ninja multi-config as makefile generator. must be not hidden!",
+      "description": "Set ninja multi-config as makefile generator. Preset must not be hidden!",
       "generator": "Ninja Multi-Config",
       "cacheVariables": {
         "CMAKE_MAKE_PROGRAM": {
@@ -114,9 +114,9 @@
     },
     {
       "name": "generator-ninja",
-      "displayName": "generator ninja. ignore preset - it must not be hidden!",
+      "displayName": "ignore",
       "hidden": false,
-      "description": "Set ninja as makefile generator.",
+      "description": "Set ninja as makefile generator. Preset must not be hidden!",
       "generator": "Ninja",
       "cacheVariables": {
         "CMAKE_MAKE_PROGRAM": {

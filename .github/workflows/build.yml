@@ -130,18 +130,14 @@ jobs:
       - name: 📦 CMake ➔ Install
         run: cmake --install build --prefix build/wiuc-%VERSION% --verbose
 
-        # dir /S /B vcpkg_installed
-        # dir /S /B build\vcpkg_installed\x64-windows-static
       - name: ❔ CHECK important folders, to see if everything is present (after building)
         run: |
-          dir /S /B build
-          dir /S /B install
-          dir /S /B build\${{ matrix.config.preset }}
+          dir /S /B out\build\${{ matrix.config.preset }}
 
       - name: 🚥 Prepare Build Artifact (copy to packaging folder and rename)
         run: |
           mkdir artifact
-          copy build\${{ matrix.config.preset }}\wiuc.exe artifact\
+          copy out\build\${{ matrix.config.preset }}\wiuc.exe artifact\
 
       - name: 🔼 Upload Build Artifact (on commit)
         uses: actions/upload-artifact@v4 # https://github.com/actions/upload-artifact
@@ -238,10 +234,14 @@ jobs:
       - name: 🙏 CMake ➔ Build
         run: cmake --build --preset=${{matrix.config.PRESET}}
 
+      - name: ❔ CHECK important folders, to see if everything is present (after building)
+        run: |
+          ls out/build/${{ matrix.config.preset }}
+
       - name: 🚥 Prepare Build Artifact (copy to packaging folder)
         run: |
           mkdir artifact
-          cp ../build/wiuc artifact/
+          cp ../out/build/wiuc artifact/
 
       #
       # The uploaded artifact will be a zip file named, e.g. "wiuc-1.0.3-2399e873-Clang14-x64-linux-Release".
