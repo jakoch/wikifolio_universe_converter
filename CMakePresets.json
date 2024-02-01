@@ -6,10 +6,10 @@
     "patch": 0
   },
   "include": [
-    "base.json",
-    "windows.json",
-    "linux.json",
-    "ci.json"
+    "CMake/presets/base.json",
+    "CMake/presets/windows.json",
+    "CMake/presets/linux.json",
+    "CMake/presets/ci.json"
   ],
   "configurePresets": [
     {
