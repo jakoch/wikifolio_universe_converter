@@ -29,7 +29,7 @@ jobs:
 
     name: ${{ matrix.config.job_name }}
 
-    # https://github.com/actions/virtual-environments#available-environments
+    # https://github.com/actions/runner-images#available-environments
     # https://github.com/actions/runner-images/blob/main/images/windows/Windows2019-Readme.md
     # https://github.com/actions/runner-images/blob/main/images/windows/Windows2022-Readme.md
     runs-on: ${{ matrix.config.OS }}
@@ -49,6 +49,7 @@ jobs:
           - { os: windows-2022, preset: "vc17-x64-windows-static-rdi-ci", job_name: "Win | VC-17 | RelWithDebInfo" }
 
     env:
+      CI: true
       VCPKG_ROOT: ${{ github.workspace }}\vcpkg
 
     defaults:
@@ -147,9 +148,9 @@ jobs:
 
     name: ${{ matrix.config.job_name }}
 
-    # https://github.com/actions/virtual-environments#available-environments
-    # https://github.com/actions/virtual-environments/blob/main/images/linux/Ubuntu2004-Readme.md
-    # https://github.com/actions/virtual-environments/blob/main/images/linux/Ubuntu2204-Readme.md
+    # https://github.com/actions/runner-images#available-environments
+    # https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2004-Readme.md
+    # https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2204-Readme.md
     runs-on: ${{ matrix.config.os }}
 
     strategy:
@@ -168,6 +169,7 @@ jobs:
         - { os: ubuntu-22.04, preset: "clang14-x64-linux-rel-ci", apt_packages: "clang-14", job_name: "Linux | Clang-14 | Release" }
 
     env:
+      CI: true
       VCPKG_ROOT: /usr/local/share/vcpkg
 
     steps:
@@ -181,7 +183,7 @@ jobs:
           VERSION=$(jq -r .version vcpkg.json)
           SHORT_HASH=`echo $GITHUB_SHA | cut -c1-8`
           PRESET=`echo ${{ matrix.config.preset }} | sed 's/-ci//'`
-          ARTIFACT_NAME="$NAME-$VERSION-$SHORT_HASH-$COMPILER-$TRIPLET-$PRESET"
+          ARTIFACT_NAME="$NAME-$VERSION-$SHORT_HASH-$PRESET"
           echo "Artifact Name: $ARTIFACT_NAME"
           echo "ARTIFACT_NAME=$ARTIFACT_NAME" >> $GITHUB_ENV
           echo "VERSION=$VERSION" >> $GITHUB_ENV
