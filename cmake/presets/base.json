@@ -173,6 +173,51 @@
           "value": "ON"
         }
       }
+    },
+    {
+      "name": "use-sccache",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER_LAUNCHER": "sccache"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "use-ccache",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER_LAUNCHER": "ccache"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    },
+    {
+      "name": "build-type-release",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "build-type-rdi",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      }
+    },
+    {
+      "name": "build-type-debug",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
     }
   ]
 }

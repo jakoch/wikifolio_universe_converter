@@ -6,46 +6,49 @@
     "patch": 0
   },
   "include": [
-    "base.json"
+    "base.json",
+    "linux.json",
+    "windows.json"
   ],
   "configurePresets": [
     {
       "name": "vc16-x64-windows-static-rel-ci",
-      "displayName": "VC16-Release-CI",
+      "displayName": "VC16 Release CI",
       "inherits": [
         "vc16-x64-windows-static",
+        "build-type-release",
         "build-folders-ci",
+        "use-sccache",
         "condition-is-ci"
       ]
     },
     {
       "name": "vc17-x64-windows-static-rel-ci",
-      "displayName": "VC17-Release-CI",
+      "displayName": "VC17 Release CI",
       "inherits": [
         "vc17-x64-windows-static",
+        "build-type-release",
         "build-folders-ci",
+        "use-sccache",
         "condition-is-ci"
-      ],
-      "cacheVariables": {
-        "CMAKE_CXX_COMPILER_LAUNCHER": "sccache"
-      }
+      ]
     },
     {
       "name": "vc17-x64-windows-static-rdi-ci",
-      "displayName": "VC17-RelWithDebInfo-CI",
+      "displayName": "VC17 RelWithDebInfo CI",
       "inherits": [
         "vc17-x64-windows-static",
+        "build-type-rdi",
         "build-folders-ci",
+        "use-sccache",
         "condition-is-ci"
-      ],
-      "cacheVariables": {
-        "CMAKE_CXX_COMPILER_LAUNCHER": "sccache"
-      }
+      ]
     },
     {
       "name": "gcc9-x64-linux-rel-ci",
       "inherits": [
-        "gcc9-x64-linux-rel",
+        "gcc9-x64-linux",
+        "build-type-release",
         "build-folders-ci",
         "condition-is-ci"
       ]
@@ -53,7 +56,8 @@
     {
       "name": "gcc12-x64-linux-rel-ci",
       "inherits": [
-        "gcc12-x64-linux-rel",
+        "gcc12-x64-linux",
+        "build-type-release",
         "build-folders-ci",
         "condition-is-ci"
       ]
@@ -61,7 +65,8 @@
     {
       "name": "clang10-x64-linux-rel-ci",
       "inherits": [
-        "clang10-x64-linux-rel",
+        "clang10-x64-linux",
+        "build-type-release",
         "build-folders-ci",
         "condition-is-ci"
       ]
@@ -69,7 +74,8 @@
     {
       "name": "clang14-x64-linux-rel-ci",
       "inherits": [
-        "clang14-x64-linux-rel",
+        "clang14-x64-linux",
+        "build-type-release",
         "build-folders-ci",
         "condition-is-ci"
       ]
