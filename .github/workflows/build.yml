@@ -30,8 +30,8 @@ jobs:
     name: ${{ matrix.config.job_name }}
 
     # https://github.com/actions/virtual-environments#available-environments
-    # https://github.com/actions/virtual-environments/blob/main/images/win/Windows2019-Readme.md
-    # https://github.com/actions/virtual-environments/blob/main/images/win/Windows2022-Readme.md
+    # https://github.com/actions/runner-images/blob/main/images/windows/Windows2019-Readme.md
+    # https://github.com/actions/runner-images/blob/main/images/windows/Windows2022-Readme.md
     runs-on: ${{ matrix.config.OS }}
 
     strategy:
@@ -49,7 +49,7 @@ jobs:
           - { os: windows-2022, preset: "vc17-x64-windows-static-rdi-ci", job_name: "Win | VC-17 | RelWithDebInfo" }
 
     env:
-      VCPKG_ROOT: C:\vcpkg
+      VCPKG_ROOT: ${{ github.workspace }}\vcpkg
 
     defaults:
       run:
@@ -83,9 +83,9 @@ jobs:
 
       - name: 🔽 Update VCPKG
         run: |
-          cd ${{ env.VCPKG_ROOT }}
-          git reset --hard
-          git pull --quiet
+          rmdir "${{ env.VCPKG_INSTALLATION_ROOT}}"
+          git clone https://github.com/microsoft/vcpkg ${{ env.VCPKG_ROOT }}
+          cd "${{ env.VCPKG_ROOT }}"
           bootstrap-vcpkg.bat -disableMetrics
           vcpkg integrate
 

@@ -103,13 +103,25 @@
       "name": "generator-ninja-multi",
       "hidden": true,
       "description": "Set ninja multi-config as makefile generator.",
-      "generator": "Ninja Multi-Config"
+      "generator": "Ninja Multi-Config",
+      "cacheVariables": {
+        "CMAKE_MAKE_PROGRAM": {
+          "type": "FILEPATH",
+          "value": "ninja"
+        }
+      }
     },
     {
       "name": "generator-ninja",
       "hidden": true,
       "description": "Set ninja as makefile generator.",
-      "generator": "Ninja"
+      "generator": "Ninja",
+      "cacheVariables": {
+        "CMAKE_MAKE_PROGRAM": {
+          "type": "FILEPATH",
+          "value": "ninja"
+        }
+      }
     },
     {
       "name": "vcpkg-default-config",
