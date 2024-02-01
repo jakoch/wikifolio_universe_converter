@@ -54,9 +54,9 @@
       ]
     },
     {
-      "name": "gcc12-x64-linux-rel-ci",
+      "name": "gcc13-x64-linux-rel-ci",
       "inherits": [
-        "gcc12-x64-linux",
+        "gcc13-x64-linux",
         "build-type-release",
         "build-folders-ci",
         "condition-is-ci"
@@ -72,9 +72,9 @@
       ]
     },
     {
-      "name": "clang14-x64-linux-rel-ci",
+      "name": "clang15-x64-linux-rel-ci",
       "inherits": [
-        "clang14-x64-linux",
+        "clang15-x64-linux",
         "build-type-release",
         "build-folders-ci",
         "condition-is-ci"
