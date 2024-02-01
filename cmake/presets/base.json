@@ -120,7 +120,7 @@
           "type": "BOOL",
           "value": "ON"
         },
-        "MACRO_EXPANSION_NOT_WORKING__CMAKE_TOOLCHAIN_FILE": {
+        "MACRO_EXPANSION_DOESNT_WORK_ON_LOCAL_DEVBOX_WIN11_CMAKE_TOOLCHAIN_FILE": {
           "type": "FILEPATH",
           "value": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
         },
