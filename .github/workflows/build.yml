@@ -83,7 +83,6 @@ jobs:
 
       - name: 🔽 Update VCPKG
         run: |
-          rmdir "${{ env.VCPKG_INSTALLATION_ROOT}}"
           git clone https://github.com/microsoft/vcpkg ${{ env.VCPKG_ROOT }}
           cd "${{ env.VCPKG_ROOT }}"
           bootstrap-vcpkg.bat -disableMetrics
