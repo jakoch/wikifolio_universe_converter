@@ -241,7 +241,7 @@ jobs:
       - name: 🚥 Prepare Build Artifact (copy to packaging folder)
         run: |
           mkdir artifact
-          cp ../out/build/wiuc artifact/
+          cp out/build/wiuc artifact/
 
       #
       # The uploaded artifact will be a zip file named, e.g. "wiuc-1.0.3-2399e873-Clang14-x64-linux-Release".
