@@ -128,7 +128,7 @@ jobs:
         run: cmake --build --preset=${{matrix.config.PRESET}}
 
       - name: 📦 CMake ➔ Install
-        run: cmake --install build --prefix build/wiuc-%VERSION% --verbose
+        run: cmake --install out/build/${{matrix.config.PRESET}} --prefix out/build/wiuc-%VERSION% --verbose
 
       - name: ❔ CHECK important folders, to see if everything is present (after building)
         run: |
@@ -234,14 +234,18 @@ jobs:
       - name: 🙏 CMake ➔ Build
         run: cmake --build --preset=${{matrix.config.PRESET}}
 
+      - name: 📦 CMake ➔ Install
+        run: cmake --install out/build/${{matrix.config.PRESET}} --prefix out/build/wiuc-%VERSION% --verbose
+
       - name: ❔ CHECK important folders, to see if everything is present (after building)
         run: |
           ls out/build/${{ matrix.config.preset }}
+          ls out/build/wiuc-%VERSION%
 
       - name: 🚥 Prepare Build Artifact (copy to packaging folder)
         run: |
           mkdir artifact
-          cp out/build/wiuc artifact/
+          cp out/build/wiuc-%VERSION% artifact/
 
       #
       # The uploaded artifact will be a zip file named, e.g. "wiuc-1.0.3-2399e873-Clang14-x64-linux-Release".
