@@ -144,4 +144,7 @@ show_build_target_properties(wiuc)
 # Install
 #-------------------------------------------------------------------
 
-#include(GNUInstallDirs)
+# CMakePresets define CMAKE_INSTALL_PREFIX to /out/install
+# We add a versionized folder as top-level dir for the executable.
+
+install(TARGETS wiuc DESTINATION wiuc-${APP_VERSION})
