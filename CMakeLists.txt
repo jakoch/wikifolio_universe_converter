@@ -144,5 +144,4 @@ show_build_target_properties(wiuc)
 # Install
 #-------------------------------------------------------------------
 
-# use GNU install folders, see https://cmake.org/cmake/help/latest/module/GNUInstallDirs.html
 #include(GNUInstallDirs)
