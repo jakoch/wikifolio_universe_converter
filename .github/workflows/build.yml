@@ -68,7 +68,7 @@ jobs:
           $NAME=$(jq -r .name vcpkg.json)
           $VERSION=$(jq -r .version vcpkg.json)
           $SHORT_HASH=$($env:GITHUB_SHA.substring(0,7))
-          $PRESET=$('${{matrix.config.preset}}').replace('-x64-windows', '').replace('-ci', '')
+          $PRESET=$('${{ matrix.config.preset }}').replace('-x64-windows', '').replace('-ci', '')
           $ARTIFACT_NAME="$NAME-$VERSION-$SHORT_HASH-$PRESET"
           echo "Artifact Name:" $ARTIFACT_NAME
           echo "ARTIFACT_NAME=$($ARTIFACT_NAME)" >> $env:GITHUB_ENV
@@ -121,23 +121,23 @@ jobs:
             cache-vcpkg-${{ matrix.config.preset }}
 
       - name: ✏ CMake ➔ Configure
-        run: cmake --preset=${{matrix.config.PRESET}}
+        run: cmake --preset=${{ matrix.config.PRESET }}
 
       - name: 🙏 CMake ➔ Build
-        run: cmake --build --preset=${{matrix.config.PRESET}}
+        run: cmake --build --preset=${{ matrix.config.PRESET }}
 
       - name: 📦 CMake ➔ Install
-        run: cmake --install out/build/${{matrix.config.PRESET}} --prefix out/build/wiuc-%VERSION% --verbose
+        run: cmake --install out/build/${{ matrix.config.PRESET }} --prefix ${{ github.workspace }}/wiuc-%VERSION% --verbose
 
       - name: ❔ CHECK important folders, to see if everything is present (after building)
         run: |
           dir /S /B out\build\${{ matrix.config.preset }}
-          dir /S /B out\build\wiuc-%VERSION%
+          dir /S /B ${{ github.workspace }}\wiuc-%VERSION%
 
       - name: 🚥 Prepare Build Artifact (copy to packaging folder and rename)
         run: |
           mkdir artifact
-          copy out\build\wiuc-%VERSION% artifact\
+          copy ${{ github.workspace }}\wiuc-%VERSION% artifact\
 
       - name: 🔼 Upload Build Artifact (on commit)
         uses: actions/upload-artifact@v4 # https://github.com/actions/upload-artifact
@@ -228,23 +228,23 @@ jobs:
             cache-vcpkg-${{ matrix.config.preset }}
 
       - name: ✏ CMake ➔ Configure
-        run: cmake --preset=${{matrix.config.PRESET}}
+        run: cmake --preset=${{ matrix.config.PRESET }}
 
       - name: 🙏 CMake ➔ Build
-        run: cmake --build --preset=${{matrix.config.PRESET}}
+        run: cmake --build --preset=${{ matrix.config.PRESET }}
 
       - name: 📦 CMake ➔ Install
-        run: cmake --install out/build/${{matrix.config.PRESET}} --prefix out/build/wiuc-$VERSION --verbose
+        run: cmake --install out/build/${{ matrix.config.PRESET }} --prefix ${{ github.workspace }}/wiuc-$VERSION --verbose
 
       - name: ❔ CHECK important folders, to see if everything is present (after building)
         run: |
           ls out/build/${{ matrix.config.preset }}
-          ls out/build/wiuc-$VERSION
+          ls ${{ github.workspace }}/wiuc-$VERSION
 
       - name: 🚥 Prepare Build Artifact (copy to packaging folder)
         run: |
           mkdir artifact
-          cp out/build/wiuc-$VERSION artifact/
+          cp ${{ github.workspace }}/wiuc-$VERSION artifact/
 
       #
       # The uploaded artifact will be a zip file named, e.g. "wiuc-1.0.3-2399e873-Clang14-x64-linux-Release".
