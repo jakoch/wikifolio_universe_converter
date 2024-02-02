@@ -230,6 +230,27 @@
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug"
       }
+    },
+    {
+      "name": "use-linker-lld",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_LINKER_TYPE": "lld"
+      }
+    },
+    {
+      "name": "use-linker-mold",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_LINKER_TYPE": "mold"
+      }
+    },
+    {
+      "name": "use-linker-ld",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_LINKER_TYPE": "ld"
+      }
     }
   ]
 }

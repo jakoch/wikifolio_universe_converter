@@ -48,6 +48,7 @@
       "name": "compiler-gcc9-linux",
       "hidden": true,
       "cacheVariables": {
+        "CMAKE_C_COMPILER": "gcc-9",
         "CMAKE_CXX_COMPILER": "g++-9"
       }
     },
@@ -55,6 +56,7 @@
       "name": "compiler-gcc10-linux",
       "hidden": true,
       "cacheVariables": {
+        "CMAKE_C_COMPILER": "gcc-10",
         "CMAKE_CXX_COMPILER": "g++-10"
       }
     },
@@ -62,6 +64,7 @@
       "name": "compiler-gcc11-linux",
       "hidden": true,
       "cacheVariables": {
+        "CMAKE_C_COMPILER": "gcc-11",
         "CMAKE_CXX_COMPILER": "g++-11"
       }
     },
@@ -69,6 +72,7 @@
       "name": "compiler-gcc12-linux",
       "hidden": true,
       "cacheVariables": {
+        "CMAKE_C_COMPILER": "gcc-12",
         "CMAKE_CXX_COMPILER": "g++-12"
       }
     },
@@ -76,6 +80,7 @@
       "name": "compiler-gcc13-linux",
       "hidden": true,
       "cacheVariables": {
+        "CMAKE_C_COMPILER": "gcc-13",
         "CMAKE_CXX_COMPILER": "g++-13"
       }
     },
@@ -133,63 +138,72 @@
         "cmake-enable-warnings",
         "generator-ninja",
         "build-folders-default",
-        "vcpkg-triplet-x64-linux"
+        "vcpkg-triplet-x64-linux",
+        "use-linker-lld"
       ]
     },
     {
       "name": "compiler-clang10-linux",
       "hidden": true,
       "cacheVariables": {
-        "CMAKE_CXX_COMPILER": "clang-10"
+        "CMAKE_C_COMPILER": "clang-10",
+        "CMAKE_CXX_COMPILER": "clang++-10"
       }
     },
     {
       "name": "compiler-clang11-linux",
       "hidden": true,
       "cacheVariables": {
-        "CMAKE_CXX_COMPILER": "clang-11"
+        "CMAKE_C_COMPILER": "clang-11",
+        "CMAKE_CXX_COMPILER": "clang++-11"
       }
     },
     {
       "name": "compiler-clang12-linux",
       "hidden": true,
       "cacheVariables": {
-        "CMAKE_CXX_COMPILER": "clang-12"
+        "CMAKE_C_COMPILER": "clang-12",
+        "CMAKE_CXX_COMPILER": "clang++-12"
       }
     },
     {
       "name": "compiler-clang13-linux",
       "hidden": true,
       "cacheVariables": {
-        "CMAKE_CXX_COMPILER": "clang-13"
+        "CMAKE_C_COMPILER": "clang-13",
+        "CMAKE_CXX_COMPILER": "clang++-14"
       }
     },
     {
       "name": "compiler-clang14-linux",
       "hidden": true,
       "cacheVariables": {
-        "CMAKE_CXX_COMPILER": "clang-14"
+        "CMAKE_C_COMPILER": "clang-14",
+        "CMAKE_CXX_COMPILER": "clang++-14"
       }
     },
     {
       "name": "compiler-clang15-linux",
       "hidden": true,
       "cacheVariables": {
-        "CMAKE_CXX_COMPILER": "clang-15"
+        "CMAKE_C_COMPILER": "clang-15",
+        "CMAKE_CXX_COMPILER": "clang++-15"
       }
     },
     {
       "name": "compiler-clang16-linux",
       "hidden": true,
       "cacheVariables": {
-        "CMAKE_CXX_COMPILER": "clang-16"
+        "CMAKE_C_COMPILER": "clang-16",
+        "CMAKE_CXX_COMPILER": "clang++-16"
       }
     },
     {
       "name": "compiler-clang17-linux",
       "hidden": true,
       "cacheVariables": {
-        "CMAKE_CXX_COMPILER": "clang-17"
+        "CMAKE_C_COMPILER": "clang-17",
+        "CMAKE_CXX_COMPILER": "clang++-17"
       }
     },
     {

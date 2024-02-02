@@ -35,26 +35,27 @@ if(MSVC)
   set(CMAKE_CXX_STANDARD          23) # to get /std:c++latest on MSVC
 endif()
 
-if(CMAKE_CXX_COMPILER_ID STREQUAL "CLANG")
-  # enable incomplete features to get "std::format" support
-  set(LIBCXX_ENABLE_INCOMPLETE_FEATURES ON)
+message("Using Compiler: ${CMAKE_CXX_COMPILER_ID}")
 
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20 -stdlib=libc++ -Wall -Wextra -Werror -fexec-charset=UTF-8 -mtune=skylake")
-  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
-  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl")
-endif()
+if(CMAKE_SYSTEM_NAME MATCHES "Linux")
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "CLANG")
+        # enable incomplete features to get "std::format" support
+        set(LIBCXX_ENABLE_INCOMPLETE_FEATURES ON)
 
-if(NOT WIN32)
-    set(STATIC_CXX_LIB true)
-    if(STATIC_CXX_LIB)
-        if(CMAKE_CXX_COMPILER STREQUAL "GCC")
-            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
-            set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++ -lc++abi")
-        endif()
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20 -stdlib=libc++ -pthread -Wall -Wextra -Werror -fexec-charset=UTF-8 -mtune=skylake -lstdc++")
+        set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
+        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl -stdlib=libc++ -lc++ -lc++abi -lstdc++")
+
+        # 3.29
+        set(CMAKE_LINKER_TYPE "LLD")
+        # else
+        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=lld")
+        set(CMAKE_MODULE_LINKER_FLAGS_INIT "-fuse-ld=lld")
+        set(CMAKE_SHARED_LINKER_FLAGS_INIT "-fuse-ld=lld")
+    elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden -pthread -Wl,--no-as-needed -ldl") # -stdlib=libc++
+        set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++") # -stdlib=libc++ -lc++abi
     endif()
-
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
-
 endif()
 
 #-------------------------------------------------------------------

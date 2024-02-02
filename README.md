@@ -15,14 +15,14 @@ Konvertiert das [wikifolio.com Anlageuniversum](https://www.wikifolio.com/de/de/
 |                  | VC17 VS2022 | x64-windows-static       | RelWithDebInfo |   🟢   |
 |                  | GCC-9       | x64-linux                | Release        |   🟢   |
 |                  | to          | x64-linux                | Release        |   ⚪🟢|
-|                  | GCC-11      | x64-linux                | Release        |   🟢   |
+|                  | GCC-12      | x64-linux                | Release        |   🟢   |
 |                  | Clang-10    | x64-linux                | Release        |   🟢   |
 |                  | to          | x64-linux                | Release        |   ⚪🟢|
-|                  | Clang-14    | x64-linux                | Release        |   🟢   |
+|                  | Clang-15    | x64-linux                | Release        |   🟢   |
 
 Symbols used: ⚪ Build disabled. 🟢 Build succeeds. 🔴 Build fails. 👷🏼 TODO.
 
 ### Todo
-- [x] Download der Excel-Datei [Investment_Universe.de.xlsx](https://wikifolio.blob.core.windows.net/prod-documents/Investment_Universe.de.xlsx) 
+- [x] Download der Excel-Datei [Investment_Universe.de.xlsx](https://wikifolio.blob.core.windows.net/prod-documents/Investment_Universe.de.xlsx)
 - [x] Konvertierung in eine CSV Datei
 - [x] Konvertierung in eine SQLite Datenbank
