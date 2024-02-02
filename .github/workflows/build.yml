@@ -132,11 +132,12 @@ jobs:
       - name: ❔ CHECK important folders, to see if everything is present (after building)
         run: |
           dir /S /B out\build\${{ matrix.config.preset }}
+          dir /S /B out\build\wiuc-%VERSION%
 
       - name: 🚥 Prepare Build Artifact (copy to packaging folder and rename)
         run: |
           mkdir artifact
-          copy out\build\${{ matrix.config.preset }}\wiuc.exe artifact\
+          copy out\build\wiuc-%VERSION% artifact\
 
       - name: 🔼 Upload Build Artifact (on commit)
         uses: actions/upload-artifact@v4 # https://github.com/actions/upload-artifact
