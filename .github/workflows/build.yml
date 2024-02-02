@@ -127,17 +127,17 @@ jobs:
         run: cmake --build --preset=${{ matrix.config.PRESET }}
 
       - name: 📦 CMake ➔ Install
-        run: cmake --install out/build/${{ matrix.config.PRESET }} --prefix ${{ github.workspace }}/wiuc-%VERSION% --verbose
+        run: cmake --install out/build/${{ matrix.config.PRESET }} --verbose
 
       - name: ❔ CHECK important folders, to see if everything is present (after building)
         run: |
           dir /S /B out\build\${{ matrix.config.preset }}
-          dir /S /B ${{ github.workspace }}\wiuc-%VERSION%
+          dir /S /B out\install
 
       - name: 🚥 Prepare Build Artifact (copy to packaging folder and rename)
         run: |
           mkdir artifact
-          copy ${{ github.workspace }}\wiuc-%VERSION% artifact\
+          copy out\install\wiuc artifact\
 
       - name: 🔼 Upload Build Artifact (on commit)
         uses: actions/upload-artifact@v4 # https://github.com/actions/upload-artifact
@@ -169,10 +169,10 @@ jobs:
         # --------------|----------------------------------------|-------------------------
         # ubuntu-20.04  | 9.4.0, 10.5.0                          | 10.0.0, 11.0.0, 12.0.0
         # ubuntu-22.04  | 9.5.0, 10.5.0, 11.4.0, 12.3.0, 13.1.0  | 13.0.1, 14.0.0, 15.0.7
-        - { os: ubuntu-20.04, preset: "gcc9-x64-linux-rel-ci",    apt_packages: "g++-9 ninja-build",    job_name: "Linux | GCC-9    | Release" }
-        - { os: ubuntu-22.04, preset: "gcc13-x64-linux-rel-ci",   apt_packages: "g++-13 ninja-build",   job_name: "Linux | GCC-13   | Release" }
-        - { os: ubuntu-20.04, preset: "clang10-x64-linux-rel-ci", apt_packages: "clang-10 ninja-build", job_name: "Linux | Clang-10 | Release" }
-        - { os: ubuntu-22.04, preset: "clang15-x64-linux-rel-ci", apt_packages: "clang-15 ninja-build", job_name: "Linux | Clang-15 | Release" }
+        - { os: ubuntu-20.04, preset: "gcc9-x64-linux-rel-ci",    apt_packages: "g++-9",    job_name: "Linux | GCC-9    | Release" }
+        - { os: ubuntu-22.04, preset: "gcc13-x64-linux-rel-ci",   apt_packages: "g++-13",   job_name: "Linux | GCC-13   | Release" }
+        - { os: ubuntu-20.04, preset: "clang10-x64-linux-rel-ci", apt_packages: "clang-10", job_name: "Linux | Clang-10 | Release" }
+        - { os: ubuntu-22.04, preset: "clang15-x64-linux-rel-ci", apt_packages: "clang-15", job_name: "Linux | Clang-15 | Release" }
 
     env:
       VCPKG_ROOT: /usr/local/share/vcpkg
@@ -196,7 +196,7 @@ jobs:
       - name: 🔽 Update Build Environment (update/install packages)
         run: |
           sudo apt update -qq
-          sudo apt install ${{ matrix.config.apt_packages }} -y
+          sudo apt install ninja-build ${{ matrix.config.apt_packages }} -y
           sudo ln -s /usr/bin/ninja /usr/bin/ninja-build
 
       - name: 🔽 Update VCPKG
@@ -234,17 +234,17 @@ jobs:
         run: cmake --build --preset=${{ matrix.config.PRESET }}
 
       - name: 📦 CMake ➔ Install
-        run: cmake --install out/build/${{ matrix.config.PRESET }} --prefix ${{ github.workspace }}/wiuc-$VERSION --verbose
+        run: cmake --install out/build/${{ matrix.config.PRESET }} --verbose
 
       - name: ❔ CHECK important folders, to see if everything is present (after building)
         run: |
           ls out/build/${{ matrix.config.preset }}
-          ls ${{ github.workspace }}/wiuc-$VERSION
+          ls out/install
 
       - name: 🚥 Prepare Build Artifact (copy to packaging folder)
         run: |
           mkdir artifact
-          cp ${{ github.workspace }}/wiuc-$VERSION artifact/
+          cp out/install/wiuc artifact/
 
       #
       # The uploaded artifact will be a zip file named, e.g. "wiuc-1.0.3-2399e873-Clang14-x64-linux-Release".
