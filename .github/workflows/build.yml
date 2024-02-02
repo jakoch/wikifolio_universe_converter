@@ -57,10 +57,9 @@ jobs:
         uses: actions/checkout@v4 # https://github.com/actions/checkout
 
       # https://community.chocolatey.org/packages/ninja
-      # https://community.chocolatey.org/packages/ccache
       # https://community.chocolatey.org/packages/cmake
       - name: 🔽 Install Ninja
-        run: choco install ninja ccache cmake
+        run: choco install ninja cmake
 
       # Build Artifact Name: wiuc-1.0.1-0cda6a2-vc17-static-rdi
       - name: ✏ Fetch Versioning Data & Set Artifact Name
@@ -175,7 +174,6 @@ jobs:
         - { os: ubuntu-22.04, preset: "clang15-x64-linux-rel-ci", apt_packages: "clang-15 ninja-build", job_name: "Linux | Clang-15 | Release" }
 
     env:
-      CI: true
       VCPKG_ROOT: /usr/local/share/vcpkg
 
     steps:
@@ -235,17 +233,17 @@ jobs:
         run: cmake --build --preset=${{matrix.config.PRESET}}
 
       - name: 📦 CMake ➔ Install
-        run: cmake --install out/build/${{matrix.config.PRESET}} --prefix out/build/wiuc-%VERSION% --verbose
+        run: cmake --install out/build/${{matrix.config.PRESET}} --prefix out/build/wiuc-$VERSION --verbose
 
       - name: ❔ CHECK important folders, to see if everything is present (after building)
         run: |
           ls out/build/${{ matrix.config.preset }}
-          ls out/build/wiuc-%VERSION%
+          ls out/build/wiuc-$VERSION
 
       - name: 🚥 Prepare Build Artifact (copy to packaging folder)
         run: |
           mkdir artifact
-          cp out/build/wiuc-%VERSION% artifact/
+          cp out/build/wiuc-$VERSION artifact/
 
       #
       # The uploaded artifact will be a zip file named, e.g. "wiuc-1.0.3-2399e873-Clang14-x64-linux-Release".
