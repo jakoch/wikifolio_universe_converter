@@ -39,18 +39,27 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "CLANG")
   # enable incomplete features to get "std::format" support
   set(LIBCXX_ENABLE_INCOMPLETE_FEATURES ON)
 
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++2b -stdlib=libc++ -Wall -Wextra -Werror -fexec-charset=UTF-8 -mtune=skylake")
-
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20 -stdlib=libc++ -Wall -Wextra -Werror -fexec-charset=UTF-8 -mtune=skylake")
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl")
 endif()
 
 if(NOT WIN32)
     set(STATIC_CXX_LIB true)
     if(STATIC_CXX_LIB)
         if(CMAKE_CXX_COMPILER STREQUAL "GCC")
-            set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")
+            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+            set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++ -lc++abi")
         endif()
     endif()
+
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
+
+endif()
+
+# Add colors to ninja builds
+if (UNIX AND CMAKE_GENERATOR STREQUAL "Ninja")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fcolor-diagnostics")
 endif()
 
 #-------------------------------------------------------------------

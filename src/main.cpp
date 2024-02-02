@@ -156,7 +156,7 @@ public:
         auto const ms_duration = std::chrono::duration_cast<std::chrono::milliseconds>(time_diff).count();
         char constexpr const* fmt = "[{}] Time Elapsed: {}.{} sec\n";
         std::ostringstream strStream;
-        strStream << format(fmt, time_point_name, (ms_duration / 1000), (ms_duration % 1000));
+        strStream << fmt::format(fmt, time_point_name, (ms_duration / 1000), (ms_duration % 1000));
         std::cout << strStream.str();
     }
 };
@@ -531,9 +531,8 @@ std::string format_status(std::string status_message = "Status update.", int ind
 
 void printHelpText(std::string program_name)
 {
-    // Note: do not use std::format(), only format(), because we are using fmt as polyfill, see header.
 
-    std::string help_text_header = format(
+    std::string help_text_header = fmt::format(
         "{} {}\n"
         "{}\n\n"
         "{} {} [OPTIONS] [ARGUMENTS]\n\n"
@@ -546,7 +545,7 @@ void printHelpText(std::string program_name)
         format_status("Options:", 0, Color::Yellow).c_str()
     );
 
-    std::string help_text_body = format(
+    std::string help_text_body = fmt::format(
         "{}\t\tDisplay this help message\n"
         "{}\tConvert from XLSX to SQLite and CSV\n"
         "{}\tSet output folder (default is current directory)\n"

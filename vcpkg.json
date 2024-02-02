@@ -8,16 +8,13 @@
   "dependencies": [
     "sqlite3",
     "xlsxio",
+    "fmt",
     {
       "name": "curl",
       "default-features": false,
       "features": [
         "openssl"
       ]
-    },
-    {
-      "name": "fmt",
-      "platform": "linux"
     }
   ],
   "builtin-baseline": "53bef8994c541b6561884a8395ea35715ece75db"

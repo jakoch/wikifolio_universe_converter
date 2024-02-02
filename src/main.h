@@ -27,25 +27,10 @@
 #include <unordered_map>
 #include <algorithm>     // std::all_of
 
-// use std::format on MSVC - use libfmt as polyfill on Linux
-#ifdef _OS_WINDOWS_
-#include <format>
-using std::format;
-using std::make_format_args;
-using std::vformat;
-#endif
-
-#ifdef _OS_LINUX_
 #include <fmt/format.h>
-namespace fmt_alias {
-    using fmt::format;
-    using fmt::make_format_args;
-    using fmt::vformat;
-}
-#define format fmt_alias::format
-#define make_format_args fmt_alias::make_format_args
-#define vformat fmt_alias::vformat
-#endif
+using fmt::format;
+using fmt::make_format_args;
+using fmt::vformat;
 
 #include "xlsxio_read.h"
 

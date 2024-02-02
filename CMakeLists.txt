@@ -66,14 +66,12 @@ configure_file("src/version.h.in" "version.h" @ONLY)
 #-------------------------------------------------------------------
 
 #find_package(SQLite3 CONFIG REQUIRED)
+
 find_package(unofficial-sqlite3 CONFIG REQUIRED)
 
 find_package(CURL CONFIG REQUIRED)
 
-# use fmt as polyfill on Linux
-if(NOT MSVC)
-  find_package(fmt CONFIG REQUIRED)
-endif()
+find_package(fmt CONFIG REQUIRED)
 
 find_package(expat CONFIG REQUIRED)
 
@@ -115,11 +113,8 @@ target_link_libraries(wiuc
       #SQLite::SQLite3
       unofficial::sqlite3::sqlite3
       CURL::libcurl
+      fmt::fmt
 )
-
-if(NOT MSVC)
-  target_link_libraries(wiuc PRIVATE fmt::fmt)
-endif()
 
 target_include_directories(wiuc PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>"
