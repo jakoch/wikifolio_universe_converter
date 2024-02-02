@@ -4,6 +4,12 @@
 
 #pragma once
 
+#if defined(__linux__)
+#define _OS_LINUX_
+#elif defined(_WIN32) || defined(_WIN64)
+#define _OS_WINDOWS_
+#endif
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <inttypes.h>
@@ -22,12 +28,14 @@
 #include <algorithm>     // std::all_of
 
 // use std::format on MSVC - use libfmt as polyfill on Linux
-#ifdef _WIN32
+#ifdef _OS_WINDOWS_
 #include <format>
 using std::format;
 using std::make_format_args;
 using std::vformat;
-#else
+#endif
+
+#ifdef _OS_LINUX_
 //#include <fmt/core.h>
 #include <fmt/format.h>
 using fmt::format;
