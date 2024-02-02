@@ -137,7 +137,7 @@ jobs:
       - name: 🚥 Prepare Build Artifact (copy to packaging folder and rename)
         run: |
           mkdir artifact
-          copy out\install\wiuc artifact\
+          xcopy /E out\install\${{ matrix.config.preset }} artifact
 
       - name: 🔼 Upload Build Artifact (on commit)
         uses: actions/upload-artifact@v4 # https://github.com/actions/upload-artifact
@@ -239,12 +239,12 @@ jobs:
       - name: ❔ CHECK important folders, to see if everything is present (after building)
         run: |
           ls out/build/${{ matrix.config.preset }}
-          ls out/install
+          ls out/install/${{ matrix.config.preset }}
 
       - name: 🚥 Prepare Build Artifact (copy to packaging folder)
         run: |
           mkdir artifact
-          cp out/install/wiuc artifact/
+          cp -r out/install/${{ matrix.config.preset }} artifact/
 
       #
       # The uploaded artifact will be a zip file named, e.g. "wiuc-1.0.3-2399e873-Clang14-x64-linux-Release".
