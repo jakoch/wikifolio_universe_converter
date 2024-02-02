@@ -36,11 +36,15 @@ using std::vformat;
 #endif
 
 #ifdef _OS_LINUX_
-//#include <fmt/core.h>
 #include <fmt/format.h>
-using fmt::format;
-using fmt::make_format_args;
-using fmt::vformat;
+namespace fmt_alias {
+    using fmt::format;
+    using fmt::make_format_args;
+    using fmt::vformat;
+}
+#define format fmt_alias::format
+#define make_format_args fmt_alias::make_format_args
+#define vformat fmt_alias::vformat
 #endif
 
 #include "xlsxio_read.h"
