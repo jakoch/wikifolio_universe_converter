@@ -57,11 +57,6 @@ if(NOT WIN32)
 
 endif()
 
-# Add colors to ninja builds
-if (UNIX AND CMAKE_GENERATOR STREQUAL "Ninja")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fcolor-diagnostics")
-endif()
-
 #-------------------------------------------------------------------
 # Compiler Flags
 #-------------------------------------------------------------------
