@@ -83,21 +83,6 @@ jobs:
           $VCPKG_ROOT=$($env:VCPKG_INSTALLATION_ROOT)
           echo "VCPKG_ROOT=$($VCPKG_ROOT)" >> $env:GITHUB_ENV
 
-      - name: 🔽 Update VCPKG to latest TAG
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          cd "${{ env.VCPKG_ROOT }}"
-          git fetch --tags
-          LATEST_VCPKG_TAG=$(git describe --tags --abbrev=0)
-          git checkout $LATEST_VCPKG_TAG
-
-      - name: 🔽 Bootstrap + Integrate VCPKG
-        run: |
-          bootstrap-vcpkg.bat -disableMetrics
-          vcpkg integrate
-
       # Reminder: This step requires that the CMakePresets for CI contain
       # "CMAKE_CXX_COMPILER_LAUNCHER": "sccache".
       - name: 🎯 Setup Build Cache
@@ -114,11 +99,30 @@ jobs:
         uses: actions/cache@v4 # https://github.com/actions/cache
         with:
           # https://github.com/microsoft/vcpkg/blob/master/docs/users/binarycaching.md#configuration
-          path: ~\AppData\Local\vcpkg\archives\
+          path: |
+            ${{ env.VCPKG_ROOT }}\packages
+            ~\AppData\Local\vcpkg\archives\
           key: cache-win-vcpkg-${{ matrix.config.preset }}-${{ github.ref }}
           restore-keys: |
             cache-vcpkg-${{ matrix.config.preset }}-${{ github.ref }}
             cache-vcpkg-${{ matrix.config.preset }}
+
+      - name: 🔽 Update VCPKG to latest TAG
+        if: steps.cache-vcpkg.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          cd "${{ env.VCPKG_ROOT }}"
+          git fetch --tags
+          LATEST_VCPKG_TAG=$(git describe --tags --abbrev=0)
+          git checkout $LATEST_VCPKG_TAG
+
+      - name: 🔽 Bootstrap + Integrate VCPKG
+        if: steps.cache-vcpkg.outputs.cache-hit != 'true'
+        run: |
+          bootstrap-vcpkg.bat -disableMetrics
+          vcpkg integrate
 
       - name: ✏ CMake ➔ Configure
         run: cmake --preset=${{ matrix.config.PRESET }}
@@ -199,13 +203,6 @@ jobs:
           sudo apt install ninja-build ${{ matrix.config.apt_packages }} -y
           sudo ln -s /usr/bin/ninja /usr/bin/ninja-build
 
-      - name: 🔽 Update VCPKG
-        run: |
-          cd ${{ env.VCPKG_ROOT }}
-          git reset --hard
-          git pull --quiet
-          ./bootstrap-vcpkg.sh -disableMetrics
-
       # Reminder: This step requires that the CMakePresets for CI contain
       # "CMAKE_CXX_COMPILER_LAUNCHER": "sccache".
       - name: 🎯 Setup Build Cache
@@ -226,6 +223,14 @@ jobs:
           restore-keys: |
             cache-vcpkg-${{ matrix.config.preset }}-${{ github.ref }}
             cache-vcpkg-${{ matrix.config.preset }}
+
+      - name: 🔽 Update VCPKG
+        if: steps.cache-vcpkg.outputs.cache-hit != 'true'
+        run: |
+          cd ${{ env.VCPKG_ROOT }}
+          git reset --hard
+          git pull --quiet
+          ./bootstrap-vcpkg.sh -disableMetrics
 
       - name: ✏ CMake ➔ Configure
         run: cmake --preset=${{ matrix.config.PRESET }}
