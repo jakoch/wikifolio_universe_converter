@@ -49,7 +49,9 @@ jobs:
           - { os: windows-2022, preset: "vc17-x64-windows-static-rdi-ci", job_name: "Win | VC-17 | RelWithDebInfo" }
 
     env:
-      VCPKG_ROOT: c:\vcpkg
+      # We can not set VCPKG_ROOT here, because its redefined by action "ilammy/msvc-dev-cmd@1".
+      #VCPKG_ROOT: C:\vcpkg
+      VCPKG_DISABLE_METRICS: 1
 
     defaults:
       run:
@@ -77,14 +79,19 @@ jobs:
           echo "ARTIFACT_NAME=$($ARTIFACT_NAME)" >> $env:GITHUB_ENV
           echo "VERSION=$($VERSION)" >> $env:GITHUB_ENV
 
+      # WARNING
+      # ENV VCPKG_ROOT is redefined by this action
+      # and set to "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\vcpkg"
+      # instead of c:\vcpkg, which is important for the pre-installed VCPKG on GHA.
       - name: 🛠️ Setup Visual Studio Developer Command Prompt
         uses: ilammy/msvc-dev-cmd@v1
 
-      #- name: 🔽 Set VCPKG_ROOT to ENV
-      #  shell: pwsh
-      #  run: |
-      #    $VCPKG_ROOT=$($env:VCPKG_INSTALLATION_ROOT)
-      #    echo "VCPKG_ROOT=$($VCPKG_ROOT)" >> $env:GITHUB_ENV
+      # Default Location is "c:\vcpkg"
+      - name: 🔽 Define VCPKG_ROOT
+        shell: pwsh
+        run: |
+          $VCPKG_ROOT=$($env:VCPKG_INSTALLATION_ROOT)
+          echo "VCPKG_ROOT=$($VCPKG_ROOT)" >> $env:GITHUB_ENV
 
       # Reminder: This step requires that the CMakePresets for CI contain
       # "CMAKE_CXX_COMPILER_LAUNCHER": "sccache".
@@ -124,7 +131,7 @@ jobs:
       - name: 🔽 Bootstrap + Integrate VCPKG
         if: steps.cache-vcpkg.outputs.cache-hit != 'true'
         run: |
-          bootstrap-vcpkg.bat -disableMetrics
+          bootstrap-vcpkg.bat
           vcpkg integrate
 
       - name: ✏ CMake ➔ Configure
@@ -183,6 +190,7 @@ jobs:
 
     env:
       VCPKG_ROOT: /usr/local/share/vcpkg
+      VCPKG_DISABLE_METRICS: 1
 
     steps:
       - name: 🤘 Checkout Code
@@ -233,7 +241,7 @@ jobs:
           cd ${{ env.VCPKG_ROOT }}
           git reset --hard
           git pull --quiet
-          ./bootstrap-vcpkg.sh -disableMetrics
+          ./bootstrap-vcpkg.sh
 
       - name: ✏ CMake ➔ Configure
         run: cmake --preset=${{ matrix.config.PRESET }}
