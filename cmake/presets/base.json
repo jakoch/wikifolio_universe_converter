@@ -104,6 +104,9 @@
       "hidden": true,
       "description": "Set ninja multi-config as makefile generator.",
       "generator": "Ninja Multi-Config",
+      "environment": {
+          "NINJA_STATUS": "%e [%f/%t] "
+      },
       "cacheVariables": {
         "CMAKE_MAKE_PROGRAM": {
           "type": "FILEPATH",
@@ -116,6 +119,9 @@
       "hidden": true,
       "description": "Set ninja as makefile generator.",
       "generator": "Ninja",
+      "environment": {
+          "NINJA_STATUS": "%e [%f/%t] "
+      },
       "cacheVariables": {
         "CMAKE_MAKE_PROGRAM": {
           "type": "FILEPATH",
