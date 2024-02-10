@@ -1,0 +1,68 @@
+#
+# .github/workflows/cpp-quality.yml
+#
+# Copyright 2024 Jens A. Koch.
+# SPDX-License-Identifier: MIT
+# This file is part of jakoch/wikifolio_universe_converter.
+#
+
+name: "C++ Quality"
+
+on:
+  - push
+  - pull_request
+  # You can manually run this workflow.
+  - workflow_dispatch
+
+# improve CI concurrency by automatically cancelling outdated jobs
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+
+# ---------------------------------------------------------------------------------------
+
+  clang-format:
+
+# ---------------------------------------------------------------------------------------
+
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dos2unix
+        run: sudo apt-get install -y dos2unix
+
+      - name: Install clang-format-17
+        run: |
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x ./llvm.sh
+          sudo ./llvm.sh 17
+          sudo apt-get install -y clang-format-17
+
+      - name: Check formatting
+        run: ./format.sh && git diff --exit-code
+        env:
+          CLANG_FORMAT: clang-format-17
+
+# ---------------------------------------------------------------------------------------
+
+  cpplint:
+
+# ---------------------------------------------------------------------------------------
+
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install cpplint
+        run: pip install cpplint
+
+      - name: Run lint
+        run: cpplint --recursive .

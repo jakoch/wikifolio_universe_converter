@@ -314,8 +314,8 @@ bool download(char const *url, std::string const &save_as_filename)
         error_buffer[0] = '\0';
         curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, error_buffer);
 
-        long http_code = 0;
-        res            = curl_easy_perform(curl);
+        int http_code = 0;
+        res           = curl_easy_perform(curl);
         curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_code);
 
         if (res == CURLE_OK) {
@@ -387,7 +387,7 @@ bool csv_to_sqlite(std::string const &csv_filename, std::string const &sqlite_fi
 
     if (!create_table(db)) {
         exit(EXIT_FAILURE);
-    };
+    }
 
     // Open CSV for reading
 

@@ -47,7 +47,7 @@ private:
     xlsxioreader handle;
 
 public:
-    XLSXReader(char const *filename);
+    explicit XLSXReader(char const *filename);
     ~XLSXReader();
 
     class XLSXSheet *OpenSheet(char const *sheetname, unsigned int flags);
@@ -57,7 +57,7 @@ class XLSXSheet
 {
 private:
     xlsxioreadersheet sheethandle;
-    XLSXSheet(xlsxioreadersheet sheet);
+    explicit XLSXSheet(xlsxioreadersheet sheet);
     XLSXSheet(xlsxioreadersheet xlsxhandle, char const *sheetname, unsigned int flags);
 
 public:
