@@ -10,22 +10,22 @@
 #define _OS_WINDOWS_
 #endif
 
-#include <stdlib.h>
-#include <stdio.h>
 #include <inttypes.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-#include <string>
-#include <stdexcept>
+#include <algorithm> // std::all_of
+#include <chrono>
+#include <filesystem>
 #include <fstream>
+#include <iomanip>
+#include <iostream>
 #include <ostream>
 #include <sstream>
-#include <iostream>
-#include <chrono>
-#include <iomanip>
+#include <stdexcept>
+#include <string>
 #include <type_traits>
-#include <filesystem>
 #include <unordered_map>
-#include <algorithm> // std::all_of
 
 #include <fmt/format.h>
 using fmt::format;
