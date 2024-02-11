@@ -24,14 +24,17 @@
 class semantic_version
 {
 public:
+    // clang-format off
     int major = @PROJECT_VERSION_MAJOR@;
     int minor = @PROJECT_VERSION_MINOR@;
     int patch = @PROJECT_VERSION_PATCH@;
+    // clang-format on
 };
 
 class app_version
 {
 public:
+    // clang-format off
     static constexpr std::string_view nice_name   = "Wikifolio Investment Universe Converter";
     static constexpr std::string_view name        = "@APP_NAME@";
     static constexpr std::string_view version     = "@PROJECT_VERSION_MAJOR@.@PROJECT_VERSION_MINOR@.@PROJECT_VERSION_PATCH@";
@@ -51,40 +54,41 @@ public:
             "  \"homepage\":    \"@APP_HOMEPAGE@\",\n"
             "  \"copyright\":   \"Copyright (c) Jens A. Koch, 2021-@CURRENT_YEAR@.\"\n}";
     }
+    // clang-format on
 
     /*
-    * Getters - c_str() types
-    */
+     * Getters - c_str() types
+     */
 
-    static constexpr char const *get_name()
+    static constexpr char const* get_name()
     {
         return name.data();
     }
-    static constexpr char const *get_nice_name()
+    static constexpr char const* get_nice_name()
     {
         return nice_name.data();
     }
-    static constexpr char const *get_license()
+    static constexpr char const* get_license()
     {
         return license.data();
     }
-    static constexpr char const *get_description()
+    static constexpr char const* get_description()
     {
         return description.data();
     }
-    static constexpr char const *get_version()
+    static constexpr char const* get_version()
     {
         return version.data();
     }
-    static constexpr char const *get_homepage()
+    static constexpr char const* get_homepage()
     {
         return homepage.data();
     }
-    static constexpr char const *get_copyright()
+    static constexpr char const* get_copyright()
     {
         return copyright.data();
     }
-    static constexpr int const *get_version_num()
+    static constexpr int const* get_version_num()
     {
         return &version_id;
     }

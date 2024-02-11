@@ -47,10 +47,10 @@ private:
     xlsxioreader handle;
 
 public:
-    explicit XLSXReader(char const *filename);
+    explicit XLSXReader(char const* filename);
     ~XLSXReader();
 
-    class XLSXSheet *OpenSheet(char const *sheetname, unsigned int flags);
+    class XLSXSheet* OpenSheet(char const* sheetname, unsigned int flags);
 };
 
 class XLSXSheet
@@ -58,22 +58,22 @@ class XLSXSheet
 private:
     xlsxioreadersheet sheethandle;
     explicit XLSXSheet(xlsxioreadersheet sheet);
-    XLSXSheet(xlsxioreadersheet xlsxhandle, char const *sheetname, unsigned int flags);
+    XLSXSheet(xlsxioreadersheet xlsxhandle, char const* sheetname, unsigned int flags);
 
 public:
     ~XLSXSheet();
     bool GetNextRow();
-    char *GetNextCell();
-    bool GetNextCellString(char *&value);
-    bool GetNextCellString(std::string &value);
-    bool GetNextCellInt(int64_t &value);
-    bool GetNextCellFloat(double &value);
-    bool GetNextCellDateTime(time_t &value);
+    char* GetNextCell();
+    bool GetNextCellString(char*& value);
+    bool GetNextCellString(std::string& value);
+    bool GetNextCellInt(int64_t& value);
+    bool GetNextCellFloat(double& value);
+    bool GetNextCellDateTime(time_t& value);
 
-    XLSXSheet &operator>>(char *&value);
-    XLSXSheet &operator>>(std::string &value);
-    XLSXSheet &operator>>(int64_t &value);
-    XLSXSheet &operator>>(double &value);
+    XLSXSheet& operator>>(char*& value);
+    XLSXSheet& operator>>(std::string& value);
+    XLSXSheet& operator>>(int64_t& value);
+    XLSXSheet& operator>>(double& value);
     void* operator new(std::size_t size);
     void operator delete(void* ptr);
 
