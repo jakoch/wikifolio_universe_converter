@@ -25,7 +25,7 @@
 #include <type_traits>
 #include <filesystem>
 #include <unordered_map>
-#include <algorithm>     // std::all_of
+#include <algorithm> // std::all_of
 
 #include <fmt/format.h>
 using fmt::format;
