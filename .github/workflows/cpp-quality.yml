@@ -33,12 +33,13 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@v4
+      - name: 🤘 Checkout Code
+        uses: actions/checkout@v4 # https://github.com/actions/checkout
 
-      - name: Install dos2unix
+      - name: 🔽 Install dos2unix
         run: sudo apt-get install -y dos2unix
 
-      - name: Install clang-format-17
+      - name: 🔽 Install clang-format-17
         run: |
           wget https://apt.llvm.org/llvm.sh
           chmod +x ./llvm.sh

@@ -10,5 +10,5 @@ if [[ ! $($CLANG_FORMAT --version) =~ "version 17" ]]; then
     exit 1
 fi
 
-find src tests -name *.h -o -name *.cc -exec dos2unix {} \;
-find src tests -name *.h -o -name *.cc|xargs $CLANG_FORMAT -i -style=file
+find src -name *.h -o -name *.cpp -exec dos2unix {} \;
+find src -name *.h -o -name *.cpp|xargs $CLANG_FORMAT -i -style=file

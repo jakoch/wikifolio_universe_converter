@@ -16,7 +16,6 @@
 Language: Cpp
 
 AccessModifierOffset: -4
-ConstructorInitializerIndentWidth: 4
 AlignAfterOpenBracket: AlwaysBreak
 AlignConsecutiveAssignments: true
 #AlignConsecutiveBitFields: true
