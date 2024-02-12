@@ -21,6 +21,7 @@
 #include <iomanip>
 #include <iostream>
 #include <ostream>
+#include <ranges>
 #include <sstream>
 #include <stdexcept>
 #include <string>
