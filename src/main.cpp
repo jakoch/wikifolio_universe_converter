@@ -6,7 +6,7 @@
 
 XLSXReader::XLSXReader(char const* filename) : handle(xlsxioread_open(filename))
 {
-   // init
+    // init
 }
 
 XLSXReader::~XLSXReader()
@@ -55,7 +55,7 @@ bool XLSXSheet::GetNextCellString(std::string& value)
         return false;
     }
     value.assign(result);
-    free(result); //NOLINT
+    free(result); // NOLINT
     return true;
 }
 
@@ -156,7 +156,7 @@ public:
         auto const ms_duration    = std::chrono::duration_cast<std::chrono::milliseconds>(time_diff).count();
         char constexpr const* fmt = "[{}] Time Elapsed: {}.{} sec\n";
         std::ostringstream strStream;
-        const int msec = 1000;
+        int const msec = 1000;
         strStream << fmt::format(fmt, time_point_name, (ms_duration / msec), (ms_duration % msec));
         std::cout << strStream.str();
     }
@@ -178,7 +178,7 @@ inline std::string replace(std::string search_in, std::string const& search_for,
 std::string escape_string(std::string const& s)
 {
     std::ostringstream o;
-    for (const char _char : s) {
+    for (char const _char : s) {
         switch (_char) {
         // case '"': o << "\\\""; break;
         case '\'':
@@ -200,6 +200,7 @@ std::string escape_string(std::string const& s)
 bool xlsx_to_csv(std::string const& xlsx_filename, std::string const& csv_filename)
 {
     auto* file = new XLSXReader(xlsx_filename.c_str());
+
     XLSXSheet* sheet = file->OpenSheet(nullptr, XLSXIOREAD_SKIP_EMPTY_ROWS);
 
     if (sheet == nullptr) {
@@ -227,9 +228,9 @@ bool xlsx_to_csv(std::string const& xlsx_filename, std::string const& csv_filena
             csvfile << csv_row;
         }
         csvfile.close();
-        delete sheet; //NOLINT
+        delete sheet; // NOLINT
     }
-    delete file; //NOLINT
+    delete file; // NOLINT
 
     return true;
 };
@@ -267,7 +268,7 @@ bool rename_header_columns(std::string const& csv_filename, std::string const& c
 
 size_t write_callback(void* ptr, size_t size, size_t nmemb, FILE* stream)
 {
-    const size_t written = fwrite(ptr, size, nmemb, stream);
+    size_t const written = fwrite(ptr, size, nmemb, stream);
     return written;
 }
 
@@ -349,7 +350,7 @@ bool create_table(sqlite3* _db)
         "Anlagegruppe TEXT,"
         "Anlageuniversum TEXT)";
 
-    const int r = sqlite3_exec(_db, sql_table_schema, nullptr, nullptr, nullptr);
+    int const r = sqlite3_exec(_db, sql_table_schema, nullptr, nullptr, nullptr);
 
     if (r != SQLITE_OK) {
         fprintf(stderr, "[SQLite][Error][%i]\nFailed to create table: %s\n", r, sqlite3_errmsg(_db));
@@ -363,6 +364,7 @@ bool create_table(sqlite3* _db)
 bool csv_to_sqlite(std::string const& csv_filename, std::string const& sqlite_filename)
 {
     int r = 0;
+
     char* zErrMsg = nullptr;
 
     // Open SQLite Database
@@ -486,13 +488,13 @@ std::string getFile(std::string const& file_type, std::string const& output_fold
 
 bool file_exists(std::string const& filename)
 {
-    const std::filesystem::path file = std::filesystem::current_path() / filename;
+    std::filesystem::path const file = std::filesystem::current_path() / filename;
     return std::filesystem::exists(file) && std::filesystem::is_regular_file(file);
 }
 
 void create_folder_if_not_exists(std::string const& folder_path)
 {
-    const std::filesystem::path folder(folder_path);
+    std::filesystem::path const folder(folder_path);
     if (!std::filesystem::exists(folder)) { std::filesystem::create_directory(folder); }
 }
 
@@ -504,7 +506,7 @@ void create_folder_if_not_exists(std::string const& folder_path)
     });
 }*/
 
-bool is_alnum(const std::string& str)
+bool is_alnum(std::string const& str)
 {
     for (char _char : str) {
         if (!std::isalnum(static_cast<unsigned char>(_char))) {
@@ -525,27 +527,27 @@ enum class Color
     Light_Grey = 37
 };
 
-void print_status(const std::string &status_message = "Status update.", int indent_spaces = 0, Color color = Color::Light_Grey)
+void print_status(std::string const& status_message = "Status update.", int indent_spaces = 0, Color color = Color::Light_Grey)
 {
-    const std::string escape_code = "\033[0;" + std::to_string(static_cast<int>(color)) + "m";
-    const std::string reset_code  = "\033[0m";
-    const std::string indentation(indent_spaces, ' ');
+    std::string const escape_code = "\033[0;" + std::to_string(static_cast<int>(color)) + "m";
+    std::string const reset_code  = "\033[0m";
+    std::string const indentation(indent_spaces, ' ');
     std::cout << indentation << escape_code << status_message << reset_code << '\n';
 }
 
 std::string format_status(
-    const std::string &status_message = "Status update.", int indent_spaces = 0, Color color = Color::Light_Grey)
+    std::string const& status_message = "Status update.", int indent_spaces = 0, Color color = Color::Light_Grey)
 {
-    const std::string escape_code = "\033[0;" + std::to_string(static_cast<int>(color)) + "m";
-    const std::string reset_code  = "\033[0m";
-    const std::string indentation(indent_spaces, ' ');
+    std::string const escape_code = "\033[0;" + std::to_string(static_cast<int>(color)) + "m";
+    std::string const reset_code  = "\033[0m";
+    std::string const indentation(indent_spaces, ' ');
     return indentation + escape_code + status_message + reset_code; // + "\n"
 }
 
 void printHelpText(std::string program_name)
 {
 
-    const std::string help_text_header = fmt::format(
+    std::string const help_text_header = fmt::format(
         "{} {}\n"
         "{}\n\n"
         "{} {} [OPTIONS] [ARGUMENTS]\n\n"
@@ -557,7 +559,7 @@ void printHelpText(std::string program_name)
         program_name,
         format_status("Options:", 0, Color::Yellow).c_str());
 
-    const std::string help_text_body = fmt::format(
+    std::string const help_text_body = fmt::format(
         "{}\t\tDisplay this help message\n"
         "{}\tConvert from XLSX to SQLite and CSV\n"
         "{}\tSet output folder (default is current directory)\n"
@@ -588,9 +590,9 @@ void printHelpText(std::string program_name)
 
 // conservative approach for chars in a folder name
 // allowed chars: 0-9,a-z,A-Z,_,-,/,.
-bool is_valid_folder_name(const std::string& folder)
+bool is_valid_folder_name(std::string const& folder)
 {
-    static const std::string char_whitelist = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_-/.";
+    static std::string const char_whitelist = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_-/.";
     for (char _char : folder) {
         if (char_whitelist.find(_char) == std::string::npos) {
             return false;
@@ -632,7 +634,7 @@ int main(int const argc, char const* argv[]) noexcept(false)
     }
 
     if (argc >= 2 && std::string(argv[1]) == "-c" || std::string(argv[1]) == "--convert") {
-        const std::string app_header = format(
+        std::string const app_header = format(
             "{} {}\n"
             "{}\n\n",
             format_status(app_version::get_nice_name(), 0, Color::Yellow).c_str(),
@@ -640,7 +642,7 @@ int main(int const argc, char const* argv[]) noexcept(false)
             app_version::get_copyright());
         std::cout << app_header;
 
-        const Timer total_application_timer;
+        Timer const total_application_timer;
 
         // Output Folder
 
@@ -674,7 +676,7 @@ int main(int const argc, char const* argv[]) noexcept(false)
             std::cerr << "Download skipped. File already exists.\n";
             universe_downloaded = true;
         } else {
-            const Timer download_timer;
+            Timer const download_timer;
 
             char const* xlsx_url = "https://wikifolio.blob.core.windows.net/prod-documents/Investment_Universe.de.xlsx";
 
@@ -687,9 +689,9 @@ int main(int const argc, char const* argv[]) noexcept(false)
 
         if (universe_downloaded) {
 
-            const Timer xlsx_to_csv_timer;
+            Timer const xlsx_to_csv_timer;
 
-            const bool converted_to_csv = xlsx_to_csv(xlsx_file, csv_file);
+            bool const converted_to_csv = xlsx_to_csv(xlsx_file, csv_file);
 
             xlsx_to_csv_timer.stop("xlsx -> csv");
 
@@ -698,9 +700,9 @@ int main(int const argc, char const* argv[]) noexcept(false)
 
         // CSV -> SQLITE
 
-        const Timer csv_to_sqlite_timer;
+        Timer const csv_to_sqlite_timer;
 
-        const bool converted_to_sqlite = csv_to_sqlite(csv_file, sqlite_file);
+        bool const converted_to_sqlite = csv_to_sqlite(csv_file, sqlite_file);
 
         csv_to_sqlite_timer.stop("csv -> sqlite");
 
