@@ -436,7 +436,7 @@ bool csv_to_sqlite(std::string const& csv_filename, std::string const& sqlite_fi
 
         std::string sql_insert_values_str = sql_insert_values;
         // printf("%s\n", sql_insert_values_str);
-        auto sql_insert_args = make_format_args(sql_insert_values_str);
+        auto sql_insert_args = fmt::make_format_args(sql_insert_values_str);
         sql_insert_stmt      = vformat(sql_insert_stmt_tpl, sql_insert_args);
 
         sql_insert_values.clear();
