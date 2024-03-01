@@ -151,7 +151,7 @@ private:
 public:
     Timer() = default;
 
-    void static stop(char const * time_point_name)
+    static void stop(char const * time_point_name)
     {
         auto const stop_time       = Time::now();
         auto const time_diff       = stop_time - start_time;
