@@ -496,11 +496,22 @@ void create_folder_if_not_exists(std::string const& folder_path)
     if (!std::filesystem::exists(folder)) { std::filesystem::create_directory(folder); }
 }
 
-auto is_alnum(std::string const& str) -> bool
+// requires <ranges> support
+/*auto is_alnum(std::string const& str) -> bool
 {
     return std::ranges::all_of(str.begin(), str.end(), [](char _char) {
         return std::isalnum(static_cast<unsigned char>(_char));
     });
+}*/
+
+bool is_alnum(const std::string& str)
+{
+    for (char _char : str) {
+        if (!std::isalnum(static_cast<unsigned char>(_char))) {
+            return false;
+        }
+    }
+    return true;
 }
 
 enum class Color
@@ -565,14 +576,27 @@ void printHelpText(std::string program_name)
     printf("%s", help_text.c_str());
 }
 
-// conservative approach for chars in a folder name
-// allowed chars: 0-9,a-z,A-Z,_,-,/,.
-bool is_valid_folder_name(std::string const& folder)
+
+// requires <ranges> support
+/*bool is_valid_folder_name(std::string const& folder)
 {
     static std::string const char_whitelist = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_-/.";
     return std::ranges::all_of(folder.begin(), folder.end(), [&](char _char) {
         return char_whitelist.find(_char) != std::string::npos;
     });
+}*/
+
+// conservative approach for chars in a folder name
+// allowed chars: 0-9,a-z,A-Z,_,-,/,.
+bool is_valid_folder_name(const std::string& folder)
+{
+    static const std::string char_whitelist = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_-/.";
+    for (char _char : folder) {
+        if (char_whitelist.find(_char) == std::string::npos) {
+            return false;
+        }
+    }
+    return true;
 }
 
 int main(int const argc, char const* argv[]) noexcept(false)
