@@ -48,10 +48,10 @@ private:
     xlsxioreader handle;
 
 public:
-    explicit XLSXReader(char const* filename);
+    explicit XLSXReader(char const * filename);
     ~XLSXReader();
 
-    class XLSXSheet* OpenSheet(char const* sheetname, unsigned int flags);
+    class XLSXSheet* OpenSheet(char const * sheetname, unsigned int flags);
 };
 
 class XLSXSheet
@@ -59,7 +59,7 @@ class XLSXSheet
 private:
     xlsxioreadersheet sheethandle;
     explicit XLSXSheet(xlsxioreadersheet sheet);
-    XLSXSheet(xlsxioreadersheet xlsxhandle, char const* sheetname, unsigned int flags);
+    XLSXSheet(xlsxioreadersheet xlsxhandle, char const * sheetname, unsigned int flags);
 
 public:
     ~XLSXSheet();

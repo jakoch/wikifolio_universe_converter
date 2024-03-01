@@ -21,7 +21,7 @@ ContinuationIndentWidth: 4
 UseCRLF: false
 Standard: c++20
 UseTab: Never
-MaxEmptyLinesToKeep: 2
+MaxEmptyLinesToKeep: 1
 
 AccessModifierOffset: -4
 AlignAfterOpenBracket: AlwaysBreak
@@ -76,8 +76,6 @@ IndentCaseLabels: false
 IndentGotoLabels: false
 IndentPPDirectives: None
 IndentFunctionDeclarationAfterType: false
-IndentWidth: 4
-MaxEmptyLinesToKeep: 1
 NamespaceIndentation: All
 ObjCSpaceBeforeProtocolList: false
 PenaltyBreakBeforeFirstCallParameter: 10

@@ -4,7 +4,7 @@
 
 #include "main.h"
 
-XLSXReader::XLSXReader(char const* filename) : handle(xlsxioread_open(filename))
+XLSXReader::XLSXReader(char const * filename) : handle(xlsxioread_open(filename))
 {
     // init
 }
@@ -14,10 +14,12 @@ XLSXReader::~XLSXReader()
     xlsxioread_close(handle);
 }
 
-class XLSXSheet* XLSXReader::OpenSheet(char const* sheetname, unsigned int flags)
+class XLSXSheet* XLSXReader::OpenSheet(char const * sheetname, unsigned int flags)
 {
     xlsxioreadersheet sheethandle = xlsxioread_sheet_open(handle, sheetname, flags);
-    if (sheethandle == nullptr) { return nullptr; }
+    if (sheethandle == nullptr) {
+        return nullptr;
+    }
     return new XLSXSheet(sheethandle);
 }
 
@@ -149,12 +151,12 @@ private:
 public:
     Timer() = default;
 
-    void static stop(char const* time_point_name)
+    void static stop(char const * time_point_name)
     {
-        auto const stop_time      = Time::now();
-        auto const time_diff      = stop_time - start_time;
-        auto const ms_duration    = std::chrono::duration_cast<std::chrono::milliseconds>(time_diff).count();
-        char constexpr const* fmt = "[{}] Time Elapsed: {}.{} sec\n";
+        auto const stop_time       = Time::now();
+        auto const time_diff       = stop_time - start_time;
+        auto const ms_duration     = std::chrono::duration_cast<std::chrono::milliseconds>(time_diff).count();
+        char constexpr const * fmt = "[{}] Time Elapsed: {}.{} sec\n";
         std::ostringstream strStream;
         int const msec = 1000;
         strStream << fmt::format(fmt, time_point_name, (ms_duration / msec), (ms_duration % msec));
@@ -162,9 +164,11 @@ public:
     }
 };
 
-inline std::string replace(std::string search_in, std::string const& search_for, std::string const& replace_with)
+inline std::string replace(std::string search_in, std::string const & search_for, std::string const & replace_with)
 {
-    if (search_for.empty()) { return search_in; }
+    if (search_for.empty()) {
+        return search_in;
+    }
 
     std::size_t pos = 0;
 
@@ -175,7 +179,7 @@ inline std::string replace(std::string search_in, std::string const& search_for,
     return search_in;
 }
 
-std::string escape_string(std::string const& s)
+std::string escape_string(std::string const & s)
 {
     std::ostringstream o;
     for (char const _char : s) {
@@ -197,7 +201,7 @@ std::string escape_string(std::string const& s)
     return o.str();
 }
 
-bool xlsx_to_csv(std::string const& xlsx_filename, std::string const& csv_filename)
+bool xlsx_to_csv(std::string const & xlsx_filename, std::string const & csv_filename)
 {
     auto* file = new XLSXReader(xlsx_filename.c_str());
 
@@ -235,7 +239,7 @@ bool xlsx_to_csv(std::string const& xlsx_filename, std::string const& csv_filena
     return true;
 };
 
-bool rename_header_columns(std::string const& csv_filename, std::string const& csv_tmp_filename)
+bool rename_header_columns(std::string const & csv_filename, std::string const & csv_tmp_filename)
 {
     std::fstream input_file(csv_filename.c_str(), std::ios::in);
     std::ofstream output_file(csv_tmp_filename.c_str());
@@ -258,10 +262,14 @@ bool rename_header_columns(std::string const& csv_filename, std::string const& c
     input_file.close();
 
     // delete old "Investment_Universe.csv"
-    if (std::remove(csv_filename.c_str()) != 0) { printf("Could not delete file."); }
+    if (std::remove(csv_filename.c_str()) != 0) {
+        printf("Could not delete file.");
+    }
 
     // rename "Investment_Universe.tmp.csv" -> "Investment_Universe.csv"
-    if (std::rename(csv_tmp_filename.c_str(), csv_filename.c_str()) != 0) { printf("Could not rename."); }
+    if (std::rename(csv_tmp_filename.c_str(), csv_filename.c_str()) != 0) {
+        printf("Could not rename.");
+    }
 
     return true;
 }
@@ -272,7 +280,7 @@ size_t write_callback(void* ptr, size_t size, size_t nmemb, FILE* stream)
     return written;
 }
 
-bool download(char const* url, std::string const& save_as_filename)
+bool download(char const * url, std::string const & save_as_filename)
 {
     CURLcode res = CURLE_OK;
 
@@ -340,7 +348,7 @@ bool download(char const* url, std::string const& save_as_filename)
 
 bool create_table(sqlite3* _db)
 {
-    static char const* sql_table_schema =
+    static char const * sql_table_schema =
         "CREATE TABLE Anlageuniversum ("
         "ISIN TEXT,"
         "WKN TEXT,"
@@ -361,7 +369,7 @@ bool create_table(sqlite3* _db)
     return r == SQLITE_OK;
 }
 
-bool csv_to_sqlite(std::string const& csv_filename, std::string const& sqlite_filename)
+bool csv_to_sqlite(std::string const & csv_filename, std::string const & sqlite_filename)
 {
     int r = 0;
 
@@ -389,7 +397,9 @@ bool csv_to_sqlite(std::string const& csv_filename, std::string const& sqlite_fi
 
     // Create Table
 
-    if (!create_table(db)) { exit(EXIT_FAILURE); }
+    if (!create_table(db)) {
+        exit(EXIT_FAILURE);
+    }
 
     // Open CSV for reading
 
@@ -423,7 +433,9 @@ bool csv_to_sqlite(std::string const& csv_filename, std::string const& sqlite_fi
     }
 
     while (std::getline(csv_file, line)) {
-        if (line.empty()) { break; }
+        if (line.empty()) {
+            break;
+        }
 
         std::stringstream lineStream(line);
 
@@ -469,16 +481,18 @@ bool csv_to_sqlite(std::string const& csv_filename, std::string const& sqlite_fi
     return true;
 }
 
-std::string getFile(std::string const& file_type, std::string const& output_folder)
+std::string getFile(std::string const & file_type, std::string const & output_folder)
 {
-    static std::unordered_map<std::string, char const*> const files{
+    static std::unordered_map<std::string, char const *> const files{
         {"xlsx", "Investment_Universe.de.xlsx"},
         {"csv_tmp", "Investment_Universe.tmp.csv"},
         {"csv", "Investment_Universe.csv"},
         {"sqlite", "Investment_Universe.sqlite"}};
 
     auto _it = files.find(file_type);
-    if (_it == files.end()) { throw std::invalid_argument("Invalid fileType argument"); }
+    if (_it == files.end()) {
+        throw std::invalid_argument("Invalid fileType argument");
+    }
 
     std::filesystem::path path(output_folder);
     path.append(_it->second);
@@ -486,16 +500,18 @@ std::string getFile(std::string const& file_type, std::string const& output_fold
     return path.string();
 }
 
-bool file_exists(std::string const& filename)
+bool file_exists(std::string const & filename)
 {
     std::filesystem::path const file = std::filesystem::current_path() / filename;
     return std::filesystem::exists(file) && std::filesystem::is_regular_file(file);
 }
 
-void create_folder_if_not_exists(std::string const& folder_path)
+void create_folder_if_not_exists(std::string const & folder_path)
 {
     std::filesystem::path const folder(folder_path);
-    if (!std::filesystem::exists(folder)) { std::filesystem::create_directory(folder); }
+    if (!std::filesystem::exists(folder)) {
+        std::filesystem::create_directory(folder);
+    }
 }
 
 // requires <ranges> support
@@ -506,7 +522,7 @@ void create_folder_if_not_exists(std::string const& folder_path)
     });
 }*/
 
-bool is_alnum(std::string const& str)
+bool is_alnum(std::string const & str)
 {
     for (char _char : str) {
         if (!std::isalnum(static_cast<unsigned char>(_char))) {
@@ -528,7 +544,7 @@ enum class Color
 };
 
 void print_status(
-    std::string const& status_message = "Status update.", int indent_spaces = 0, Color color = Color::Light_Grey)
+    std::string const & status_message = "Status update.", int indent_spaces = 0, Color color = Color::Light_Grey)
 {
     std::string const escape_code = "\033[0;" + std::to_string(static_cast<int>(color)) + "m";
     std::string const reset_code  = "\033[0m";
@@ -537,7 +553,7 @@ void print_status(
 }
 
 std::string format_status(
-    std::string const& status_message = "Status update.", int indent_spaces = 0, Color color = Color::Light_Grey)
+    std::string const & status_message = "Status update.", int indent_spaces = 0, Color color = Color::Light_Grey)
 {
     std::string const escape_code = "\033[0;" + std::to_string(static_cast<int>(color)) + "m";
     std::string const reset_code  = "\033[0m";
@@ -590,7 +606,7 @@ void printHelpText(std::string program_name)
 
 // conservative approach for chars in a folder name
 // allowed chars: 0-9,a-z,A-Z,_,-,/,.
-bool is_valid_folder_name(std::string const& folder)
+bool is_valid_folder_name(std::string const & folder)
 {
     static std::string const char_whitelist = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_-/.";
     for (char _char : folder) {
@@ -601,7 +617,7 @@ bool is_valid_folder_name(std::string const& folder)
     return true;
 }
 
-int main(int const argc, char const* argv[]) noexcept(false)
+int main(int const argc, char const * argv[]) noexcept(false)
 {
     std::string const name = "wiuc";
     (void)argc;
@@ -678,7 +694,8 @@ int main(int const argc, char const* argv[]) noexcept(false)
         } else {
             Timer const download_timer;
 
-            char const* xlsx_url = "https://wikifolio.blob.core.windows.net/prod-documents/Investment_Universe.de.xlsx";
+            char const * xlsx_url =
+                "https://wikifolio.blob.core.windows.net/prod-documents/Investment_Universe.de.xlsx";
 
             universe_downloaded = download(xlsx_url, xlsx_file);
 
@@ -695,7 +712,9 @@ int main(int const argc, char const* argv[]) noexcept(false)
 
             xlsx_to_csv_timer.stop("xlsx -> csv");
 
-            if (converted_to_csv) { rename_header_columns(csv_file, csv_tmp_file); }
+            if (converted_to_csv) {
+                rename_header_columns(csv_file, csv_tmp_file);
+            }
         }
 
         // CSV -> SQLITE
