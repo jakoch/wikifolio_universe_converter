@@ -527,7 +527,8 @@ enum class Color
     Light_Grey = 37
 };
 
-void print_status(std::string const& status_message = "Status update.", int indent_spaces = 0, Color color = Color::Light_Grey)
+void print_status(
+    std::string const& status_message = "Status update.", int indent_spaces = 0, Color color = Color::Light_Grey)
 {
     std::string const escape_code = "\033[0;" + std::to_string(static_cast<int>(color)) + "m";
     std::string const reset_code  = "\033[0m";
@@ -577,7 +578,6 @@ void printHelpText(std::string program_name)
 
     printf("%s", help_text.c_str());
 }
-
 
 // requires <ranges> support
 /*bool is_valid_folder_name(std::string const& folder)
