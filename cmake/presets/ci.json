@@ -83,6 +83,26 @@
         "build-folders-ci",
         "condition-is-ci"
       ]
+    },
+    {
+      "name": "clang17-x64-linux-rel-ci",
+      "displayName": "Clang17 Release CI",
+      "inherits": [
+        "clang17-x64-linux",
+        "build-type-release",
+        "build-folders-ci",
+        "condition-is-ci"
+      ]
+    },
+    {
+      "name": "clang18-x64-linux-rel-ci",
+      "displayName": "Clang18 Release CI",
+      "inherits": [
+        "clang18-x64-linux",
+        "build-type-release",
+        "build-folders-ci",
+        "condition-is-ci"
+      ]
     }
   ],
   "buildPresets": [
@@ -113,6 +133,14 @@
     {
       "name": "clang15-x64-linux-rel-ci",
       "configurePreset": "clang15-x64-linux-rel-ci"
+    },
+    {
+      "name": "clang17-x64-linux-rel-ci",
+      "configurePreset": "clang17-x64-linux-rel-ci"
+    },
+    {
+      "name": "clang17-x64-linux-rel-ci",
+      "configurePreset": "clang17-x64-linux-rel-ci"
     }
   ]
 }
