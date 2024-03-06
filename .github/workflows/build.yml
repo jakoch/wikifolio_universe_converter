@@ -201,7 +201,7 @@ jobs:
           NAME='wiuc'
           VERSION=$(jq -r .version vcpkg.json)
           SHORT_HASH=`echo $GITHUB_SHA | cut -c1-8`
-          PRESET=`echo ${{ matrix.config.preset }} | | sed 's/-rel-ci//'`
+          PRESET=`echo ${{ matrix.config.preset }} | sed 's/-rel-ci//'`
           ARTIFACT_NAME="$NAME-$VERSION-$SHORT_HASH-$PRESET"
           echo "Artifact Name: $ARTIFACT_NAME"
           echo "ARTIFACT_NAME=$ARTIFACT_NAME" >> $GITHUB_ENV
