@@ -207,10 +207,12 @@ jobs:
           echo "ARTIFACT_NAME=$ARTIFACT_NAME" >> $GITHUB_ENV
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
+      # openssl requires Linux kernel headers from the system package manager:
+      # linux-libc-dev for openssl, which is fechted and build via vcpkg.
       - name: 🔽 Update Build Environment (update/install packages)
         run: |
           sudo apt update -qq
-          sudo apt install ninja-build ${{ matrix.config.apt_packages }} -y
+          sudo apt install linux-libc-dev ninja-build ${{ matrix.config.apt_packages }} -y
           sudo ln -s /usr/bin/ninja /usr/bin/ninja-build
 
       # Reminder: This step requires that the CMakePresets for CI contain
@@ -287,8 +289,8 @@ jobs:
       fail-fast: false
       matrix:
         config:
-        - { image_version: "latest", preset: "clang17-x64-linux-rel-ci", apt_packages: "clang-17", job_name: "Linux | Clang-17 | Release" }
-        #- { preset: "clang18-x64-linux-rel-ci", apt_packages: "clang-18", job_name: "Linux | Clang-18 | Release" }
+        - { image_version: "latest", preset: "clang17-x64-linux-rel-ci", job_name: "Linux | Clang-17 | Release" }
+        #- { preset: "clang18-x64-linux-rel-ci", job_name: "Linux | Clang-18 | Release" }
 
     env:
       VCPKG_ROOT: /opt/vcpkg
@@ -310,10 +312,12 @@ jobs:
           echo "ARTIFACT_NAME=$ARTIFACT_NAME" >> $GITHUB_ENV
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
+      # openssl requires Linux kernel headers from the system package manager:
+      # linux-libc-dev for openssl, which is fechted and build via vcpkg.
       - name: 🔽 Update Build Environment (update/install packages)
         run: |
           sudo apt update -qq
-          sudo apt install ninja-build ${{ matrix.config.apt_packages }} -y
+          sudo apt install linux-libc-dev ninja-build -y
           sudo ln -s /usr/bin/ninja /usr/bin/ninja-build
 
       # Reminder: This step requires that the CMakePresets for CI contain

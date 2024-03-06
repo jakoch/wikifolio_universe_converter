@@ -42,7 +42,7 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux")
         # enable incomplete features to get "std::format" support
         set(LIBCXX_ENABLE_INCOMPLETE_FEATURES ON)
 
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20 -stdlib=libc++ -pthread -Wall -Wextra -Werror -fexec-charset=UTF-8 -mtune=skylake -lstdc++")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20 -stdlib=libc++ -pthread -Wall -Wextra -Werror -fexec-charset=UTF-8 -lstdc++")
         set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
         set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl -stdlib=libc++ -lc++ -lc++abi -lstdc++")
 

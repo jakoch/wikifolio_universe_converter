@@ -6,19 +6,20 @@ Konvertiert das [wikifolio.com Anlageuniversum](https://www.wikifolio.com/de/de/
 
 [![](http://github-actions.40ants.com/jakoch/wikifolio_universe_converter/matrix.svg)](https://github.com/jakoch/wikifolio_universe_converter/actions/)
 
-|   CI Service     | Compiler    | Target Triplet           | Build Type     | Status |
-|:---------------- |:----------- |:------------------------ |:--------------:|:------:|
-|  GitHub Actions  | VC16 VS2019 | x64-windows              | Release        |   👷🏼   |
-|                  | VC16 VS2019 | x64-windows-static       | Release        |   🟢   |
-|                  | VC17 VS2022 | x64-windows              | Release        |   👷🏼   |
-|                  | VC17 VS2022 | x64-windows-static       | Release        |   🟢   |
-|                  | VC17 VS2022 | x64-windows-static       | RelWithDebInfo |   🟢   |
-|                  | GCC-9       | x64-linux                | Release        |   🟢   |
-|                  | to          | x64-linux                | Release        |   ⚪🟢|
-|                  | GCC-12      | x64-linux                | Release        |   🟢   |
-|                  | Clang-10    | x64-linux                | Release        |   🟢   |
-|                  | to          | x64-linux                | Release        |   ⚪🟢|
-|                  | Clang-15    | x64-linux                | Release        |   🟢   |
+|   CI Service      | Compiler    | Target Triplet           | Build Type     | Status |
+|:----------------- |:----------- |:------------------------ |:--------------:|:------:|
+|  GitHub Actions   | VC16 VS2019 | x64-windows              | Release        |   👷🏼   |
+|                   | VC16 VS2019 | x64-windows-static       | Release        |   🟢   |
+|                   | VC17 VS2022 | x64-windows              | Release        |   👷🏼   |
+|                   | VC17 VS2022 | x64-windows-static       | Release        |   🟢   |
+|                   | VC17 VS2022 | x64-windows-static       | RelWithDebInfo |   🟢   |
+|                   | GCC-9       | x64-linux                | Release        |   🟢   |
+|                   | to          | x64-linux                | Release        |   ⚪🟢|
+|                   | GCC-13      | x64-linux                | Release        |   🟢   |
+|                   | Clang-10    | x64-linux                | Release        |   🟢   |
+|                   | to          | x64-linux                | Release        |   ⚪🟢|
+|                   | Clang-15    | x64-linux                | Release        |   🟢   |
+| jakoch/cpp-devbox | Clang-17    | x64-linux                | Release        |   🟢   |
 
 Symbols used: ⚪ Build disabled. 🟢 Build succeeds. 🔴 Build fails. 👷🏼 TODO.
 
