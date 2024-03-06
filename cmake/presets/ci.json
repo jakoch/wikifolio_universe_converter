@@ -139,8 +139,8 @@
       "configurePreset": "clang17-x64-linux-rel-ci"
     },
     {
-      "name": "clang17-x64-linux-rel-ci",
-      "configurePreset": "clang17-x64-linux-rel-ci"
+      "name": "clang18-x64-linux-rel-ci",
+      "configurePreset": "clang18-x64-linux-rel-ci"
     }
   ]
 }
