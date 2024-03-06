@@ -275,6 +275,46 @@ jobs:
 
 # ---------------------------------------------------------------------------------------
 
+  build-on-container:
+
+# ---------------------------------------------------------------------------------------
+
+    name: ${{ matrix.config.job_name }}
+
+    runs-on: ubuntu-latest
+    container: ghcr.io/jakoch/cpp-devbox:${{ matrix.config.image_version }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+        - { image_version: "latest", preset: "clang17-x64-linux-rel-ci", apt_packages: "clang-17", job_name: "Linux | Clang-17 | Release" }
+        #- { preset: "clang18-x64-linux-rel-ci", apt_packages: "clang-18", job_name: "Linux | Clang-18 | Release" }
+
+    steps:
+      - name: 🤘 Checkout Code
+        uses: actions/checkout@v4 # https://github.com/actions/checkout
+
+      # Build Artifact Name: wiuc-1.0.1-0cda6a2-clang17-x64-linux-rel
+      - name: ✏ Fetch Versioning Data & Set Artifact Name
+        run: |
+          NAME='wiuc'
+          VERSION=$(jq -r .version vcpkg.json)
+          SHORT_HASH=`echo $GITHUB_SHA | cut -c1-8`
+          PRESET=`echo ${{ matrix.config.preset }} | sed 's/-ci//'`
+          ARTIFACT_NAME="$NAME-$VERSION-$SHORT_HASH-$PRESET"
+          echo "Artifact Name: $ARTIFACT_NAME"
+          echo "ARTIFACT_NAME=$ARTIFACT_NAME" >> $GITHUB_ENV
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: 🔽 Update Build Environment (update/install packages)
+        run: |
+          sudo apt update -qq
+          sudo apt install ninja-build ${{ matrix.config.apt_packages }} -y
+          sudo ln -s /usr/bin/ninja /usr/bin/ninja-build
+
+# ---------------------------------------------------------------------------------------
+
   github-release:
 
 # ---------------------------------------------------------------------------------------
@@ -288,11 +328,8 @@ jobs:
     # on tag push
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
 
-    # Global environment variables
     env:
       TAG: ${{ github.ref_name }}
-      # TODO research, if this is needed?
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
       - name: 🤘 Checkout repository
@@ -308,51 +345,9 @@ jobs:
       #   with:
       #     extractArtifact: false # not yet available
 
-      # Then we have a non-working Workaround, which fails with ID not found.
-      # Workaround to download all artifact archives (not extracting them!)
-      # Filters artifacts by name: must contain "Release" and "zip".
-      #- name: 🔽 Download all artifacts from previous jobs
-      #  uses: actions/github-script@v6 # https://github.com/actions/script
-      #  with:
-      #    script: |
-      #      // Query: select all artifacts from this workflow
-      #      const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
-      #        owner: context.repo.owner,
-      #        repo: context.repo.repo,
-      #        run_id: context.payload.workflow_run.id
-      #      });
-      #      if(!artifacts) {
-      #        console.log(`Could not fetch artifacts from run ID ${context.payload.workflow_run.id}`)
-      #        return;
-      #      }
-      #      console.log(artifacts);
-      #      // Query: filter artifacts by name
-      #      const matchedArtifacts = artifacts.data.artifacts.filter((artifact) => {
-      #        return artifact.name.includes("Release")
-      #            && artifact.name.endsWith('zip');
-      #      });
-      #      console.log(matchedArtifacts);
-      #      const fs = require('fs');
-      #      matchedArtifacts.forEach(async (artifact) => {
-      #        const download = await github.rest.actions.downloadArtifact({
-      #          owner: context.repo.owner,
-      #          repo: context.repo.repo,
-      #          artifact_id: artifact.id,
-      #          archive_format: 'zip',
-      #        });
-      #        fs.writeFileSync(`${{ github.workspace }}/${artifact.name}.zip`, Buffer.from(download.data));
-      #      });
-
       - name: Display downloaded files
         run: |
           ls -R
-
-      #- name: Delete all non-release artifacts
-      #  run: |
-      #    rm -f *-Clang10-*.zip
-      #    rm -f *-GCC9-*.zip
-      #    rm -f *-VC16-*.zip
-      #    ls -R
 
       - name: Delete all non-release artifact folders
         run: |
