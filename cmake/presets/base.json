@@ -241,21 +241,21 @@
       "name": "use-linker-lld",
       "hidden": true,
       "cacheVariables": {
-        "CMAKE_LINKER_TYPE": "lld"
+        "CMAKE_LINKER_TYPE": "LLD"
       }
     },
     {
       "name": "use-linker-mold",
       "hidden": true,
       "cacheVariables": {
-        "CMAKE_LINKER_TYPE": "mold"
+        "CMAKE_LINKER_TYPE": "MOLD"
       }
     },
     {
       "name": "use-linker-ld",
       "hidden": true,
       "cacheVariables": {
-        "CMAKE_LINKER_TYPE": "ld"
+        "CMAKE_LINKER_TYPE": "LD"
       }
     }
   ]
