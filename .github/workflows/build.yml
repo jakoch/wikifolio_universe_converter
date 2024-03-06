@@ -66,14 +66,14 @@ jobs:
       - name: 🔽 Install Ninja
         run: choco install ninja cmake
 
-      # Build Artifact Name: wiuc-1.0.1-0cda6a2-vc17-static-rdi
+      # Build Artifact Name: wiuc-1.0.1-0cda6a2-vc17-x64-win
       - name: ✏ Fetch Versioning Data & Set Artifact Name
         shell: pwsh
         run: |
-          $NAME=$(jq -r .name vcpkg.json)
+          $NAME='wiuc'
           $VERSION=$(jq -r .version vcpkg.json)
           $SHORT_HASH=$($env:GITHUB_SHA.substring(0,7))
-          $PRESET=$('${{ matrix.config.preset }}').replace('-x64-windows', '').replace('-ci', '')
+          $PRESET=$('${{ matrix.config.preset }}').replace('-windows-static', '-win').replace('-rel', '').replace('-ci', '')
           $ARTIFACT_NAME="$NAME-$VERSION-$SHORT_HASH-$PRESET"
           echo "Artifact Name:" $ARTIFACT_NAME
           echo "ARTIFACT_NAME=$($ARTIFACT_NAME)" >> $env:GITHUB_ENV
@@ -82,7 +82,7 @@ jobs:
       # WARNING
       # ENV VCPKG_ROOT is redefined by this action
       # and set to "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\vcpkg"
-      # instead of c:\vcpkg, which is important for the pre-installed VCPKG on GHA.
+      # instead of "c:\vcpkg", which is important for the pre-installed VCPKG on GHA.
       - name: 🛠️ Setup Visual Studio Developer Command Prompt
         uses: ilammy/msvc-dev-cmd@v1
 
@@ -122,7 +122,6 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-
           cd "${{ env.VCPKG_ROOT }}"
           git fetch --tags
           LATEST_VCPKG_TAG=$(git describe --tags --abbrev=0)
@@ -196,13 +195,13 @@ jobs:
       - name: 🤘 Checkout Code
         uses: actions/checkout@v4 # https://github.com/actions/checkout
 
-      # Build Artifact Name: wiuc-1.0.1-0cda6a2-clang17-x64-linux-rel
+      # Build Artifact Name: wiuc-1.0.1-0cda6a2-clang17-x64-linux
       - name: ✏ Fetch Versioning Data & Set Artifact Name
         run: |
           NAME='wiuc'
           VERSION=$(jq -r .version vcpkg.json)
           SHORT_HASH=`echo $GITHUB_SHA | cut -c1-8`
-          PRESET=`echo ${{ matrix.config.preset }} | sed 's/-ci//'`
+          PRESET=`echo ${{ matrix.config.preset }} | | sed 's/-rel-ci//'`
           ARTIFACT_NAME="$NAME-$VERSION-$SHORT_HASH-$PRESET"
           echo "Artifact Name: $ARTIFACT_NAME"
           echo "ARTIFACT_NAME=$ARTIFACT_NAME" >> $GITHUB_ENV
@@ -291,6 +290,10 @@ jobs:
         - { image_version: "latest", preset: "clang17-x64-linux-rel-ci", apt_packages: "clang-17", job_name: "Linux | Clang-17 | Release" }
         #- { preset: "clang18-x64-linux-rel-ci", apt_packages: "clang-18", job_name: "Linux | Clang-18 | Release" }
 
+    env:
+      VCPKG_ROOT: /opt/vcpkg
+      VCPKG_DISABLE_METRICS: 1
+
     steps:
       - name: 🤘 Checkout Code
         uses: actions/checkout@v4 # https://github.com/actions/checkout
@@ -312,6 +315,65 @@ jobs:
           sudo apt update -qq
           sudo apt install ninja-build ${{ matrix.config.apt_packages }} -y
           sudo ln -s /usr/bin/ninja /usr/bin/ninja-build
+
+      # Reminder: This step requires that the CMakePresets for CI contain
+      # "CMAKE_CXX_COMPILER_LAUNCHER": "sccache".
+      - name: 🎯 Setup Build Cache
+        uses: hendrikmuhs/ccache-action@v1
+        with:
+          key: cache-build-${{ matrix.config.preset }}-${{ github.ref }}
+          restore-keys: |
+            cache-build-${{ matrix.config.preset }}-${{ github.ref }}
+            cache-build-${{ matrix.config.preset }}
+
+      - name: 🎯 Cache VCPKG
+        id: cache-vcpkg
+        uses: actions/cache@v4 # https://github.com/actions/cache
+        with:
+          # https://github.com/microsoft/vcpkg/blob/master/docs/users/binarycaching.md#configuration
+          path: /home/runner/.cache/vcpkg/archives/
+          key: cache-vcpkg-${{ matrix.config.preset }}-${{ github.ref }}
+          restore-keys: |
+            cache-vcpkg-${{ matrix.config.preset }}-${{ github.ref }}
+            cache-vcpkg-${{ matrix.config.preset }}
+
+      - name: 🔽 Update VCPKG
+        if: steps.cache-vcpkg.outputs.cache-hit != 'true'
+        run: |
+          cd ${{ env.VCPKG_ROOT }}
+          git reset --hard
+          git pull --quiet
+          ./bootstrap-vcpkg.sh
+
+      - name: ✏ CMake ➔ Configure
+        run: cmake --preset=${{ matrix.config.PRESET }}
+
+      - name: 🙏 CMake ➔ Build
+        run: cmake --build --preset=${{ matrix.config.PRESET }}
+
+      - name: 📦 CMake ➔ Install
+        run: cmake --install out/build/${{ matrix.config.PRESET }} --verbose
+
+      - name: ❔ CHECK important folders, to see if everything is present (after building)
+        run: |
+          ls out/build/${{ matrix.config.preset }}
+          ls out/install/${{ matrix.config.preset }}
+
+      - name: 🚥 Prepare Build Artifact (copy to packaging folder)
+        run: |
+          mkdir artifact
+          cp -r out/install/${{ matrix.config.preset }} artifact/
+
+      #
+      # The uploaded artifact will be a zip file named, e.g. "wiuc-1.0.3-2399e873-Clang14-x64-linux-Release".
+      # The binary inside the zip is named "wiuc".
+      #
+      - name: 🔼 Upload Build Artifact (on every commit)
+        if: always()
+        uses: actions/upload-artifact@v4 # https://github.com/actions/upload-artifact
+        with:
+          name: ${{ env.ARTIFACT_NAME }}
+          path: artifact/**/*
 
 # ---------------------------------------------------------------------------------------
 
