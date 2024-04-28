@@ -252,7 +252,10 @@ bool rename_header_columns(std::string const & csv_filename, std::string const &
 
         // change column names on first line of file only once
         if (!replaced) {
-            line     = replace(line, "Anlageuniversum(Gruppe)", "Anlagegruppe");
+            line     = replace(line, "Anlageuniversum (Gruppe) 1", "Anlagegruppe1");
+            line     = replace(line, "Anlageuniversum 1", "Anlageuniversum1");
+            line     = replace(line, "Anlageuniversum (Gruppe) 2", "Anlagegruppe2");
+            line     = replace(line, "Anlageuniversum 2", "Anlageuniversum2");
             replaced = true;
         }
 
@@ -355,8 +358,10 @@ bool create_table(sqlite3* _db)
         "SecurityType TEXT,"
         "Bezeichnung TEXT,"
         "Emittent TEXT,"
-        "Anlagegruppe TEXT,"
-        "Anlageuniversum TEXT)";
+        "Anlagegruppe1 TEXT,"
+        "Anlageuniversum1 TEXT,"
+        "Anlagegruppe2 TEXT,"
+        "Anlageuniversum2 TEXT)";
 
     int const r = sqlite3_exec(_db, sql_table_schema, nullptr, nullptr, nullptr);
 
@@ -412,7 +417,7 @@ bool csv_to_sqlite(std::string const & csv_filename, std::string const & sqlite_
     // Iterate CSV data, build INSERT statement, exec query
 
     static std::string const sql_insert_stmt_tpl =
-        "INSERT INTO Anlageuniversum ( ISIN, WKN, SecurityType, Bezeichnung, Emittent, Anlagegruppe, Anlageuniversum ) "
+        "INSERT INTO Anlageuniversum ( ISIN, WKN, SecurityType, Bezeichnung, Emittent, Anlagegruppe1, Anlageuniversum1, Anlagegruppe2, Anlageuniversum2 ) "
         "VALUES ( {} );";
 
     std::string sql_insert_values;
