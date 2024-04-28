@@ -10,6 +10,11 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+## [1.0.6] - 2024-04-28
+
+### Bugfix
+- Wikifolio introduced 2 new database columns "Anlageuniversum (Gruppe) 2" and "Anlagegruppe 2" to reflect that Kontron is listed in TecDax and SDax
+
 ## [1.0.5] - 2023-03-14
 
 ### Added
@@ -41,7 +46,8 @@ All notable changes to this project will be documented in this file.
 
 ## [0.1.0] - 2021-09-20
 
-[vNext]: https://github.com/jakoch/wikifolio_universe_converter/compare/v1.0.5...HEAD
+[vNext]: https://github.com/jakoch/wikifolio_universe_converter/compare/v1.0.6...HEAD
+[1.0.5]: https://github.com/jakoch/wikifolio_universe_converter/compare/v1.0.5...v1.0.6
 [1.0.5]: https://github.com/jakoch/wikifolio_universe_converter/compare/v1.0.4...v1.0.5
 [1.0.4]: https://github.com/jakoch/wikifolio_universe_converter/compare/v1.0.3...v1.0.4
 [1.0.3]: https://github.com/jakoch/wikifolio_universe_converter/compare/v1.0.2...v1.0.3
