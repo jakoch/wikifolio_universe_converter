@@ -417,7 +417,8 @@ bool csv_to_sqlite(std::string const & csv_filename, std::string const & sqlite_
     // Iterate CSV data, build INSERT statement, exec query
 
     static std::string const sql_insert_stmt_tpl =
-        "INSERT INTO Anlageuniversum ( ISIN, WKN, SecurityType, Bezeichnung, Emittent, Anlagegruppe1, Anlageuniversum1, Anlagegruppe2, Anlageuniversum2 ) "
+        "INSERT INTO Anlageuniversum ( ISIN, WKN, SecurityType, Bezeichnung, Emittent, "
+        "Anlagegruppe1, Anlageuniversum1, Anlagegruppe2, Anlageuniversum2 ) "
         "VALUES ( {} );";
 
     std::string sql_insert_values;
