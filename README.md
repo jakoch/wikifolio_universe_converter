@@ -1,6 +1,6 @@
 ## wikifolio_universe_converter [![Build](https://github.com/jakoch/wikifolio_universe_converter/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/jakoch/wikifolio_universe_converter/actions/)
 
-Konvertiert das [wikifolio.com Anlageuniversum](https://www.wikifolio.com/de/de/hilfe/tutorials-trader/handel-hinweise/anlageuniversum) von XLSX zu CSV und SQLite.
+Konvertiert das [wikifolio.com Anlageuniversum](https://help.wikifolio.com/article/102-welche-werte-kann-ich-im-wikifolio-handeln) von XLSX zu CSV und SQLite.
 
 ### CI Build Matrix
 
