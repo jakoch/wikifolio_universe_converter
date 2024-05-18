@@ -85,6 +85,14 @@
       }
     },
     {
+      "name": "compiler-gcc14-linux",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "gcc-14",
+        "CMAKE_CXX_COMPILER": "g++-14"
+      }
+    },
+    {
       "name": "gcc9-x64-linux",
       "hidden": true,
       "inherits": [
@@ -122,6 +130,14 @@
       "inherits": [
         "gcc-x64-linux-base",
         "compiler-gcc13-linux"
+      ]
+    },
+    {
+      "name": "gcc14-x64-linux",
+      "hidden": true,
+      "inherits": [
+        "gcc-x64-linux-base",
+        "compiler-gcc14-linux"
       ]
     },
     {
@@ -213,6 +229,22 @@
         "CMAKE_C_COMPILER": "clang-18",
         "CMAKE_CXX_COMPILER": "clang++-18"
       }
+    },
+    {
+      "name": "compiler-clang19-linux",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "clang-19",
+        "CMAKE_CXX_COMPILER": "clang++-19"
+      }
+    },
+    {
+      "name": "clang19-x64-linux",
+      "hidden": true,
+      "inherits": [
+        "clang-x64-linux-base",
+        "compiler-clang19-linux"
+      ]
     },
     {
       "name": "clang18-x64-linux",

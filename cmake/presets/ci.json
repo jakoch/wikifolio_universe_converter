@@ -65,6 +65,16 @@
       ]
     },
     {
+      "name": "gcc14-x64-linux-rel-ci",
+      "displayName": "GCC14 Release CI",
+      "inherits": [
+        "gcc14-x64-linux",
+        "build-type-release",
+        "build-folders-ci",
+        "condition-is-ci"
+      ]
+    },
+    {
       "name": "clang10-x64-linux-rel-ci",
       "displayName": "Clang10 Release CI",
       "inherits": [
@@ -125,6 +135,10 @@
     {
       "name": "gcc13-x64-linux-rel-ci",
       "configurePreset": "gcc13-x64-linux-rel-ci"
+    },
+    {
+      "name": "gcc14-x64-linux-rel-ci",
+      "configurePreset": "gcc14-x64-linux-rel-ci"
     },
     {
       "name": "clang10-x64-linux-rel-ci",
