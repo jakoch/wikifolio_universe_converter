@@ -185,10 +185,10 @@ jobs:
         # ubuntu-24.04  | 12,13,14                               | 16,17,18 (default)
         - { os: ubuntu-20.04, preset: "gcc9-x64-linux-rel-ci",    apt_packages: "g++-9",    job_name: "Linux | GCC-9    | Release" }
         - { os: ubuntu-24.04, preset: "gcc13-x64-linux-rel-ci",   apt_packages: "g++-13",   job_name: "Linux | GCC-13   | Release" }
-        #- - { os: ubuntu-24.04, preset: "gcc14-x64-linux-rel-ci",   apt_packages: "g++-14",   job_name: "Linux | GCC-14   | Release" }
+        - { os: ubuntu-24.04, preset: "gcc14-x64-linux-rel-ci",   apt_packages: "g++-14",   job_name: "Linux | GCC-14   | Release" }
         - { os: ubuntu-20.04, preset: "clang10-x64-linux-rel-ci", apt_packages: "clang-10", job_name: "Linux | Clang-10 | Release" }
         - { os: ubuntu-22.04, preset: "clang15-x64-linux-rel-ci", apt_packages: "clang-15", job_name: "Linux | Clang-15 | Release" }
-        #- { os: ubuntu-24.04, preset: "clang18-x64-linux-rel-ci", apt_packages: "clang-18", job_name: "Linux | Clang-18 | Release" }
+        - { os: ubuntu-24.04, preset: "clang18-x64-linux-rel-ci", apt_packages: "clang-18", job_name: "Linux | Clang-18 | Release" }
 
     env:
       VCPKG_ROOT: /usr/local/share/vcpkg
