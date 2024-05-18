@@ -16,10 +16,12 @@ Konvertiert das [wikifolio.com Anlageuniversum](https://help.wikifolio.com/artic
 |                     | Ubuntu 20.04 | GCC-9       | x64-linux           | Release        |   🟢   |
 |                     |              | to          | x64-linux           | Release        |   ⚪🟢|
 |                     | Ubuntu 22.04 | GCC-13      | x64-linux           | Release        |   🟢   |
+|                     | Ubuntu 24.04 | GCC-14      | x64-linux           | Release        |   🟢   |
 |                     | Ubuntu 20.04 | Clang-10    | x64-linux           | Release        |   🟢   |
 |                     |              | to          | x64-linux           | Release        |   ⚪🟢|
 |                     | Ubuntu 22.04 | Clang-15    | x64-linux           | Release        |   🟢   |
 | [jakoch/cpp-devbox] | Debian 12    | Clang-17    | x64-linux           | Release        |   🟢   |
+|                     | Ubuntu 24.04 | Clang-18    | x64-linux           | Release        |   🟢   |
 
 Symbols used: ⚪ Build disabled. 🟢 Build succeeds. 🔴 Build fails. 👷🏼 TODO.
 
