@@ -61,10 +61,17 @@ jobs:
       - name: 🤘 Checkout Code
         uses: actions/checkout@v4 # https://github.com/actions/checkout
 
+      # https://community.chocolatey.org/packages/ccache
+      #- name: 🔽 Install ccache
+      #  run: choco install ccache --no-progress
+
       # https://community.chocolatey.org/packages/ninja
-      # https://community.chocolatey.org/packages/cmake
       - name: 🔽 Install Ninja
-        run: choco install ninja cmake
+        run: choco install ninja --no-progress
+
+      # https://community.chocolatey.org/packages/cmake
+      - name: 🔽 Install CMake
+        run: choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System' --no-progress
 
       # Build Artifact Name: wiuc-1.0.1-0cda6a2-vc17-x64-win
       - name: ✏ Fetch Versioning Data & Set Artifact Name
