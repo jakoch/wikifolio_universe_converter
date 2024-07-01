@@ -111,7 +111,11 @@ add_executable(wiuc ${SOURCES})
 if(MSVC)
   # Export symbols of xlsxio_read.
   target_compile_definitions(wiuc PRIVATE BUILD_XLSXIO_STATIC)
+
+  target_compile_features(wiuc PUBLIC cxx_std_23)
 endif()
+
+target_compile_features(wiuc PUBLIC cxx_std_20)
 
 target_link_libraries(wiuc
     PRIVATE

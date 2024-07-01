@@ -27,14 +27,6 @@ endif()
 # Define C++ Standard to use
 #-------------------------------------------------------------------
 
-set(CMAKE_CXX_STANDARD          20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS        ON)
-
-if(MSVC)
-  set(CMAKE_CXX_STANDARD          23) # to get /std:c++latest on MSVC
-endif()
-
 message("Using Compiler: ${CMAKE_CXX_COMPILER_ID}")
 
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")
