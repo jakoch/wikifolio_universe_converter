@@ -106,10 +106,10 @@ jobs:
         uses: hendrikmuhs/ccache-action@v1
         with:
           variant: sccache
-          key: cache-build-${{ matrix.config.preset }}-${{ github.ref }}
+          key: build-${{ matrix.config.preset }}-${{ github.ref }}
           restore-keys: |
-            cache-build-${{ matrix.config.preset }}-${{ github.ref }}
-            cache-build-${{ matrix.config.preset }}
+            build-${{ matrix.config.preset }}-${{ github.ref }}
+            build-${{ matrix.config.preset }}
 
       - name: 🎯 Setup VCPKG Cache
         id: cache-vcpkg
@@ -230,10 +230,10 @@ jobs:
       - name: 🎯 Setup Build Cache
         uses: hendrikmuhs/ccache-action@v1
         with:
-          key: cache-build-${{ matrix.config.preset }}-${{ github.ref }}
+          key: build-${{ matrix.config.preset }}-${{ github.ref }}
           restore-keys: |
-            cache-build-${{ matrix.config.preset }}-${{ github.ref }}
-            cache-build-${{ matrix.config.preset }}
+            build-${{ matrix.config.preset }}-${{ github.ref }}
+            build-${{ matrix.config.preset }}
 
       - name: 🎯 Cache VCPKG
         id: cache-vcpkg
