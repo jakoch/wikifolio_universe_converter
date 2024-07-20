@@ -119,7 +119,7 @@ jobs:
           path: |
             ${{ env.VCPKG_ROOT }}\packages
             ~\AppData\Local\vcpkg\archives\
-          key: cache-win-vcpkg-${{ matrix.config.preset }}-${{ github.ref }}
+          key: cache-vcpkg-${{ matrix.config.preset }}-${{ github.ref }}
           restore-keys: |
             cache-vcpkg-${{ matrix.config.preset }}-${{ github.ref }}
             cache-vcpkg-${{ matrix.config.preset }}
