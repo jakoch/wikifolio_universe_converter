@@ -356,6 +356,7 @@ jobs:
         run: |
           cd ${{ env.VCPKG_ROOT }}
           git reset --hard
+          git clean -fdx
           git pull --quiet
           ./bootstrap-vcpkg.sh
 
