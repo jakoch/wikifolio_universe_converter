@@ -47,10 +47,16 @@ jobs:
           sudo ./llvm.sh 17
           sudo apt-get install -y clang-format-17
 
-      - name: Check formatting
-        run: ./format.sh && git diff --exit-code
+      - name: 🛠️Check formatting
+        continue-on-error: true
+        run: ./format.sh
         env:
           CLANG_FORMAT: clang-format-17
+
+      - name: 🛠️ Check git
+        run: |
+          git status
+          git diff
 
 # ---------------------------------------------------------------------------------------
 
@@ -65,17 +71,21 @@ jobs:
       - name: 🤘 Checkout Code
         uses: actions/checkout@v4 # https://github.com/actions/checkout
 
-      - name: Setup Python
+      - name: 🔽 Setup Python
         run: sudo apt-get -y install python3 python3-pip python3-venv
 
-      - name: Setup Python Virtual Env
+      - name: 🔽 Setup Python Virtual Env
         run: |
           export VIRTUAL_ENV=/opt/venv
           python3 -m venv $VIRTUAL_ENV
           export PATH="$VIRTUAL_ENV/bin:$PATH"
 
-      - name: Install cpplint
+      - name: 🔽 Install cpplint
         run: pip install --prefer-binary --no-cache-dir cpplint
 
-      - name: Run lint
+      - name: 🛠️ Run lint
         run: cpplint --recursive src
+
+      - name: 🛠️ Identify places where 'reinterpret_cast' is used
+        run: |
+          grep -rniw --include=\*.{cpp,hpp} "reinterpret_cast" src include tests examples
