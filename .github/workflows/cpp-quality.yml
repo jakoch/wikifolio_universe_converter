@@ -40,16 +40,16 @@ jobs:
       - name: 🔽 Install dos2unix
         run: sudo apt-get install -y dos2unix
 
-      - name: 🔽 Install clang-format-17
+      - name: 🔽 Install clang-format-18
         run: |
           wget https://apt.llvm.org/llvm.sh
           chmod +x ./llvm.sh
-          sudo ./llvm.sh 17
-          sudo apt-get install -y clang-format-17
+          sudo ./llvm.sh 18
+          sudo apt-get install -y clang-format-18
 
       - name: 🛠️Check formatting
         continue-on-error: true
-        run: ./format.sh
+        run: ./build-tools/format.sh
         env:
           CLANG_FORMAT: clang-format-17
 
