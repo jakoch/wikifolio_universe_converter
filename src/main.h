@@ -16,7 +16,7 @@
 
 #include <algorithm> // std::all_of
 #include <chrono>
-#include <filesystem>
+#include <filesystem> // NOLINT(build/c++17): <filesystem> unapproved C++17 header. sure.
 #include <fstream>
 #include <iomanip>
 #include <iostream>
