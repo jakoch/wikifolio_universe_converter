@@ -71,7 +71,7 @@ jobs:
 
       # https://community.chocolatey.org/packages/cmake
       - name: 🔽 Install CMake
-        run: choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System' --no-progress
+        run: choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System' --no-progress --version=3.31.0
 
       # Build Artifact Name: wiuc-1.0.1-0cda6a2-vc17-x64-win
       - name: ✏ Fetch Versioning Data & Set Artifact Name
