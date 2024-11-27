@@ -44,7 +44,7 @@ jobs:
           # --------------|-------|----------|---------|--------------------------
           #  windows-2019 | 16.11 |          | 8.1.0   | 16.0.6
           #  windows-2022 | 17.8  |          | 12.2.0  | 16.0.6
-          - { os: windows-2019, preset: "vc16-x64-windows-static-rel-ci", job_name: "Win | VC-16 | Release"        }
+          #- { os: windows-2019, preset: "vc16-x64-windows-static-rel-ci", job_name: "Win | VC-16 | Release"        }
           - { os: windows-2022, preset: "vc17-x64-windows-static-rel-ci", job_name: "Win | VC-17 | Release"        }
           - { os: windows-2022, preset: "vc17-x64-windows-static-rdi-ci", job_name: "Win | VC-17 | RelWithDebInfo" }
 
