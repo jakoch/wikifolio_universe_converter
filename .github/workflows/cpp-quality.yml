@@ -52,8 +52,6 @@ jobs:
         run: |
           chmod +x build-tools/format.sh
           ./build-tools/format.sh
-        env:
-          CLANG_FORMAT: clang-format-17
 
       - name: 🛠️ Check git
         run: |
