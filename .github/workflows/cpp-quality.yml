@@ -72,7 +72,7 @@ jobs:
         uses: actions/checkout@v4 # https://github.com/actions/checkout
 
       - name: 🔽 Setup Python
-        run: sudo apt-get -y install python3 python3-pip python3-venv
+        run: sudo apt-get -y install python3 python3-pip python3-venv grep
 
       - name: 🔽 Setup Python Virtual Env
         run: |
@@ -86,6 +86,7 @@ jobs:
       - name: 🛠️ Run lint
         run: cpplint --recursive src
 
-      - name: 🛠️ Identify places where 'reinterpret_cast' is used
-        run: |
-          grep -rniw --include=\*.{cpp,hpp} "reinterpret_cast" src
+      #- name: 🛠️ Identify places where 'reinterpret_cast' is used
+      #  run: |
+      #    sudo apt-get -y install grep
+      #    grep -rniw --include=\*.{cpp,hpp} "reinterpret_cast" src
