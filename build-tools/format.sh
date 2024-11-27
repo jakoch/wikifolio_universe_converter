@@ -7,15 +7,30 @@
 # Allow ENV.CLANG_FORMAT to define the path to the binary or default to clang-format
 CLANG_FORMAT=${CLANG_FORMAT:-clang-format}
 
-# Check clang-format version
-VERSION=$("$CLANG_FORMAT" --version)
+# Check if the binary exists and matches a supported version
+function check_version() {
+    local binary=$1
+    if command -v "$binary" &> /dev/null; then
+        local version=$("$binary" --version)
+        if [[ $version =~ "version 17" || $version =~ "version 18" ]]; then
+            echo "$binary"
+            return 0
+        fi
+    fi
+    return 1
+}
 
-# Require clang-format 17 or 18 for consistent formatting features
-if [[ ! $VERSION =~ "version 17" && ! $VERSION =~ "version 18" ]]; then
-    echo "Error: Unsupported clang-format version. Must be version 17 or 18."
-    echo "Found version: $VERSION"
+# Try to find a valid clang-format binary
+if ! CLANG_FORMAT=$(check_version "$CLANG_FORMAT") &&
+   ! CLANG_FORMAT=$(check_version "clang-format-17") &&
+   ! CLANG_FORMAT=$(check_version "clang-format-18"); then
+    echo "Error: No compatible clang-format version (17 or 18) found."
     exit 1
 fi
+
+# Display the binary and version being used
+VERSION=$("$CLANG_FORMAT" --version)
+echo "Using clang-format ($VERSION)"
 
 # Scan the top-level directory and subdirectories for .h and .cpp files
 
@@ -25,8 +40,8 @@ if [[ -z "$CI" && -z "$GITHUB_ACTION" ]]; then
     find . -type f \( -name "*.hpp" -o -name "*.cpp" \) -exec dos2unix {} \;
 fi
 
-# then apply clang-format
-find . -type f \( -name "*.hpp" -o -name "*.cpp" \) -print0 | xargs -0 $CLANG_FORMAT -i -style=file
+# Apply clang-format in-place to .hpp and .cpp files
+find . -type f \( -name "*.hpp" -o -name "*.cpp" \) -exec "$CLANG_FORMAT" -i -style=file {} \;
 
 # In the CI context, we run `git diff --exit-code`.
 # After clang-format finishes, we check for changes with `git diff`.
