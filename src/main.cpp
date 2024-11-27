@@ -5,10 +5,10 @@
 #include "main.h"
 
 // sure cpplint, lets do double includes ([build/include_what_you_use])
-#include <unordered_map>
 #include <cstdio>
-#include <string>
 #include <iostream>
+#include <string>
+#include <unordered_map>
 
 XLSXReader::XLSXReader(char const * filename) : handle(xlsxioread_open(filename))
 {

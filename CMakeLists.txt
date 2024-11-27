@@ -69,10 +69,16 @@ configure_file("src/version.h.in" "version.h" @ONLY)
 
 # https://github.com/alicevision/geogram/issues/2#issuecomment-536835320
 set(CMAKE_THREAD_LIBS_INIT "-lpthread")
-set(CMAKE_HAVE_THREADS_LIBRARY 1)
+
+# disable the win32 threads library, use POSIX threads instead
 set(CMAKE_USE_WIN32_THREADS_INIT 0)
+
+# enable the usage of pthreads
 set(CMAKE_USE_PTHREADS_INIT 1)
+
+# use pthreads instead of other threading libraries
 set(THREADS_PREFER_PTHREAD_FLAG ON)
+
 find_package(Threads REQUIRED)
 
 find_package(unofficial-sqlite3 CONFIG REQUIRED)
