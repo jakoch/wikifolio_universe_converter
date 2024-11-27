@@ -47,8 +47,9 @@ find . -type f \( -name "*.hpp" -o -name "*.cpp" \) -exec "$CLANG_FORMAT" -i -st
 # After clang-format finishes, we check for changes with `git diff`.
 # If there are changes, we exit with a non-zero status code, causing the CI job to fail.
 # This ensures that code formatting is enforced.
+#  --ignore-file-mode is used to ignore chmod changes.
 if [[ -n "$CI" || -n "$GITHUB_ACTION" ]]; then
-    if ! git diff --exit-code; then
+    if ! git diff --ignore-file-mode --exit-code; then
         echo "Error: Code formatting issues detected. Please run ./build-tools/format.sh and commit the changes."
         exit 1
     fi
