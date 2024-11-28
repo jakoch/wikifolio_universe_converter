@@ -339,7 +339,14 @@ bool download(char const * url, std::string const & save_as_filename)
         curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_code);
 
         if (res == CURLE_OK) {
-            // printf("Request was successful with status %i", http_code);
+            if (http_code >= 400) {
+                // Handle HTTP errors
+                printf("Request failed with status %d\n", http_code);
+                remove(save_as_filename.c_str());
+                res = CURLE_HTTP_RETURNED_ERROR;
+            } else {
+                // printf("Request was successful with status %i", http_code);
+            }
         } else {
             // file has size "0", because downloading it's content failed.
             remove(save_as_filename.c_str());
@@ -575,7 +582,6 @@ std::string format_status(
 
 void printHelpText(std::string program_name)
 {
-
     std::string const help_text_header = fmt::format(
         "{} {}\n"
         "{}\n\n"
@@ -706,10 +712,11 @@ int main(int const argc, char const * argv[]) noexcept(false)
         } else {
             Timer const download_timer;
 
+            // formerly "https://wikifolio.blob.core.windows.net/prod-documents/Investment_Universe.de.xlsx"
             char const * xlsx_url =
-                "https://wikifolio.blob.core.windows.net/prod-documents/Investment_Universe.de.xlsx";
+                "https://wikifoliostorage.blob.core.windows.net/prod-documents/Investment_Universe.de.xlsx";
 
-            universe_downloaded = download(xlsx_url, xlsx_file);
+                universe_downloaded = download(xlsx_url, xlsx_file);
 
             download_timer.stop("Download");
         }
