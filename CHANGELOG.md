@@ -11,12 +11,6 @@ The upcomming release version is named `vNext` and links to the changes between 
 
 - "It was a bright day in April, and the clocks were striking thirteen." - 1984
 
-### Added
-
-### Bugfix
-
-### Changed
-
 ## [1.0.7] - 2024-04-28
 
 ### Changed
