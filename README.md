@@ -26,7 +26,7 @@ Konvertiert das [wikifolio.com Anlageuniversum](https://help.wikifolio.com/artic
 Symbols used: ⚪ Build disabled. 🟢 Build succeeds. 🔴 Build fails. 👷🏼 TODO.
 
 ### Todo
-- [x] Download der Excel-Datei [Investment_Universe.de.xlsx](https://wikifolio.blob.core.windows.net/prod-documents/Investment_Universe.de.xlsx)
+- [x] Download der Excel-Datei [Investment_Universe.de.xlsx](https://wikifoliostorage.blob.core.windows.net/prod-documents/Investment_Universe.de.xlsx)
 - [x] Konvertierung in eine CSV Datei
 - [x] Konvertierung in eine SQLite Datenbank
 

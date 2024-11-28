@@ -15,6 +15,7 @@ The upcomming release version is named `vNext` and links to the changes between 
 
 ### Changed
 
+- updated the download URL of the Investment_Universe
 - small fixes to cpplint and format.sh
 - updated devcontainer version
 - added missing includes to main.cpp to satisfiy cpplint
