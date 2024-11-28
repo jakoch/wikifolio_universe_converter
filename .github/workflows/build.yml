@@ -472,11 +472,14 @@ jobs:
       - name: 📋 Create Draft Release
         # https://cli.github.com/manual/gh_release_create
         env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_NOTES: ${{ steps.extract-release-notes.outputs.release_notes }}
         run: |
           gh release create $TAG --title "Release $TAG" --notes "$RELEASE_NOTES" --draft
 
       - name: 📦 Create Github Release
         # https://cli.github.com/manual/gh_release_upload
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh release upload $TAG *.zip
