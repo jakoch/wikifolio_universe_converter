@@ -9,7 +9,7 @@ Konvertiert das [wikifolio.com Anlageuniversum](https://help.wikifolio.com/artic
 |   CI Service        | OS Image     | Compiler    | Target Triplet      | Build Type     | Status |
 |:------------------- |:------------ |:----------- |:------------------- |:--------------:|:------:|
 |  GitHub Actions     | Windows 2019 | VC16 VS2019 | x64-windows         | Release        |   👷🏼   |
-|                     | Windows 2019 | VC16 VS2019 | x64-windows-static  | Release        |   🟢   |
+|                     | Windows 2019 | VC16 VS2019 | x64-windows-static  | Release        |   ⚪   |
 |                     | Windows 2022 | VC17 VS2022 | x64-windows         | Release        |   👷🏼   |
 |                     | Windows 2022 | VC17 VS2022 | x64-windows-static  | Release        |   🟢   |
 |                     | Windows 2022 | VC17 VS2022 | x64-windows-static  | RelWithDebInfo |   🟢   |
