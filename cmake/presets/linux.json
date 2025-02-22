@@ -248,11 +248,19 @@
       }
     },
     {
-      "name": "clang19-x64-linux",
+      "name": "compiler-clang20-linux",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "clang-20",
+        "CMAKE_CXX_COMPILER": "clang++-20"
+      }
+    },
+    {
+      "name": "clang20-x64-linux",
       "hidden": true,
       "inherits": [
         "clang-x64-linux-base",
-        "compiler-clang19-linux"
+        "compiler-clang20-linux"
       ]
     },
     {
