@@ -113,6 +113,16 @@
         "build-folders-ci",
         "condition-is-ci"
       ]
+    },
+    {
+      "name": "clang19-x64-linux-rel-ci",
+      "displayName": "Clang19 Release CI",
+      "inherits": [
+        "clang19-x64-linux",
+        "build-type-release",
+        "build-folders-ci",
+        "condition-is-ci"
+      ]
     }
   ],
   "buildPresets": [
