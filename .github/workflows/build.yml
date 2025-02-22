@@ -303,7 +303,7 @@ jobs:
       fail-fast: false
       matrix:
         config:
-        - { image_version: "bookworm-latest", preset: "clang17-x64-linux-rel-ci", job_name: "Linux | Clang-17 | Release" }
+        - { image_version: "bookworm-latest", preset: "clang19-x64-linux-rel-ci", job_name: "Linux | Clang-19 | Release" }
         #- { preset: "clang18-x64-linux-rel-ci", job_name: "Linux | Clang-18 | Release" }
 
     env:
