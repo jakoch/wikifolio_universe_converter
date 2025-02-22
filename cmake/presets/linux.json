@@ -141,6 +141,15 @@
       ]
     },
     {
+      "name": "gcc12-x64-linux-dbg",
+      "hidden": true,
+      "inherits": [
+        "gcc-x64-linux-base",
+        "compiler-gcc12-linux",
+        "build-type-debug"
+      ]
+    },
+    {
       "name": "clang-x64-linux-base",
       "hidden": true,
       "vendor": {
@@ -316,6 +325,15 @@
       "inherits": [
         "clang-x64-linux-base",
         "compiler-clang10-linux"
+      ]
+    },
+    {
+      "name": "clang17-x64-linux-dbg",
+      "hidden": true,
+      "inherits": [
+        "clang-x64-linux-base",
+        "compiler-clang17-linux",
+        "build-type-debug"
       ]
     }
   ]
