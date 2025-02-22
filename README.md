@@ -11,17 +11,19 @@ Konvertiert das [wikifolio.com Anlageuniversum](https://help.wikifolio.com/artic
 |  GitHub Actions     | Windows 2019 | VC16 VS2019 | x64-windows         | Release        |   👷🏼   |
 |                     | Windows 2019 | VC16 VS2019 | x64-windows-static  | Release        |   ⚪   |
 |                     | Windows 2022 | VC17 VS2022 | x64-windows         | Release        |   👷🏼   |
-|                     | Windows 2022 | VC17 VS2022 | x64-windows-static  | Release        |   🟢   |
-|                     | Windows 2022 | VC17 VS2022 | x64-windows-static  | RelWithDebInfo |   🟢   |
-|                     | Ubuntu 20.04 | GCC-9       | x64-linux           | Release        |   🟢   |
+|                     | Windows 2022 | VC17 VS2022 | x64-windows-static  | Release        |   ⚪🟢 |
+|                     | Windows 2022 | VC17 VS2022 | x64-windows-static  | RelWithDebInfo |   ⚪🟢 |
+|                     | Windows 2025 | VC17 VS2022 | x64-windows-static  | Release        |   🟢   |
+|                     | Windows 2025 | VC17 VS2022 | x64-windows-static  | RelWithDebInfo |   🟢   |
+|                     | Ubuntu 20.04 | GCC-9       | x64-linux           | Release        |   ⚪🟢 |
 |                     |              | to          | x64-linux           | Release        |   ⚪🟢|
 |                     | Ubuntu 22.04 | GCC-13      | x64-linux           | Release        |   🟢   |
 |                     | Ubuntu 24.04 | GCC-14      | x64-linux           | Release        |   🟢   |
-|                     | Ubuntu 20.04 | Clang-10    | x64-linux           | Release        |   🟢   |
+|                     | Ubuntu 20.04 | Clang-10    | x64-linux           | Release        |   ⚪🟢|
 |                     |              | to          | x64-linux           | Release        |   ⚪🟢|
 |                     | Ubuntu 22.04 | Clang-15    | x64-linux           | Release        |   🟢   |
-| [jakoch/cpp-devbox] | Debian 12    | Clang-17    | x64-linux           | Release        |   🟢   |
 |                     | Ubuntu 24.04 | Clang-18    | x64-linux           | Release        |   🟢   |
+| [jakoch/cpp-devbox] | Debian 12    | Clang-19    | x64-linux           | Release        |   🟢   |
 
 Symbols used: ⚪ Build disabled. 🟢 Build succeeds. 🔴 Build fails. 👷🏼 TODO.
 
