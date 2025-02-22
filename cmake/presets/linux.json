@@ -268,7 +268,7 @@
       "hidden": true,
       "inherits": [
         "clang-x64-linux-base",
-        "compiler-clang20-linux"
+        "compiler-clang19-linux"
       ]
     },
     {
