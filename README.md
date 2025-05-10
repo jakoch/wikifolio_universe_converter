@@ -23,7 +23,8 @@ Konvertiert das [wikifolio.com Anlageuniversum](https://help.wikifolio.com/artic
 |                     |              | to          | x64-linux           | Release        |   ⚪🟢|
 |                     | Ubuntu 22.04 | Clang-15    | x64-linux           | Release        |   🟢   |
 |                     | Ubuntu 24.04 | Clang-18    | x64-linux           | Release        |   🟢   |
-| [jakoch/cpp-devbox] | Debian 12    | Clang-19    | x64-linux           | Release        |   🟢   |
+|                     | U~ 24.04 ARM | GCC-14      | x64-linux           | Release        |   ⚪   |
+| [jakoch/cpp-devbox] | Debian 12    | Clang-20    | x64-linux           | Release        |   🟢   |
 
 Symbols used: ⚪ Build disabled. 🟢 Build succeeds. 🔴 Build fails. 👷🏼 TODO.
 
