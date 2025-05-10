@@ -11,6 +11,12 @@ The upcomming release version is named `vNext` and links to the changes between 
 
 - "It was a bright day in April, and the clocks were striking thirteen." - 1984
 
+## [1.0.8] - 2025-02-23
+
+### Added
+
+- compilation on ubuntu-24.04-arm
+
 ## [1.0.7] - 2024-04-28
 
 ### Changed
