@@ -123,6 +123,16 @@
         "build-folders-ci",
         "condition-is-ci"
       ]
+    },
+    {
+      "name": "clang20-x64-linux-rel-ci",
+      "displayName": "Clang20 Release CI",
+      "inherits": [
+        "clang20-x64-linux",
+        "build-type-release",
+        "build-folders-ci",
+        "condition-is-ci"
+      ]
     }
   ],
   "buildPresets": [
@@ -169,6 +179,10 @@
     {
       "name": "clang19-x64-linux-rel-ci",
       "configurePreset": "clang19-x64-linux-rel-ci"
+    },
+    {
+      "name": "clang20-x64-linux-rel-ci",
+      "configurePreset": "clang20-x64-linux-rel-ci"
     }
   ]
 }
