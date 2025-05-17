@@ -15,7 +15,7 @@ The upcomming release version is named `vNext` and links to the changes between 
 
 ### Added
 
-- compilation on ubuntu-24.04-arm
+- compilation on ubuntu-24.04-arm, disabled because runner is never available
 
 ## [1.0.7] - 2024-04-28
 
