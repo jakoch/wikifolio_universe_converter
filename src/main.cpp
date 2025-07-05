@@ -376,7 +376,9 @@ bool create_table(sqlite3* _db)
         "Anlagegruppe1 TEXT,"
         "Anlageuniversum1 TEXT,"
         "Anlagegruppe2 TEXT,"
-        "Anlageuniversum2 TEXT)";
+        "Anlageuniversum2 TEXT,"
+        "Anlagegruppe3 TEXT,"
+        "Anlageuniversum3 TEXT)";
 
     int const r = sqlite3_exec(_db, sql_table_schema, nullptr, nullptr, nullptr);
 
@@ -433,7 +435,7 @@ bool csv_to_sqlite(std::string const & csv_filename, std::string const & sqlite_
 
     static std::string const sql_insert_stmt_tpl =
         "INSERT INTO Anlageuniversum ( ISIN, WKN, SecurityType, Bezeichnung, Emittent, "
-        "Anlagegruppe1, Anlageuniversum1, Anlagegruppe2, Anlageuniversum2 ) "
+        "Anlagegruppe1, Anlageuniversum1, Anlagegruppe2, Anlageuniversum2, Anlagegruppe3, Anlageuniversum3 ) "
         "VALUES ( {} );";
 
     std::string sql_insert_values;
