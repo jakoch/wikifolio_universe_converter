@@ -11,6 +11,12 @@ The upcomming release version is named `vNext` and links to the changes between 
 
 - "It was a bright day in April, and the clocks were striking thirteen." - 1984
 
+## [1.0.9] - 2025-07-05
+
+### Bugfix
+
+- Wikifolio introduced 2 new database columns "Anlageuniversum (Gruppe) 3" and "Anlagegruppe 3"
+
 ## [1.0.8] - 2025-02-23
 
 ### Added
@@ -67,7 +73,9 @@ The upcomming release version is named `vNext` and links to the changes between 
 
 <!-- Section for Reference Links -->
 
-[vNext]: https://github.com/jakoch/wikifolio_universe_converter/compare/v1.0.7...HEAD
+[vNext]: https://github.com/jakoch/wikifolio_universe_converter/compare/v1.0.9...HEAD
+[1.0.6]: https://github.com/jakoch/wikifolio_universe_converter/compare/v1.0.8...v1.0.9
+[1.0.6]: https://github.com/jakoch/wikifolio_universe_converter/compare/v1.0.7...v1.0.8
 [1.0.6]: https://github.com/jakoch/wikifolio_universe_converter/compare/v1.0.6...v1.0.7
 [1.0.6]: https://github.com/jakoch/wikifolio_universe_converter/compare/v1.0.5...v1.0.6
 [1.0.5]: https://github.com/jakoch/wikifolio_universe_converter/compare/v1.0.4...v1.0.5
