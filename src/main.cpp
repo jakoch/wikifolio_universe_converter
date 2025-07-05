@@ -262,6 +262,8 @@ bool rename_header_columns(std::string const & csv_filename, std::string const &
             line     = replace(line, "Anlageuniversum 1", "Anlageuniversum1");
             line     = replace(line, "Anlageuniversum (Gruppe) 2", "Anlagegruppe2");
             line     = replace(line, "Anlageuniversum 2", "Anlageuniversum2");
+            line     = replace(line, "Anlageuniversum (Gruppe) 3", "Anlagegruppe3");
+            line     = replace(line, "Anlageuniversum 3", "Anlageuniversum3");
             replaced = true;
         }
 
