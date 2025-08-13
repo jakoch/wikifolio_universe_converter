@@ -1,7 +1,7 @@
 # dependabot.yml
-# 
+#
 # Dependabot updates dependencies automatically to their latest versions.
-# 
+#
 # Docs: https://docs.github.com/en/code-security/supply-chain-security/keeping-your-dependencies-updated-automatically
 
 version: 2
@@ -16,3 +16,9 @@ updates:
     ignore:
       # ignore all updates for "https://github.com/actions/github-script"
       - dependency-name: "github-script"
+  # Enable automatic version updates for vcpkg
+  - package-ecosystem: vcpkg
+    # Look for `vcpkg.json` in the `root` directory
+    directory: "/"
+    schedule:
+      interval: "weekly"
