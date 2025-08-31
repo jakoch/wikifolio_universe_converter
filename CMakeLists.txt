@@ -34,17 +34,22 @@ string(JSON APP_HOMEPAGE GET ${VCPKG_JSON_STRING} "homepage")
 # Setup VCPKG
 #-------------------------------------------------------------------
 
-if(DEFINED VCPKG_ROOT AND NOT DEFINED CMAKE_TOOLCHAIN_FILE)
-  set(CMAKE_TOOLCHAIN_FILE "${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
-elseif(DEFINED ENV{VCPKG_ROOT} AND NOT DEFINED CMAKE_TOOLCHAIN_FILE)
-  set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
-endif()
+include(SetupVcpkg)
 
 #-------------------------------------------------------------------
 # Project
 #-------------------------------------------------------------------
 
 project(wiuc VERSION ${APP_VERSION} DESCRIPTION "wikifolio_investment_universe_converter" LANGUAGES CXX)
+
+#-------------------------------------------------------------------
+# Versioning
+#-------------------------------------------------------------------
+
+# Additional placeholders used in the version template
+string(TIMESTAMP CURRENT_YEAR "%Y")
+
+configure_file("src/version.h.in" "version.h" @ONLY)
 
 #-------------------------------------------------------------------
 # Setup Compiler & load additional includes
@@ -54,32 +59,22 @@ include(SetupCompiler)
 include(ShowBuildTargetProperties)
 
 #-------------------------------------------------------------------
-# Versionize
+# Settings for package Threads
 #-------------------------------------------------------------------
 
-string(TIMESTAMP CURRENT_YEAR "%Y")
-
-configure_file("src/version.h.in" "version.h" @ONLY)
+# Source: https://github.com/alicevision/geogram/issues/2#issuecomment-536835320
+set(CMAKE_THREAD_LIBS_INIT "-lpthread")
+set(CMAKE_USE_WIN32_THREADS_INIT 0)     # disable the win32 threads library, use POSIX threads instead
+set(CMAKE_USE_PTHREADS_INIT 1)          # enable the usage of pthreads
+set(THREADS_PREFER_PTHREAD_FLAG ON)     # use pthreads instead of other threading libraries
 
 #-------------------------------------------------------------------
 # Find Dependencies
 #-------------------------------------------------------------------
 
-#find_package(SQLite3 CONFIG REQUIRED)
+find_package(Threads REQUIRED) # CONFIG not used, because system package
 
-# https://github.com/alicevision/geogram/issues/2#issuecomment-536835320
-set(CMAKE_THREAD_LIBS_INIT "-lpthread")
-
-# disable the win32 threads library, use POSIX threads instead
-set(CMAKE_USE_WIN32_THREADS_INIT 0)
-
-# enable the usage of pthreads
-set(CMAKE_USE_PTHREADS_INIT 1)
-
-# use pthreads instead of other threading libraries
-set(THREADS_PREFER_PTHREAD_FLAG ON)
-
-find_package(Threads REQUIRED)
+#find_package(SQLite3 CONFIG REQUIRED) # they don't publish?
 
 find_package(unofficial-sqlite3 CONFIG REQUIRED)
 
@@ -95,33 +90,63 @@ include(Findxlsxio_read)
 find_package(xlsxio_read REQUIRED)
 
 #-------------------------------------------------------------------
-# Setup Sources
-#-------------------------------------------------------------------
-
-set(SOURCES
-  src/main.h
-  src/main.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/version.h
-)
-
-#-------------------------------------------------------------------
 # Setup Build Targets
 #-------------------------------------------------------------------
+
+#-------------------------------------------------------------------
+# Definition Order                        (for all executables/libs)
+#-------------------------------------------------------------------
+# 1.  add_executable() / add_library()
+# 2.  target_sources()
+# 3.  target_include_directories()
+# 4.  target_compile_definitions()
+# 5.  target_compile_features()
+# 6.  target_compile_options()           [if needed]
+# 7.  target_link_libraries()
+# 8.  show feature_summary()             [if needed]
+# 9.  show_build_target_properties()     [if needed]
+# 10. install()                          [if needed]
 
 #-------------------------------------------------------------------
 # Build Target: wiuc                                    (executable)
 #-------------------------------------------------------------------
 
-add_executable(wiuc ${SOURCES})
+add_executable(wiuc)
 
-if(MSVC)
-  # Export symbols of xlsxio_read.
-  target_compile_definitions(wiuc PRIVATE BUILD_XLSXIO_STATIC)
+# TODO: use FILE_SET, but this doesnt exist yet in CMake 4 (08-2025)
+# target_sources(wiuc
+#   PRIVATE
+#     FILE_SET SOURCES
+#     FILES
+#       src/main.h
+#       src/main.cpp
+#       ${CMAKE_CURRENT_BINARY_DIR}/version.h
+# )
 
-  target_compile_features(wiuc PUBLIC cxx_std_23)
-endif()
+target_sources(wiuc
+  PRIVATE
+    src/main.h
+    src/main.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/version.h
+)
 
-target_compile_features(wiuc PUBLIC cxx_std_20)
+target_include_directories(wiuc
+  PUBLIC
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>"
+    ${CMAKE_CURRENT_BINARY_DIR} # to include the generated "version.h"
+)
+
+target_compile_definitions(wiuc
+  PRIVATE
+    # Export symbols of xlsxio_read.
+    $<$<CXX_COMPILER_ID:MSVC>:BUILD_XLSXIO_STATIC>
+)
+
+target_compile_features(wiuc
+  PUBLIC
+    cxx_std_20
+    $<$<CXX_COMPILER_ID:MSVC>:cxx_std_23>
+)
 
 target_link_libraries(wiuc
     PRIVATE
@@ -134,21 +159,20 @@ target_link_libraries(wiuc
       fmt::fmt
 )
 
-target_include_directories(wiuc PUBLIC
-    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>"
-    # to include the generated "version.h"
-    ${CMAKE_CURRENT_BINARY_DIR}
-)
-
 #-------------------------------------------------------------------
-# FeatureSummary
+# Display Feature Summary
 #-------------------------------------------------------------------
 
 include(FeatureSummary)
-feature_summary(WHAT ALL DESCRIPTION "[Build Summary]\n" FATAL_ON_MISSING_REQUIRED_PACKAGES)
+
+feature_summary(
+  WHAT ALL
+  DESCRIPTION "[Build Summary]\n"
+  FATAL_ON_MISSING_REQUIRED_PACKAGES
+)
 
 #-------------------------------------------------------------------
-# Display Compiler and Linker properties of Build Targets
+# Display Target Properties
 #-------------------------------------------------------------------
 
 show_build_target_properties(wiuc)
@@ -157,7 +181,11 @@ show_build_target_properties(wiuc)
 # Install
 #-------------------------------------------------------------------
 
-# CMakePresets define CMAKE_INSTALL_PREFIX to /out/install
-# We add a versionized folder as top-level dir for the executable.
+# WARNING: we alter the default DESTINATION path!
+# CMakePresets sets CMAKE_INSTALL_PREFIX to `/out/install`.
+# We add a versioned folder as top-level dir for the executable.
 
-install(TARGETS wiuc DESTINATION wiuc-${APP_VERSION})
+install(
+  TARGETS wiuc
+  DESTINATION wiuc-${APP_VERSION}
+)
