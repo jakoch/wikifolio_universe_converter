@@ -2,10 +2,11 @@
 
 All changes to the project will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
-The project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-The date format in this file is `YYYY-MM-DD`.
-The upcomming release version is named `vNext` and links to the changes between latest version tag and git HEAD.
+- The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+- The date format is `YYYY-MM-DD`.
+- The versions are linked to their Git tags via the reference section at the end of the document.
+- The upcoming release `vNext` links to the changes between the latest version tag and git HEAD.
 
 ## [vNext] - unreleased
 
