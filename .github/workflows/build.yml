@@ -164,7 +164,7 @@ jobs:
           xcopy /E out\install\${{ matrix.config.preset }} artifact
 
       - name: 🔼 Upload Build Artifact (on commit)
-        uses: actions/upload-artifact@v4 # https://github.com/actions/upload-artifact
+        uses: actions/upload-artifact@v5 # https://github.com/actions/upload-artifact
         if: always()
         with:
           name: ${{ env.ARTIFACT_NAME }}
@@ -289,7 +289,7 @@ jobs:
       #
       - name: 🔼 Upload Build Artifact (on every commit)
         if: always()
-        uses: actions/upload-artifact@v4 # https://github.com/actions/upload-artifact
+        uses: actions/upload-artifact@v5 # https://github.com/actions/upload-artifact
         with:
           name: ${{ env.ARTIFACT_NAME }}
           path: artifact/**/*
@@ -396,7 +396,7 @@ jobs:
       #
       - name: 🔼 Upload Build Artifact (on every commit)
         if: always()
-        uses: actions/upload-artifact@v4 # https://github.com/actions/upload-artifact
+        uses: actions/upload-artifact@v5 # https://github.com/actions/upload-artifact
         with:
           name: ${{ env.ARTIFACT_NAME }}
           path: artifact/**/*
