@@ -477,7 +477,7 @@ jobs:
 
       - name: Extract Release Notes from Changelog
         id: extract-release-notes
-        uses: ffurrer2/extract-release-notes@v2 # https://github.com/ffurrer2/extract-release-notes
+        uses: ffurrer2/extract-release-notes@v3 # https://github.com/ffurrer2/extract-release-notes
 
       - name: 📋 Create Draft Release
         # https://cli.github.com/manual/gh_release_create
