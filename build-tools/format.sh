@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
+# SPDX-FileCopyrightText: 2021-2026 Jens A. Koch
 # SPDX-License-Identifier: MIT
-# SPDX-FileCopyrightText: 2024 Jens A. Koch.
 # This file is part of https://github.com/jakoch/wikifolio_universe_converter.
 
 # Allow ENV.CLANG_FORMAT to define the path to the binary or default to clang-format
@@ -9,23 +9,34 @@ CLANG_FORMAT=${CLANG_FORMAT:-clang-format}
 
 # Check if the binary exists and matches a supported version
 function check_version() {
-    local binary=$1
-    if command -v "$binary" &> /dev/null; then
-        local version=$("$binary" --version)
-        if [[ $version =~ "version 17" || $version =~ "version 18" ]]; then
-            echo "$binary"
-            return 0
-        fi
+  local binary="$1"
+  if command -v "$binary" >/dev/null 2>&1; then
+    local version
+    version=$("$binary" --version)
+    local major
+    major=$(echo "$version" | sed -nE 's/.*version ([0-9]+).*/\1/p')
+    if [[ -n "$major" && "$major" -ge 17 ]]; then
+      echo "$binary"
+      return 0
     fi
-    return 1
+  fi
+  return 1
 }
 
 # Try to find a valid clang-format binary
-if ! CLANG_FORMAT=$(check_version "$CLANG_FORMAT") &&
-   ! CLANG_FORMAT=$(check_version "clang-format-17") &&
-   ! CLANG_FORMAT=$(check_version "clang-format-18"); then
-    echo "Error: No compatible clang-format version (17 or 18) found."
+if [[ -n "$CLANG_FORMAT" ]]; then
+  if ! CLANG_FORMAT=$(check_version "$CLANG_FORMAT"); then
+    echo "Error: Requested clang-format '$CLANG_FORMAT' is unavailable or unsupported (need >=17)."
     exit 1
+  fi
+else
+  if ! CLANG_FORMAT=$(check_version "clang-format-20") \
+    && ! CLANG_FORMAT=$(check_version "clang-format-18") \
+    && ! CLANG_FORMAT=$(check_version "clang-format-17") \
+    && ! CLANG_FORMAT=$(check_version "clang-format"); then
+    echo "Error: No compatible clang-format version (>=17) found."
+    exit 1
+  fi
 fi
 
 # Display the binary and version being used
@@ -34,14 +45,24 @@ echo "Using clang-format ($VERSION)"
 
 # Scan the top-level directory and subdirectories for .h and .cpp files
 
-# first convert line endings to Unix format
-# this step is skipped in CI environments
-if [[ -z "$CI" && -z "$GITHUB_ACTION" ]]; then
-    find . -type f \( -name "*.hpp" -o -name "*.cpp" \) -exec dos2unix {} \;
+# First convert line endings to Unix format.
+# This step is skipped in CI environments.
+if [[ -z "${CI:-}" && -z "${GITHUB_ACTIONS:-}" ]]; then
+  if ! command -v dos2unix >/dev/null 2>&1; then
+    if command -v apt-get >/dev/null 2>&1; then
+      echo "dos2unix not found, installing via apt-get..."
+      sudo apt-get update
+      sudo apt-get install -y dos2unix
+    else
+      echo "Error: dos2unix not found and apt-get is unavailable."
+      exit 1
+    fi
+  fi
+  find src tests -type f \( -name "*.h" -o -name "*.cpp" \) -exec dos2unix {} \;
 fi
 
-# Apply clang-format in-place to .hpp and .cpp files
-find . -type f \( -name "*.hpp" -o -name "*.cpp" \) -exec "$CLANG_FORMAT" -i -style=file {} \;
+# Apply clang-format in-place to .h and .cpp files
+find src tests -type f \( -name "*.h" -o -name "*.cpp" \) -exec "$CLANG_FORMAT" -i -style=file {} \;
 
 # In the CI context, we run `git diff --exit-code`.
 # After clang-format finishes, we check for changes with `git diff`.

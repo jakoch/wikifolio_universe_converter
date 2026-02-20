@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
+# SPDX-FileCopyrightText: 2021-2026 Jens A. Koch
 # SPDX-License-Identifier: MIT
-# SPDX-FileCopyrightText: 2024 Jens A. Koch.
 # This file is part of https://github.com/jakoch/wikifolio_universe_converter.
 
 #
@@ -17,17 +17,20 @@
 #
 
 # Check if Python 3, pip, and venv are already installed, if not install them
-if ! command -v python3 &> /dev/null || ! command -v pip &> /dev/null || ! python3 -c 'import venv' &> /dev/null; then
+if ! command -v python3 &> /dev/null || ! command -v pip &> /dev/null ||
+   ! python3 -c 'import venv' &> /dev/null; then
     apt-get -y install python3 python3-pip python3-venv
 fi
 
-# Create a virtual environment
-export VIRTUAL_ENV=/opt/venv
-python3 -m venv $VIRTUAL_ENV
+# Create a project-local virtual environment in /tmp to avoid
+# writing to the repo workspace directory.
+VIRTUAL_ENV="/tmp/wiuc_venv"
+python3 -m venv "$VIRTUAL_ENV"
 export PATH="$VIRTUAL_ENV/bin:$PATH"
 
 # Check if cpplint is already installed, if not install it
 if ! command -v cpplint &> /dev/null; then
+    pip install --prefer-binary --no-cache-dir --upgrade pip
     pip install --prefer-binary --no-cache-dir cpplint
 fi
 
