@@ -18,7 +18,7 @@ jobs:
 
     steps:
       - name: 🤘 Checkout Code
-        uses: actions/checkout@v4 # https://github.com/actions/checkout
+        uses: actions/checkout@v6 # https://github.com/actions/checkout
 
       # Install the latest version of Doxygen.
       # We are using Github API to request the latest version number and download the binary from the website.
