@@ -4,8 +4,8 @@
 # SPDX-License-Identifier: MIT
 # This file is part of https://github.com/jakoch/wikifolio_universe_converter.
 
-# Allow ENV.CLANG_FORMAT to define the path to the binary or default to clang-format
-CLANG_FORMAT=${CLANG_FORMAT:-clang-format}
+# Allow ENV.CLANG_FORMAT to define the path to the binary
+CLANG_FORMAT=${CLANG_FORMAT:-}
 
 # Check if the binary exists and matches a supported version
 function check_version() {
@@ -72,7 +72,7 @@ find src -type f \( -name "*.h" -o -name "*.cpp" \) -exec "$CLANG_FORMAT" -i -st
 # This ensures that code formatting is enforced.
 #  --ignore-file-mode is used to ignore chmod changes.
 if [[ -n "$CI" || -n "$GITHUB_ACTION" ]]; then
-    if ! git diff --ignore-file-mode --exit-code; then
+    if ! git -c core.fileMode=false diff --exit-code; then
         echo "Error: Code formatting issues detected. Please run ./build-tools/format.sh and commit the changes."
         exit 1
     fi
