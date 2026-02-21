@@ -231,6 +231,13 @@
       ]
     },
     {
+      "name": "clang15-x64-linux-rel",
+      "configurePreset": "clang15-x64-linux-rel",
+      "targets": [
+        "wiuc"
+      ]
+    },
+    {
       "name": "clang18-x64-linux-rel",
       "configurePreset": "clang18-x64-linux-rel",
       "targets": [
