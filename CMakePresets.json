@@ -53,6 +53,22 @@
       }
     },
     {
+      "name": "vc17-x64-windows-static-rel",
+      "displayName": "VC17 Static Release",
+      "inherits": "vc17-x64-windows-static",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "vc17-x64-windows-static-rdi",
+      "displayName": "VC17 Static RelWithDebInfo",
+      "inherits": "vc17-x64-windows-static",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      }
+    },
+    {
       "name": "clangcl-x64-windows-dbg",
       "displayName": "ClangCL Debug",
       "inherits": "clangcl-x64-windows-static",
@@ -80,6 +96,30 @@
       "name": "gcc12-x64-linux-rel",
       "displayName": "GCC12 Release",
       "inherits": "gcc12-x64-linux",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "gcc13-x64-linux-rel",
+      "displayName": "GCC13 Release",
+      "inherits": "gcc13-x64-linux",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "gcc14-x64-linux-rel",
+      "displayName": "GCC14 Release",
+      "inherits": "gcc14-x64-linux",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "clang15-x64-linux-rel",
+      "displayName": "Clang15 Release",
+      "inherits": "clang15-x64-linux",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release"
       }
@@ -125,6 +165,20 @@
       ]
     },
     {
+      "name": "vc17-x64-windows-static-rel",
+      "configurePreset": "vc17-x64-windows-static-rel",
+      "targets": [
+        "wiuc"
+      ]
+    },
+    {
+      "name": "vc17-x64-windows-static-rdi",
+      "configurePreset": "vc17-x64-windows-static-rdi",
+      "targets": [
+        "wiuc"
+      ]
+    },
+    {
       "name": "clangcl-x64-windows-rel",
       "configurePreset": "clangcl-x64-windows-rel",
       "targets": [
@@ -162,6 +216,20 @@
     {
       "name": "gcc12-x64-linux-rel",
       "configurePreset": "gcc12-x64-linux-rel",
+      "targets": [
+        "wiuc"
+      ]
+    },
+    {
+      "name": "gcc13-x64-linux-rel",
+      "configurePreset": "gcc13-x64-linux-rel",
+      "targets": [
+        "wiuc"
+      ]
+    },
+    {
+      "name": "gcc14-x64-linux-rel",
+      "configurePreset": "gcc14-x64-linux-rel",
       "targets": [
         "wiuc"
       ]

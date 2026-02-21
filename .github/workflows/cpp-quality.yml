@@ -93,7 +93,8 @@ jobs:
 
       - name: 🛠️ Identify places where 'reinterpret_cast' is used
         run: |
-          grep -rniw --include=\*.{cpp,hpp} "reinterpret_cast" src
+          grep -rniw --include=\*.{cpp,h} "reinterpret_cast" src
+        continue-on-error: true
 
 # ---------------------------------------------------------------------------------------
 
