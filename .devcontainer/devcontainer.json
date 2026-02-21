@@ -1,6 +1,6 @@
 {
   "name": "C++ DevBox",
-  "image": "ghcr.io/jakoch/cpp-devbox:bookworm-20260201",
+  "image": "ghcr.io/jakoch/cpp-devbox:trixie-latest",
   "runArgs": [
     // [optional] required for ptrace-based debuggers like for C++
     "--cap-add=SYS_PTRACE",

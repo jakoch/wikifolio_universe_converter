@@ -15,6 +15,8 @@
 
 namespace
 {
+    // This callback is used by libcurl to write data to a file.
+    // cppcheck-suppress constParameterCallback
     size_t write_callback(void* ptr, size_t size, size_t nmemb, void* userdata)
     {
         FILE* stream = static_cast<FILE*>(userdata);
@@ -23,7 +25,7 @@ namespace
         }
         return fwrite(ptr, size, nmemb, stream);
     }
-} // anonymous namespace
+} // namespace
 
 bool download(char const * url, std::string const & save_as_filename)
 {
@@ -52,6 +54,8 @@ bool download(char const * url, std::string const & save_as_filename)
         return false;
     }
 
+    bool const verify_ssl = false;
+
     struct curl_slist* headers = nullptr;
     headers                    = curl_slist_append(headers, "Content-Type:application/octet-stream");
     headers                    = curl_slist_append(headers, "Content-Transfer-Encoding: Binary");
@@ -63,12 +67,14 @@ bool download(char const * url, std::string const & save_as_filename)
     curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
     curl_easy_setopt(curl, CURLOPT_AUTOREFERER, 1L);
     curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 10L);
+    curl_easy_setopt(curl, CURLOPT_TIMEOUT, 60L);
     curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, "gzip, deflate, br");
+    // Force HTTP/1.1
     curl_easy_setopt(curl, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
     curl_easy_setopt(curl, CURLOPT_USE_SSL, CURLUSESSL_ALL);
-    curl_easy_setopt(curl, CURLOPT_USE_SSL, 0L);
-    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, false);
-    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, false);
+    curl_easy_setopt(curl, CURLOPT_USE_SSL, 0L); // This overrides the line above!
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, verify_ssl ? 1L : 0L);
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, verify_ssl ? 2L : 0L);
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
 
     using file_ptr = std::unique_ptr<FILE, decltype(&std::fclose)>;
@@ -96,13 +102,17 @@ bool download(char const * url, std::string const & save_as_filename)
     int const HTTP_ERROR_ANY = 400;
     if (res == CURLE_OK) {
         if (http_code >= HTTP_ERROR_ANY) {
-            std::cout << "Request failed with status" << http_code << "\n";
-            remove(save_as_filename.c_str());
+            std::cerr << "Request failed with status" << http_code << "\n";
+            if (remove(save_as_filename.c_str()) != 0) {
+                std::cerr << "Warning: Failed to delete partial file: " << save_as_filename << "\n";
+            }
             res = CURLE_HTTP_RETURNED_ERROR;
         }
     } else {
-        remove(save_as_filename.c_str());
-        std::cout << "Request failed: " << error_buffer.data() << "\n";
+        std::cerr << "Request failed: " << error_buffer.data() << "\n";
+        if (remove(save_as_filename.c_str()) != 0) {
+            std::cerr << "Warning: Failed to delete partial file: " << save_as_filename << "\n";
+        }
     }
 
     if (headers != nullptr) {
