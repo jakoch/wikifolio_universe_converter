@@ -12,6 +12,17 @@ All changes to the project will be documented in this file.
 
 - "It was a bright day in April, and the clocks were striking thirteen." - 1984
 
+## [1.0.10] - 2026-02-21
+
+## Fixes
+
+- removed linker directives from compiler flags, added them to linker flags
+
+## Changes
+
+- altered clang-tidy settings to be more strict
+  - refactored the code accordingly, fixed warnings and added missing includes
+
 ## [1.0.9] - 2025-07-05
 
 ### Bugfix
@@ -74,7 +85,8 @@ All changes to the project will be documented in this file.
 
 <!-- Section for Reference Links -->
 
-[vNext]: https://github.com/jakoch/wikifolio_universe_converter/compare/v1.0.9...HEAD
+[vNext]: https://github.com/jakoch/wikifolio_universe_converter/compare/v1.0.10...HEAD
+[1.0.10]: https://github.com/jakoch/wikifolio_universe_converter/compare/v1.0.9...v1.0.10
 [1.0.9]: https://github.com/jakoch/wikifolio_universe_converter/compare/v1.0.8...v1.0.9
 [1.0.8]: https://github.com/jakoch/wikifolio_universe_converter/compare/v1.0.7...v1.0.8
 [1.0.7]: https://github.com/jakoch/wikifolio_universe_converter/compare/v1.0.6...v1.0.7

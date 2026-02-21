@@ -1,6 +1,6 @@
-// Copyright 2021-2024 Jens A. Koch.
+// SPDX-FileCopyrightText: 2021-2026 Jens A. Koch
 // SPDX-License-Identifier: MIT
-// This file is part of jakoch/wikifolio_universe_converter.
+// This file is part of https://github.com/jakoch/wikifolio_universe_converter.
 
 #pragma once
 

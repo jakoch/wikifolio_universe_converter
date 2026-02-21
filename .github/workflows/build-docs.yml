@@ -1,0 +1,42 @@
+name: Build Docs
+
+on:
+  # You can run this workflow manually.
+  workflow_dispatch:
+  # This workflow runs on pushes to the repository.
+  push:
+    tags:
+      - '*'
+
+jobs:
+
+#--------------------------------------------------------------
+  build:
+#--------------------------------------------------------------
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🤘 Checkout Code
+        uses: actions/checkout@v4 # https://github.com/actions/checkout
+
+      # Install the latest version of Doxygen.
+      # We are using Github API to request the latest version number and download the binary from the website.
+      - name: 🔽 Install Doxygen (latest version from GitHub)
+        run: |
+          LATEST_VERSION=`wget -qO- "https://api.github.com/repos/doxygen/doxygen/tags" | jq -r '.[0].name | split("_") | join(".")[8:]'`
+          wget "https://doxygen.nl/files/doxygen-$LATEST_VERSION.linux.bin.tar.gz" -O - | tar -xzv --directory=/tmp/
+          cd /tmp/doxygen-*
+          sudo make install
+          export DEBIAN_FRONTEND=noninteractive
+
+      - name: Setup Graphviz and Sphinx for Documentation
+        uses: |
+          sudo apt-get update
+          sudo apt install -y graphviz python3-sphinx python3-sphinx-rtd-theme
+
+      # Show the version of the tools we use, e.g. Doxygen. Graphviz version is displayed via "dot".
+      - name: ℹ Show Tool Versions
+        run: |
+          doxygen -v
+          dot -V

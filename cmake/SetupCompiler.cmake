@@ -38,15 +38,14 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux")
         set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
         set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl -stdlib=libc++ -lc++ -lc++abi -lstdc++")
 
-        # 3.29
         set(CMAKE_LINKER_TYPE "LLD")
-        # else
         set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=lld")
         set(CMAKE_MODULE_LINKER_FLAGS_INIT "-fuse-ld=lld")
         set(CMAKE_SHARED_LINKER_FLAGS_INIT "-fuse-ld=lld")
     elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden -pthread -Wl,--no-as-needed -ldl") # -stdlib=libc++
-        set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++") # -stdlib=libc++ -lc++abi
+        add_compile_options(-fvisibility=hidden -pthread)
+        #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden -pthread") # -stdlib=libc++
+        set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++ -Wl,--no-as-needed -ldl") # -stdlib=libc++ -lc++abi
     endif()
 endif()
 

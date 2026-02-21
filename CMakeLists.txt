@@ -113,19 +113,10 @@ find_package(xlsxio_read REQUIRED)
 
 add_executable(wiuc)
 
-# TODO: use FILE_SET, but this doesnt exist yet in CMake 4 (08-2025)
-# target_sources(wiuc
-#   PRIVATE
-#     FILE_SET SOURCES
-#     FILES
-#       src/main.h
-#       src/main.cpp
-#       ${CMAKE_CURRENT_BINARY_DIR}/version.h
-# )
-
 target_sources(wiuc
   PRIVATE
     src/main.h
+    src/download.cpp
     src/main.cpp
     ${CMAKE_CURRENT_BINARY_DIR}/version.h
 )

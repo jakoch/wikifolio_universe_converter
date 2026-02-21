@@ -46,11 +46,11 @@ jobs:
           #  windows-2019 | 16.11 |          | 8.1.0   | 16.0.6
           #  windows-2022 | 17.8  |          | 12.2.0  | 16.0.6
           #  windows-2025 | 17.12 |          | 14.2.0  | 19.1.5
-          #- { os: windows-2019, preset: "vc16-x64-windows-static-rel-ci", job_name: "Win | VC-16 | Release"        }
-          #- { os: windows-2022, preset: "vc17-x64-windows-static-rel-ci", job_name: "Win | VC-17 | Release"        }
-          #- { os: windows-2022, preset: "vc17-x64-windows-static-rdi-ci", job_name: "Win | VC-17 | RelWithDebInfo" }
-          - { os: windows-2025, preset: "vc17-x64-windows-static-rel-ci", job_name: "Win | VC-17 | Release"        }
-          - { os: windows-2025, preset: "vc17-x64-windows-static-rdi-ci", job_name: "Win | VC-17 | RelWithDebInfo" }
+          #- { os: windows-2019, preset: "vc16-x64-windows-static-rel", job_name: "Win | VC-16 | Release"        }
+          #- { os: windows-2022, preset: "vc17-x64-windows-static-rel", job_name: "Win | VC-17 | Release"        }
+          #- { os: windows-2022, preset: "vc17-x64-windows-static-rdi", job_name: "Win | VC-17 | RelWithDebInfo" }
+          - { os: windows-2025, preset: "vc17-x64-windows-static-rel", job_name: "Win | VC-17 | Release"        }
+          - { os: windows-2025, preset: "vc17-x64-windows-static-rdi", job_name: "Win | VC-17 | RelWithDebInfo" }
 
     env:
       # We can not set VCPKG_ROOT here, because its redefined by action "ilammy/msvc-dev-cmd@1".
@@ -84,7 +84,7 @@ jobs:
           $NAME='wiuc'
           $VERSION=$(jq -r .version vcpkg.json)
           $SHORT_HASH=$($env:GITHUB_SHA.substring(0,7))
-          $PRESET=$('${{ matrix.config.preset }}').replace('-windows-static', '-win').replace('-rel', '').replace('-ci', '')
+          $PRESET=$('${{ matrix.config.preset }}').replace('-windows-static', '-win').replace('-rel', '')
           $ARTIFACT_NAME="$NAME-$VERSION-$SHORT_HASH-$PRESET"
           echo "Artifact Name:" $ARTIFACT_NAME
           echo "ARTIFACT_NAME=$($ARTIFACT_NAME)" >> $env:GITHUB_ENV
@@ -179,8 +179,8 @@ jobs:
     name: ${{ matrix.config.job_name }}
 
     # https://github.com/actions/runner-images#available-environments
-    # https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2004-Readme.md
     # https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2204-Readme.md
+    # https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2404-Readme.md
     # https://github.com/actions/partner-runner-images/blob/main/images/arm-ubuntu-24-image.md
     runs-on: ${{ matrix.config.os }}
 
@@ -197,15 +197,15 @@ jobs:
         # ubuntu-24.04       | 12, 13, 14                       | 16, 17, 18 (default)
         # ubuntu-22.04-arm64 | 9, 10, 11, 12, 13                |
         # ubuntu-24.04-arm64 | 12, 13, 14                       |
-        #- { os: ubuntu-20.04, preset: "gcc9-x64-linux-rel-ci",    apt_packages: "g++-9",    job_name: "Linux | GCC-9    | Release" }
-        - { os: ubuntu-24.04, preset: "gcc13-x64-linux-rel-ci",   apt_packages: "g++-13",   job_name: "Linux | GCC-13   | Release" }
-        - { os: ubuntu-24.04, preset: "gcc14-x64-linux-rel-ci",   apt_packages: "g++-14",   job_name: "Linux | GCC-14   | Release" }
-        #- { os: ubuntu-20.04, preset: "clang10-x64-linux-rel-ci", apt_packages: "clang-10", job_name: "Linux | Clang-10 | Release" }
-        - { os: ubuntu-22.04, preset: "clang15-x64-linux-rel-ci", apt_packages: "clang-15", job_name: "Linux | Clang-15 | Release" }
-        - { os: ubuntu-24.04, preset: "clang18-x64-linux-rel-ci", apt_packages: "clang-18", job_name: "Linux | Clang-18 | Release" }
+        #- { os: ubuntu-20.04, preset: "gcc9-x64-linux-rel",    apt_packages: "g++-9",    job_name: "Linux | GCC-9    | Release" }
+        - { os: ubuntu-24.04, preset: "gcc13-x64-linux-rel",   apt_packages: "g++-13",   job_name: "Linux | GCC-13   | Release" }
+        - { os: ubuntu-24.04, preset: "gcc14-x64-linux-rel",   apt_packages: "g++-14",   job_name: "Linux | GCC-14   | Release" }
+        #- { os: ubuntu-20.04, preset: "clang10-x64-linux-rel", apt_packages: "clang-10", job_name: "Linux | Clang-10 | Release" }
+        - { os: ubuntu-22.04, preset: "clang15-x64-linux-rel", apt_packages: "clang-15", job_name: "Linux | Clang-15 | Release" }
+        - { os: ubuntu-24.04, preset: "clang18-x64-linux-rel", apt_packages: "clang-18", job_name: "Linux | Clang-18 | Release" }
         # ARM
-        #- { os: ubuntu-22.04-arm64, preset: "gcc14-linux-rel-ci", apt_packages: "g++-14", job_name: "Linux ARM64 | GCC-14 | Release" }
-        #- { os: ubuntu-24.04-arm64, preset: "gcc14-linux-rel-ci", apt_packages: "g++-14", job_name: "Linux ARM64 | GCC-14 | Release" }
+        #- { os: ubuntu-22.04-arm64, preset: "gcc14-linux-rel", apt_packages: "g++-14", job_name: "Linux ARM64 | GCC-14 | Release" }
+        #- { os: ubuntu-24.04-arm64, preset: "gcc14-linux-rel", apt_packages: "g++-14", job_name: "Linux ARM64 | GCC-14 | Release" }
 
     env:
       VCPKG_ROOT: /usr/local/share/vcpkg
@@ -221,7 +221,7 @@ jobs:
           NAME='wiuc'
           VERSION=$(jq -r .version vcpkg.json)
           SHORT_HASH=`echo $GITHUB_SHA | cut -c1-8`
-          PRESET=`echo ${{ matrix.config.preset }} | sed 's/-rel-ci//'`
+          PRESET=`echo ${{ matrix.config.preset }} | sed 's/-rel//'`
           ARTIFACT_NAME="$NAME-$VERSION-$SHORT_HASH-$PRESET"
           echo "Artifact Name: $ARTIFACT_NAME"
           echo "ARTIFACT_NAME=$ARTIFACT_NAME" >> $GITHUB_ENV
@@ -309,8 +309,8 @@ jobs:
       fail-fast: false
       matrix:
         config:
-        - { image_version: "bookworm-latest", preset: "clang20-x64-linux-rel-ci", job_name: "Linux | Clang-20 | Release" }
-        #- { preset: "clang18-x64-linux-rel-ci", job_name: "Linux | Clang-18 | Release" }
+        - { image_version: "bookworm-latest", preset: "clang20-x64-linux-rel", job_name: "Linux | Clang-20 | Release" }
+        - { image_version: "trixie-latest", preset: "clang21-x64-linux-rel", job_name: "Linux | Clang-21 | Release" }
 
     env:
       VCPKG_ROOT: /opt/vcpkg
@@ -326,7 +326,7 @@ jobs:
           NAME='wiuc'
           VERSION=$(jq -r .version vcpkg.json)
           SHORT_HASH=`echo $GITHUB_SHA | cut -c1-8`
-          PRESET=`echo ${{ matrix.config.preset }} | sed 's/-ci//'`
+          PRESET=`echo ${{ matrix.config.preset }} | sed 's/-rel//'`
           ARTIFACT_NAME="$NAME-$VERSION-$SHORT_HASH-$PRESET"
           echo "Artifact Name: $ARTIFACT_NAME"
           echo "ARTIFACT_NAME=$ARTIFACT_NAME" >> $GITHUB_ENV
@@ -390,8 +390,8 @@ jobs:
           mkdir artifact
           cp -r out/install/${{ matrix.config.preset }} artifact/
 
-      #
-      # The uploaded artifact will be a zip file named, e.g. "wiuc-1.0.3-2399e873-Clang14-x64-linux-Release".
+      # The uploaded artifact will be a zip file named,
+      # e.g. "wiuc-1.0.3-2399e873-Clang14-x64-linux-Release".
       # The binary inside the zip is named "wiuc".
       #
       - name: 🔼 Upload Build Artifact (on every commit)
