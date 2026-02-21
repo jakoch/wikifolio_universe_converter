@@ -15,6 +15,8 @@ Konvertiert das [wikifolio.com Anlageuniversum](https://help.wikifolio.com/artic
 |                     | Windows 2022 | VC17 VS2022 | x64-windows-static  | RelWithDebInfo |   ⚪🟢 |
 |                     | Windows 2025 | VC17 VS2022 | x64-windows-static  | Release        |   🟢   |
 |                     | Windows 2025 | VC17 VS2022 | x64-windows-static  | RelWithDebInfo |   🟢   |
+|                     | Windows 2025 | VC18 VS2025 | x64-windows-static  | Release        |   🟢   |
+|                     | Windows 2025 | VC18 VS2025 | x64-windows-static  | RelWithDebInfo |   🟢   |
 |                     | Ubuntu 20.04 | GCC-9       | x64-linux           | Release        |   ⚪🟢 |
 |                     |              | to          | x64-linux           | Release        |   ⚪🟢|
 |                     | Ubuntu 22.04 | GCC-13      | x64-linux           | Release        |   🟢   |
@@ -25,6 +27,7 @@ Konvertiert das [wikifolio.com Anlageuniversum](https://help.wikifolio.com/artic
 |                     | Ubuntu 24.04 | Clang-18    | x64-linux           | Release        |   🟢   |
 |                     | U~ 24.04 ARM | GCC-14      | x64-linux           | Release        |   ⚪   |
 | [jakoch/cpp-devbox] | Debian 12    | Clang-20    | x64-linux           | Release        |   🟢   |
+| [jakoch/cpp-devbox] | Debian 13    | Clang-21    | x64-linux           | Release        |   🟢   |
 
 Symbols used: ⚪ Build disabled. 🟢 Build succeeds. 🔴 Build fails. 👷🏼 TODO.
 

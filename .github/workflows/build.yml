@@ -30,9 +30,9 @@ jobs:
     name: ${{ matrix.config.job_name }}
 
     # https://github.com/actions/runner-images#available-environments
-    # https://github.com/actions/runner-images/blob/main/images/windows/Windows2019-Readme.md
-    # https://github.com/actions/runner-images/blob/main/images/windows/Windows2022-Readme.md
-    # https://github.com/actions/runner-images/blob/main/images/windows/Windows2025-Readme.md
+    # https://github.com/actions/runner-images/blob/main/images/windows/Windows2022-Readme.md        VC17
+    # https://github.com/actions/runner-images/blob/main/images/windows/Windows2025-Readme.md        VC17
+    # https://github.com/actions/runner-images/blob/main/images/windows/Windows2025-VS2026-Readme.md VC18
     runs-on: ${{ matrix.config.OS }}
 
     strategy:
@@ -41,16 +41,18 @@ jobs:
         config:
           # Compiler Versions Overview for Github Actions Windows Images (01-2024)
           # ----------------------------------------------------------------------
-          # OS↓ Compiler->| VC    | Clang-Cl | GNU C++ | LLVM Clang
-          # --------------|-------|----------|---------|--------------------------
-          #  windows-2019 | 16.11 |          | 8.1.0   | 16.0.6
-          #  windows-2022 | 17.8  |          | 12.2.0  | 16.0.6
-          #  windows-2025 | 17.12 |          | 14.2.0  | 19.1.5
+          # OS↓ Compiler->       | VC    | Clang-Cl | GNU C++ | LLVM Clang
+          # ---------------------|-------|----------|---------|--------------------------
+          #  windows-2019        | 16.11 |          | 8.1.0   | 16.0.6
+          #  windows-2022        | 17.8  |          | 12.2.0  | 16.0.6
+          #  windows-2025        | 17.12 |          | 14.2.0  | 19.1.5
+          #  windows-2025-vs2026 | 18.3  | 18.3     |         | 20.1.8
           #- { os: windows-2019, preset: "vc16-x64-windows-static-rel", job_name: "Win | VC-16 | Release"        }
           #- { os: windows-2022, preset: "vc17-x64-windows-static-rel", job_name: "Win | VC-17 | Release"        }
           #- { os: windows-2022, preset: "vc17-x64-windows-static-rdi", job_name: "Win | VC-17 | RelWithDebInfo" }
           - { os: windows-2025, preset: "vc17-x64-windows-static-rel", job_name: "Win | VC-17 | Release"        }
           - { os: windows-2025, preset: "vc17-x64-windows-static-rdi", job_name: "Win | VC-17 | RelWithDebInfo" }
+          - { os: windows-2025-vs2026, preset: "vc18-x64-windows-static-rel", job_name: "Win | VC-18 | Release" }
 
     env:
       # We can not set VCPKG_ROOT here, because its redefined by action "ilammy/msvc-dev-cmd@1".
