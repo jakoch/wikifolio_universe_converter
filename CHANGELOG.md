@@ -14,6 +14,10 @@ All changes to the project will be documented in this file.
 
 ## [1.0.10] - 2026-02-21
 
+## Added
+
+- enabled compilation using Clang-21 on Linux and VC18 on Windows
+
 ## Fixes
 
 - removed linker directives from compiler flags, added them to linker flags
