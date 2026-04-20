@@ -171,6 +171,14 @@
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release"
       }
+    },
+    {
+      "name": "clang22-x64-linux-rel",
+      "displayName": "Clang22 Release",
+      "inherits": "clang22-x64-linux",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
     }
   ],
   "buildPresets": [
@@ -254,6 +262,13 @@
     {
       "name": "clang21-x64-linux-rel",
       "configurePreset": "clang21-x64-linux-rel",
+      "targets": [
+        "wiuc"
+      ]
+    },
+    {
+      "name": "clang22-x64-linux-rel",
+      "configurePreset": "clang22-x64-linux-rel",
       "targets": [
         "wiuc"
       ]
