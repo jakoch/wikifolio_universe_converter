@@ -312,7 +312,7 @@ jobs:
       matrix:
         config:
         - { image_version: "bookworm-latest", preset: "clang20-x64-linux-rel", job_name: "Linux | Clang-20 | Release" }
-        - { image_version: "trixie-latest", preset: "clang21-x64-linux-rel", job_name: "Linux | Clang-21 | Release" }
+        - { image_version: "trixie-latest", preset: "clang22-x64-linux-rel", job_name: "Linux | Clang-22 | Release" }
 
     env:
       VCPKG_ROOT: /opt/vcpkg
