@@ -65,7 +65,7 @@ jobs:
 
     steps:
       - name: 🤘 Checkout Code
-        uses: actions/checkout@v6 # https://github.com/actions/checkout
+        uses: actions/checkout@v7 # https://github.com/actions/checkout
 
       # https://community.chocolatey.org/packages/ccache
       #- name: 🔽 Install ccache
@@ -215,7 +215,7 @@ jobs:
 
     steps:
       - name: 🤘 Checkout Code
-        uses: actions/checkout@v6 # https://github.com/actions/checkout
+        uses: actions/checkout@v7 # https://github.com/actions/checkout
 
       # Build Artifact Name: wiuc-1.0.1-0cda6a2-clang17-x64-linux
       - name: ✏ Fetch Versioning Data & Set Artifact Name
@@ -320,7 +320,7 @@ jobs:
 
     steps:
       - name: 🤘 Checkout Code
-        uses: actions/checkout@v6 # https://github.com/actions/checkout
+        uses: actions/checkout@v7 # https://github.com/actions/checkout
 
       # Build Artifact Name: wiuc-1.0.1-0cda6a2-clang17-x64-linux-rel
       - name: ✏ Fetch Versioning Data & Set Artifact Name
@@ -423,7 +423,7 @@ jobs:
 
     steps:
       - name: 🤘 Checkout repository
-        uses: actions/checkout@v6 # https://github.com/actions/checkout
+        uses: actions/checkout@v7 # https://github.com/actions/checkout
 
       #  This downloads all artifact zip archives and extracts them into folders.
       #  So we have to zip them for release again.... ¯\_(ツ)_/¯
