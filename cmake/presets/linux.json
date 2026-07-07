@@ -280,6 +280,14 @@
       ]
     },
     {
+      "name": "clang22-x64-linux-cov",
+      "hidden": true,
+      "inherits": [
+        "clang22-x64-linux",
+        "coverage-using-clang"
+      ]
+    },
+    {
       "name": "clang21-x64-linux",
       "hidden": true,
       "inherits": [
