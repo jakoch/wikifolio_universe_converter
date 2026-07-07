@@ -374,14 +374,16 @@ jobs:
             cache-vcpkg-${{ matrix.config.preset }}-${{ github.ref }}
             cache-vcpkg-${{ matrix.config.preset }}
 
-      - name: 🔽 Reinstall VCPKG
+      - name: 🔽 Update VCPKG (latest TAG)
         if: steps.cache-vcpkg.outputs.cache-hit != 'true'
         run: |
-          if [ -d "${{ env.VCPKG_ROOT }}" ]; then
-            sudo rm -rf ${{ env.VCPKG_ROOT }}
-          fi
-          git clone --depth=1 https://github.com/microsoft/vcpkg.git ${{ env.VCPKG_ROOT }}
           cd ${{ env.VCPKG_ROOT }}
+          git fetch origin --tags --force
+          git checkout master
+          git reset --hard origin/master
+          git clean -fdx
+          LATEST_VCPKG_TAG="$(git tag --sort=-v:refname | head -n 1)"
+          git checkout "$LATEST_VCPKG_TAG"
           ./bootstrap-vcpkg.sh
 
       - name: ✏ CMake ➔ Configure
