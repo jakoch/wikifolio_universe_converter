@@ -192,19 +192,19 @@ jobs:
         config:
         # Compiler Versions Overview for Github Actions Linux Images (01-2024)
         # ----------------------------------------------------------------------------------
-        # OS↓ Compiler->     | GNU C++                          | LLVM Clang
-        # -------------------|----------------------------------|---------------------------
-        # ubuntu-20.04       | 9.4.0, 10.5.0                    | 10.0.0, 11.0.0, 12.0.0   | deprecation in 2025-04
-        # ubuntu-22.04       | 9.5.0, 10.5.0, 11.4.0, 12.3.0    | 13.0.1, 14.0.0, 15.0.7
-        # ubuntu-24.04       | 12, 13, 14                       | 16, 17, 18 (default)
-        # ubuntu-22.04-arm64 | 9, 10, 11, 12, 13                |
-        # ubuntu-24.04-arm64 | 12, 13, 14                       |
-        #- { os: ubuntu-20.04, preset: "gcc9-x64-linux-rel",    apt_packages: "g++-9",    job_name: "Linux | GCC-9    | Release" }
+        # OS↓ Compiler->     | GNU C++            | LLVM Clang            | Deprecation
+        # -------------------|--------------------|-----------------------|-----------------
+        # ubuntu-20.04       | 9, 10              | 10, 11, 12            | 2025-04
+        # ubuntu-22.04       | 9, 10, 11, 12      | 13, 14, 15            | 2026-09
+        # ubuntu-24.04       | 12, 13, 14         | 16, 17, 18 (default)  |
+        # ubuntu-26.04       | 13, 14, 15         | 20, 21, 22            |
+        # ubuntu-22.04-arm64 | 9, 10, 11, 12, 13  | 14, 15                | 2026-09
+        # ubuntu-24.04-arm64 | 12, 13, 14         | 16, 17, 18 (default)  |
+        # ubuntu-26.04-arm64 | 12, 13, 14         | 20, 21, 22            |
         - { os: ubuntu-24.04, preset: "gcc13-x64-linux-rel",   apt_packages: "g++-13",   job_name: "Linux | GCC-13   | Release" }
-        - { os: ubuntu-24.04, preset: "gcc14-x64-linux-rel",   apt_packages: "g++-14",   job_name: "Linux | GCC-14   | Release" }
-        #- { os: ubuntu-20.04, preset: "clang10-x64-linux-rel", apt_packages: "clang-10", job_name: "Linux | Clang-10 | Release" }
-        - { os: ubuntu-22.04, preset: "clang15-x64-linux-rel", apt_packages: "clang-15", job_name: "Linux | Clang-15 | Release" }
+        - { os: ubuntu-26.04, preset: "gcc15-x64-linux-rel",   apt_packages: "g++-15",   job_name: "Linux | GCC-15   | Release" }
         - { os: ubuntu-24.04, preset: "clang18-x64-linux-rel", apt_packages: "clang-18", job_name: "Linux | Clang-18 | Release" }
+        - { os: ubuntu-26.04, preset: "clang22-x64-linux-rel", apt_packages: "clang-22", job_name: "Linux | Clang-22 | Release" }
         # ARM
         #- { os: ubuntu-22.04-arm64, preset: "gcc14-linux-rel", apt_packages: "g++-14", job_name: "Linux ARM64 | GCC-14 | Release" }
         #- { os: ubuntu-24.04-arm64, preset: "gcc14-linux-rel", apt_packages: "g++-14", job_name: "Linux ARM64 | GCC-14 | Release" }
@@ -304,6 +304,11 @@ jobs:
 
     name: ${{ matrix.config.job_name }}
 
+    # Note on "image_version":
+    # - The image versions are based on tags of the https://github.com/jakoch/cpp-devbox repo.
+    # - Use rolling tags (e.g., "trixie-latest") for bleeding-edge updates,
+    #   but expect potential instability due to changes in the included software.
+    # - Pin to a fixed version (e.g., "trixie-20260329") for reproducible and stable builds.
     runs-on: ubuntu-latest
     container: ghcr.io/jakoch/cpp-devbox:${{ matrix.config.image_version }}
 
@@ -311,8 +316,14 @@ jobs:
       fail-fast: false
       matrix:
         config:
-        - { image_version: "bookworm-latest", preset: "clang20-x64-linux-rel", job_name: "Linux | Clang-20 | Release" }
-        - { image_version: "trixie-latest", preset: "clang22-x64-linux-rel", job_name: "Linux | Clang-22 | Release" }
+        - { job_name: "Linux | Clang-22 | Release",
+            image_version: "trixie-latest",
+            preset: "clang22-x64-linux-rel"
+          }
+        - { job_name: "Linux | Clang-22 | Coverage",
+            image_version: "trixie-latest",
+            preset: "clang22-x64-linux-dbg-cov"
+          }
 
     env:
       VCPKG_ROOT: /opt/vcpkg
