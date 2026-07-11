@@ -384,7 +384,12 @@ jobs:
           git clean -fdx
           LATEST_VCPKG_TAG="$(git tag --sort=-v:refname | head -n 1)"
           git checkout "$LATEST_VCPKG_TAG"
-          ./bootstrap-vcpkg.sh
+
+      - name: 🛠️ Setup VCPKG
+        if: steps.cache-vcpkg.outputs.cache-hit != 'true'
+        run: |
+          "${VCPKG_ROOT}/bootstrap-vcpkg.sh"
+          "${VCPKG_ROOT}/vcpkg" integrate install
 
       - name: ✏ CMake ➔ Configure
         run: cmake --preset=${{ matrix.config.PRESET }}
