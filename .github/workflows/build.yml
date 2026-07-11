@@ -53,6 +53,7 @@ jobs:
           - { os: windows-2025, preset: "vc17-x64-windows-static-rel", job_name: "Win | VC-17 | Release"        }
           - { os: windows-2025, preset: "vc17-x64-windows-static-rdi", job_name: "Win | VC-17 | RelWithDebInfo" }
           - { os: windows-2025-vs2026, preset: "vc18-x64-windows-static-rel", job_name: "Win | VC-18 | Release" }
+          - { os: windows-2025-vs2026, preset: "vc18-x64-windows-static-rdi", job_name: "Win | VC-18 | RelWithDebInfo" }
 
     env:
       # We can not set VCPKG_ROOT here, because its redefined by action "ilammy/msvc-dev-cmd@1".

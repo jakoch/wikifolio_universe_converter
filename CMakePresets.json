@@ -61,6 +61,14 @@
       }
     },
     {
+      "name": "vc18-x64-windows-static-rdi",
+      "displayName": "VC18 Static RelWithDebInfo",
+      "inherits": "vc18-x64-windows-static",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      }
+    },
+    {
       "name": "clangcl-x64-windows-dbg",
       "displayName": "ClangCL Debug",
       "inherits": "clangcl-x64-windows-static",
@@ -237,6 +245,13 @@
     {
       "name": "vc18-x64-windows-static-rel",
       "configurePreset": "vc18-x64-windows-static-rel",
+      "targets": [
+        "wiuc"
+      ]
+    },
+    {
+      "name": "vc18-x64-windows-static-rdi",
+      "configurePreset": "vc18-x64-windows-static-rdi",
       "targets": [
         "wiuc"
       ]
