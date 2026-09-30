@@ -12,7 +12,7 @@ All changes to the project will be documented in this file.
 
 - "It was a bright day in April, and the clocks were striking thirteen." - 1984
 
-## [1.1.10] - 2026-09-30
+## [1.1.0] - 2026-09-30
 
 ## Added
 
@@ -111,8 +111,8 @@ All changes to the project will be documented in this file.
 
 <!-- Section for Reference Links -->
 
-[vNext]: https://github.com/jakoch/wikifolio_universe_converter/compare/v1.1.10...HEAD
-[1.1.10]: https://github.com/jakoch/wikifolio_universe_converter/compare/v1.0.10...v1.1.10
+[vNext]: https://github.com/jakoch/wikifolio_universe_converter/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/jakoch/wikifolio_universe_converter/compare/v1.0.10...v1.1.0
 [1.0.10]: https://github.com/jakoch/wikifolio_universe_converter/compare/v1.0.9...v1.0.10
 [1.0.9]: https://github.com/jakoch/wikifolio_universe_converter/compare/v1.0.8...v1.0.9
 [1.0.8]: https://github.com/jakoch/wikifolio_universe_converter/compare/v1.0.7...v1.0.8
