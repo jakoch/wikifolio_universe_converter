@@ -26,6 +26,7 @@
 #include <type_traits>
 #include <unordered_map>
 #include <unordered_set>
+#include <utility> // std::move
 #include <vector>
 
 #include <fmt/format.h>
