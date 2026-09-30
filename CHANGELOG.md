@@ -12,6 +12,28 @@ All changes to the project will be documented in this file.
 
 - "It was a bright day in April, and the clocks were striking thirteen." - 1984
 
+## [1.1.10] - 2026-09-30
+
+## Added
+
+- the conversion now verifies the column count and aborts, reporting the found and the expected count
+
+## Fixes
+
+- Wikifolio introduced 2 new database columns "Anlageuniversum (Gruppe) 4" and "Anlageuniversum 4"
+- values containing commas, e.g. the Euronext price notation "EO -,01", were split into multiple fields
+- fixed the command line option `-o` / `--out`, which was ignored
+- an unknown command line option now reports the option and exits with a failure
+- the conversion no longer appends a spurious empty line at the end of the CSV file
+
+## Changes
+
+- **the generated CSV files are now formatted as described by RFC 4180**: every field is enclosed in double
+  quotes and embedded double quotes are doubled. Consumers of the published CSV files need to be aware of
+  this change
+- values are escaped for SQL when the `INSERT` statement is built, so the CSV files contain the values as
+  published by Wikifolio
+
 ## [1.0.10] - 2026-02-21
 
 ## Added
@@ -89,7 +111,8 @@ All changes to the project will be documented in this file.
 
 <!-- Section for Reference Links -->
 
-[vNext]: https://github.com/jakoch/wikifolio_universe_converter/compare/v1.0.10...HEAD
+[vNext]: https://github.com/jakoch/wikifolio_universe_converter/compare/v1.1.10...HEAD
+[1.1.10]: https://github.com/jakoch/wikifolio_universe_converter/compare/v1.0.10...v1.1.10
 [1.0.10]: https://github.com/jakoch/wikifolio_universe_converter/compare/v1.0.9...v1.0.10
 [1.0.9]: https://github.com/jakoch/wikifolio_universe_converter/compare/v1.0.8...v1.0.9
 [1.0.8]: https://github.com/jakoch/wikifolio_universe_converter/compare/v1.0.7...v1.0.8

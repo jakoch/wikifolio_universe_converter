@@ -205,7 +205,9 @@ jobs:
         - { os: ubuntu-24.04, preset: "gcc13-x64-linux-rel",   apt_packages: "g++-13",   job_name: "Linux | GCC-13   | Release" }
         - { os: ubuntu-26.04, preset: "gcc15-x64-linux-rel",   apt_packages: "g++-15",   job_name: "Linux | GCC-15   | Release" }
         - { os: ubuntu-24.04, preset: "clang18-x64-linux-rel", apt_packages: "clang-18", job_name: "Linux | Clang-18 | Release" }
-        - { os: ubuntu-26.04, preset: "clang22-x64-linux-rel", apt_packages: "clang-22", job_name: "Linux | Clang-22 | Release" }
+        # Clang-22 is built by the "build-on-container" job (cpp-devbox image) instead of
+        # here. Building it in both jobs produced an identical ARTIFACT_NAME, which
+        # actions/upload-artifact rejects as a duplicate within one workflow run.
         # ARM
         #- { os: ubuntu-22.04-arm64, preset: "gcc14-linux-rel", apt_packages: "g++-14", job_name: "Linux ARM64 | GCC-14 | Release" }
         #- { os: ubuntu-24.04-arm64, preset: "gcc14-linux-rel", apt_packages: "g++-14", job_name: "Linux ARM64 | GCC-14 | Release" }
@@ -458,12 +460,13 @@ jobs:
         run: |
           ls -R
 
+      # Release assets are the Release and RelWithDebInfo builds, i.e. every preset in the
+      # build matrix except the coverage build ("-dbg-cov"), which is a local developer
+      # artifact. Note that RelWithDebInfo ("-rdi") IS published, e.g.
+      # wiuc-1.0.10-vc17-x64-win-rdi.zip, so it must not be filtered out here.
       - name: Delete all non-release artifact folders
         run: |
-          rm -rf *-RelWithDebInfo
-          rm -rf *-Clang10-*
-          rm -rf *-GCC9-*
-          rm -rf *-VC16-*
+          rm -rf *-dbg-cov
           ls -R wiuc*
 
       # zip with -j to only include files of the folder and not the folder itself
@@ -475,26 +478,49 @@ jobs:
       - name: Delete release folders
         run: find . -maxdepth 1 -type d -name 'wiuc*' -exec rm -r {} +
 
-      # The regexp uses named groups for matching:
-      # IN   (?P<name>wiuc)-(?P<version>.*)-(?P<commit>.*)-(?P<compiler>.*)-(?P<arch>.*)-(?P<os>.*)-(?:(?P<linktype>[^-]*)-)?Release.zip
+      # The build matrix names its presets "<compiler>-<arch>-<os>[-static][-rel|-rdi|-dbg-cov]".
+      # "Fetch Versioning Data & Set Artifact Name" turns a preset into an artifact name by
+      # replacing "-windows-static" with "-win" and stripping "-rel", so the extracted folder
+      # (and therefore the zip created above) is named:
       #
-      # And only some of the matched groups for building the filename:
-      # OUT  $+{name}-$+{version}-$+{compiler}-$+{arch}-$+{os}.zip/
+      #   wiuc-<version>-<commit>-<compiler>-<arch>-<os>[-rdi|-dbg-cov].zip
       #
-      # wiuc-1.0.4-4f5b959-VC17-x64-windows-static-Release.zip
-      # ->
-      # wiuc-1.0.4-VC17-x64-windows.zip
+      # The regexp drops only the commit hash and keeps the rest of the build descriptor
+      # verbatim, so new presets need no change here:
+      #
+      # IN   wiuc-1.1.0-abc1234-clang18-x64-linux.zip
+      # OUT  wiuc-1.1.0-clang18-x64-linux.zip
+      #
+      # IN   wiuc-1.1.0-abc1234-vc18-x64-win-rdi.zip
+      # OUT  wiuc-1.1.0-vc18-x64-win-rdi.zip
       #
       - name: Install rename
         run: sudo apt update && sudo apt install -y rename
 
       - name: Rename zip files using a named group regexp
         env:
-          ARTIFACT_REGEXP: '^(?P<name>wiuc)-(?P<version>[\d.]+)-(?P<commit>[\da-f]+)-(?P<compiler>[A-Za-z\d]+)-(?P<arch>[A-Za-z\d]+)-(?P<os>linux|windows|mac)-?(?P<linktype>static)?-Release\.zip$'
-          RELEASE_REGEXP: '$+{name}-$+{version}-$+{compiler}-$+{arch}-$+{os}.zip'
+          ARTIFACT_REGEXP: '^(?P<name>wiuc)-(?P<version>[\d.]+)-(?P<commit>[\da-f]+)-(?P<build>.+)\.zip$'
+          RELEASE_REGEXP: '$+{name}-$+{version}-$+{build}.zip'
         run: |
           for file in *.zip; do (rename "s/$ARTIFACT_REGEXP/$RELEASE_REGEXP/" "$file"); done
           ls -R
+
+      # "rename" exits 0 when the regexp does not match, so a stale regexp silently
+      # publishes assets under their internal names and every download by release name
+      # 404s. Fail loudly instead.
+      - name: Verify release asset names
+        run: |
+          set -euo pipefail
+          ls -1 *.zip
+          if ls -1 *.zip | grep -Eq '^wiuc-[0-9]+\.[0-9.]+-[0-9a-f]{7,}-'; then
+            echo "::error::release asset names still contain a commit hash - rename step did not match"
+            exit 1
+          fi
+          if ls -1 *.zip | grep -q -- '-dbg-cov'; then
+            echo "::error::coverage build must not be published as a release asset"
+            ls -1 *.zip | grep -- '-dbg-cov'
+            exit 1
+          fi
 
       - name: Extract Release Notes from Changelog
         id: extract-release-notes
