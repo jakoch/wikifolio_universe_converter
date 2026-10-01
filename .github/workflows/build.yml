@@ -343,6 +343,10 @@ jobs:
       contents: read
       id-token: write
 
+    defaults:
+      run:
+        shell: bash
+
     steps:
       - name: 🤘 Checkout Code
         uses: actions/checkout@v7 # https://github.com/actions/checkout
