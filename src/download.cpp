@@ -34,13 +34,9 @@ bool download(char const * url, std::string const & save_as_filename)
     static struct CurlGlobal
     {
         CurlGlobal()
-        {
-            curl_global_init(CURL_GLOBAL_DEFAULT);
-        }
+        { curl_global_init(CURL_GLOBAL_DEFAULT); }
         ~CurlGlobal()
-        {
-            curl_global_cleanup();
-        }
+        { curl_global_cleanup(); }
         CurlGlobal(CurlGlobal const &)            = delete;
         CurlGlobal& operator=(CurlGlobal const &) = delete;
         CurlGlobal(CurlGlobal&&)                  = delete;

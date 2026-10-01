@@ -4,10 +4,11 @@
 
 #include "paths.h"
 
-#include <algorithm> // std::ranges::all_of
-#include <filesystem>
+#include <algorithm>  // std::ranges::all_of
+#include <filesystem> // NOLINT(build/c++17): <filesystem> unapproved C++17 header. sure.
 #include <iostream>
 #include <ranges>
+#include <string>
 #include <unordered_set>
 
 #include <fmt/format.h>

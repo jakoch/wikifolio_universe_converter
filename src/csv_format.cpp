@@ -5,7 +5,9 @@
 #include "csv_format.h"
 
 #include <sstream> // std::istringstream
+#include <string>
 #include <utility> // std::move
+#include <vector>
 
 std::string replace(std::string search_in, std::string const & search_for, std::string const & replace_with)
 {
