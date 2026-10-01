@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <ctime> // time_t
+#include <cstdint> // int64_t
 #include <memory>
 #include <string>
 
@@ -15,16 +17,15 @@ private:
     xlsxioreadersheet sheethandle;
     explicit XLSXSheet(xlsxioreadersheet sheet) noexcept;
 
-    XLSXSheet(xlsxioreadersheet xlsxhandle, char const * sheetname, unsigned int flags);
-
 public:
     ~XLSXSheet();
 
     XLSXSheet(XLSXSheet const &)            = delete;
     XLSXSheet& operator=(XLSXSheet const &) = delete;
 
-    XLSXSheet(XLSXSheet&&) noexcept;
-    XLSXSheet& operator=(XLSXSheet&&) noexcept;
+    // A sheet owns an open xlsxio handle, so it is neither movable nor copyable.
+    XLSXSheet(XLSXSheet&&)            = delete;
+    XLSXSheet& operator=(XLSXSheet&&) = delete;
 
     bool GetNextRow();
     bool GetNextCellString(char*& value);
@@ -48,8 +49,13 @@ public:
     XLSXReader(XLSXReader const &)            = delete;
     XLSXReader& operator=(XLSXReader const &) = delete;
 
-    XLSXReader(XLSXReader&&) noexcept;
-    XLSXReader& operator=(XLSXReader&&) noexcept;
+    // A reader owns an open xlsxio handle, so it is neither movable nor copyable.
+    XLSXReader(XLSXReader&&)            = delete;
+    XLSXReader& operator=(XLSXReader&&) = delete;
+
+    // xlsxioread_open() returns null if the file cannot be opened,
+    // for example when it is not a valid XLSX (zip) file.
+    [[nodiscard]] bool is_open() const noexcept;
 
     std::unique_ptr<XLSXSheet> OpenSheet(char const * sheetname, unsigned int flags);
 };

@@ -1,0 +1,7 @@
+---
+# Catch2's TEST_CASE / SECTION macros expand to global objects, which trip
+# misc-use-internal-linkage and cppcoreguidelines-avoid-non-const-global-variables.
+# The framework requires them at namespace scope, so these two checks are disabled
+# for the test sources. Everything else stays as strict as for the project sources.
+InheritParentConfig: true
+Checks: '-misc-use-internal-linkage, -cppcoreguidelines-avoid-non-const-global-variables'

@@ -42,8 +42,8 @@ public:
     static constexpr std::string_view description = "@APP_DESC@";
     static constexpr std::string_view homepage    = "@APP_HOMEPAGE@";
     static constexpr std::string_view copyright   = "Copyright (c) Jens A. Koch, 2021-@CURRENT_YEAR@.";
-    static constexpr semantic_version semver{@PROJECT_VERSION_MAJOR@, @PROJECT_VERSION_MINOR@, @PROJECT_VERSION_PATCH@};
-    static constexpr int version_id = @PROJECT_VERSION_MAJOR@ * 10000 + @PROJECT_VERSION_MINOR@ * 100 + @PROJECT_VERSION_PATCH@;
+    static constexpr semantic_version semver{.major = @PROJECT_VERSION_MAJOR@, .minor = @PROJECT_VERSION_MINOR@, .patch = @PROJECT_VERSION_PATCH@};
+    static constexpr int version_id = (@PROJECT_VERSION_MAJOR@ * 10000) + (@PROJECT_VERSION_MINOR@ * 100) + @PROJECT_VERSION_PATCH@;
 
     static constexpr std::string_view get_version_json() noexcept {
         return

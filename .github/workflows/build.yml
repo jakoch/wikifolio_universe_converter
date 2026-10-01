@@ -331,6 +331,17 @@ jobs:
     env:
       VCPKG_ROOT: /opt/vcpkg
       VCPKG_DISABLE_METRICS: 1
+      # Base of the binary directory, holding compile_commands.json.
+      # The presets inherit "build-folders-default", which sets binaryDir to
+      # "${sourceDir}/out/build/${presetName}", so the preset name is appended
+      # to this at the point of use.
+      BUILD_DIR: ${{ github.workspace }}/out/build
+
+    # "id-token: write" is needed by the Codecov upload (OIDC authentication).
+    # Scoped to this job, so the other jobs keep the default token permissions.
+    permissions:
+      contents: read
+      id-token: write
 
     steps:
       - name: 🤘 Checkout Code
@@ -397,8 +408,172 @@ jobs:
       - name: ✏ CMake ➔ Configure
         run: cmake --preset=${{ matrix.config.PRESET }}
 
+      # The unit tests are only built for the coverage run. They pull in the Catch2
+      # dependency, which is declared as the optional "tests" feature in vcpkg.json,
+      # so a release build does not have to fetch or link it.
+      #
+      # The build directory is re-used, so the extra -D flags are passed to the very
+      # same configure step above and CMake reconfigures in place.
+      #
+      - name: 🧪 Enable Unit Tests
+        if: matrix.config.preset == 'clang22-x64-linux-dbg-cov'
+        run: |
+          cmake --preset=${{ matrix.config.PRESET }} \
+            -DBUILD_TESTS=ON \
+            -DVCPKG_MANIFEST_FEATURES=tests
+
+      # The coverage preset compiles with "-fprofile-instr-generate -fcoverage-mapping"
+      # (see the "coverage-using-clang" preset). That instrumentation makes every run of
+      # an instrumented binary write a .profraw file, and LLVM_PROFILE_FILE decides
+      # where it lands. Without this, the files are written to the working directory
+      # and end up scattered across the artifact.
+      #
+      # "%p" expands to the PID, so repeated or parallel runs do not overwrite each other.
+      # BUILD_DIR is already absolute, so it must not be prefixed with GITHUB_WORKSPACE.
+      #
+      - name: ⚙️ Prepare Coverage Environment
+        if: matrix.config.preset == 'clang22-x64-linux-dbg-cov'
+        run: |
+          mkdir -p "${BUILD_DIR}/${{ matrix.config.preset }}/coverage"
+          echo "LLVM_PROFILE_FILE=${BUILD_DIR}/${{ matrix.config.preset }}/coverage/%p.profraw" >> "$GITHUB_ENV"
+
       - name: 🙏 CMake ➔ Build
         run: cmake --build --preset=${{ matrix.config.PRESET }}
+
+      # Build the test binaries themselves. The build preset pins "targets": ["wiuc"],
+      # so "cmake --build --preset" does not build the tests, even with BUILD_TESTS=ON.
+      # The e2e tests drive the wiuc binary, which the preset build above produced.
+      - name: 🧪 Build Unit Tests
+        if: matrix.config.preset == 'clang22-x64-linux-dbg-cov'
+        run: |
+          cmake --build "${BUILD_DIR}/${{ matrix.config.preset }}" \
+            --target csv_format_test paths_test convert_fixture_test error_paths_test
+
+      # Run the tests. The coverage run is the only instrumented build, so this is
+      # what actually produces the .profraw files that the coverage steps merge.
+      # The e2e test spawns wiuc as a subprocess, so that run contributes its own
+      # .profraw and is counted normally.
+      - name: 🧪 Run Unit Tests
+        if: matrix.config.preset == 'clang22-x64-linux-dbg-cov'
+        run: ctest --test-dir "${BUILD_DIR}/${{ matrix.config.preset }}" --output-on-failure
+
+      # Static analysis via the .clang-tidy config, which enables
+      # "WarningsAsErrors: '*'". This runs on the Clang-22 coverage build only, so that
+      # a tidy finding is reported once instead of multiplying across every
+      # compiler/platform in the matrix.
+      #
+      # The log is uploaded as a build artifact for inspection. The step is
+      # deliberately non-fatal ("|| true"): the report currently contains
+      # pre-existing findings (see version.h and the argv span indexing in main.cpp),
+      # so failing here would block every push. Once those are fixed, drop "|| true"
+      # to make clang-tidy a gate.
+      #
+      - name: 🔍 Clang-Tidy
+        if: matrix.config.preset == 'clang22-x64-linux-dbg-cov'
+        run: |
+          run-clang-tidy -p "${BUILD_DIR}/${{ matrix.config.preset }}" \
+            -quiet \
+            2>&1 | tee clang-tidy.log \
+            || true
+
+      - name: 📤 Upload Clang-Tidy log
+        if: always() && matrix.config.preset == 'clang22-x64-linux-dbg-cov'
+        uses: actions/upload-artifact@v7 # https://github.com/actions/upload-artifact
+        with:
+          name: clang-tidy-${{ matrix.config.preset }}
+          path: clang-tidy.log
+
+      # ------------------------------------------------------------------------
+      # Code Coverage Steps (only for "clang22-x64-linux-dbg-cov" preset)
+      # ------------------------------------------------------------------------
+
+      # The application binary is instrumented as well, but no unit test executes
+      # it, so it would contribute no profile data. Run it once to emit a .profraw
+      # into the same directory the merge step reads. "--version-only" exercises
+      # main() and the argument parsing without touching the network.
+      - name: 🏃 Run wiuc for Coverage
+        if: matrix.config.preset == 'clang22-x64-linux-dbg-cov'
+        run: |
+          cd "${BUILD_DIR}/${{ matrix.config.preset }}"
+          ./wiuc --version-only
+
+      - name: 🧾 Merge Coverage Data
+        if: matrix.config.preset == 'clang22-x64-linux-dbg-cov'
+        run: |
+          set -euo pipefail
+          COVERAGE_DIR="${BUILD_DIR}/${{ matrix.config.preset }}/coverage"
+          echo "Merging .profraw files from $COVERAGE_DIR"
+          shopt -s nullglob
+          profraw_files=("$COVERAGE_DIR"/*.profraw)
+          if [ ${#profraw_files[@]} -eq 0 ]; then
+            echo "::warning::No .profraw files found. Did the tests run with LLVM_PROFILE_FILE set?"
+            exit 0
+          fi
+          llvm-profdata merge -sparse "${profraw_files[@]}" -o "$COVERAGE_DIR/coverage.profdata"
+
+      - name: 📊 Generate Coverage Reports (lcov + HTML)
+        if: matrix.config.preset == 'clang22-x64-linux-dbg-cov'
+        env:
+          COV_EXCLUDE_REGEX: '(vcpkg_installed|build|tests)'
+        run: |
+          set -euo pipefail
+          COVERAGE_DIR="${BUILD_DIR}/${{ matrix.config.preset }}/coverage"
+
+          # Find all instrumented test binaries (ending with "_test" or "_tests") in the build directory.
+          mapfile -t BINARIES < <(find "${BUILD_DIR}/${{ matrix.config.preset }}" -maxdepth 3 -type f -executable \( -name "*_test" -o -name "*_tests" \) -print || true)
+          if [ ${#BINARIES[@]} -eq 0 ]; then
+            echo "::warning::No instrumented binaries found. Skipping llvm-cov."
+            exit 0
+          fi
+
+          # The application binary does not match the "*_test" pattern above, but it
+          # must be passed to llvm-cov as well, otherwise main.cpp and download.cpp
+          # are missing from the report entirely. llvm-cov can only report code it
+          # has profile data for, which the step above generates by running it.
+          #
+          # Each binary is passed with its own "-object=" argument. Passing them as
+          # positional arguments instead makes llvm-cov report only the files of the
+          # first binary, silently dropping main.cpp and download.cpp.
+          OBJECT_ARGS=()
+          for binary in "${BINARIES[@]}" "${BUILD_DIR}/${{ matrix.config.preset }}/wiuc"; do
+            OBJECT_ARGS+=("-object=$binary")
+          done
+
+          # Export LCOV report
+          llvm-cov export -format=lcov -instr-profile="$COVERAGE_DIR/coverage.profdata" \
+            "${OBJECT_ARGS[@]}" --ignore-filename-regex="${COV_EXCLUDE_REGEX}" \
+            > "$COVERAGE_DIR/coverage.lcov"
+
+          # Generate HTML report
+          #llvm-cov show -format=html -instr-profile="$COVERAGE_DIR/coverage.profdata" \
+          # "${OBJECT_ARGS[@]}" --ignore-filename-regex="${COV_EXCLUDE_REGEX}" \
+          # -o "$COVERAGE_DIR/html" \
+
+          # Print summary to CI logs for visibility
+          llvm-cov report -instr-profile="$COVERAGE_DIR/coverage.profdata" \
+            "${OBJECT_ARGS[@]}" --ignore-filename-regex="${COV_EXCLUDE_REGEX}"
+
+      # Note: the artifact name deliberately ends in "-dbg-cov", because the
+      # "github-release" job removes every "*-dbg-cov" artifact before publishing.
+      - name: 🔼 Upload Coverage Artifact
+        if: matrix.config.preset == 'clang22-x64-linux-dbg-cov' && github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v7 # https://github.com/actions/upload-artifact
+        with:
+          name: Coverage-Report-${{ matrix.config.preset }}
+          path: ${{ env.BUILD_DIR }}/${{ matrix.config.preset }}/coverage/**
+
+      # Codecov authenticates via OIDC, which requires the "id-token: write" permission.
+      # It is granted per job below, so that the other jobs keep the default token scope.
+      - name: 📦 Upload Coverage to Codecov
+        if: matrix.config.preset == 'clang22-x64-linux-dbg-cov' && github.event_name != 'pull_request'
+        uses: codecov/codecov-action@v7 # https://github.com/codecov/codecov-action
+        with:
+          files: ${{ env.BUILD_DIR }}/${{ matrix.config.preset }}/coverage/coverage.lcov
+          disable_search: true
+          name: ${{ matrix.config.preset }}
+          flags: ${{ matrix.config.preset }}
+          use_oidc: true
+          fail_ci_if_error: true
 
       - name: 📦 CMake ➔ Install
         run: cmake --install out/build/${{ matrix.config.PRESET }} --verbose

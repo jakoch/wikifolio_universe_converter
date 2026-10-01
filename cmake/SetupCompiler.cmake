@@ -30,18 +30,31 @@ endif()
 message("Using Compiler: ${CMAKE_CXX_COMPILER_ID}")
 
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")
-    if(CMAKE_CXX_COMPILER_ID STREQUAL "CLANG")
-        # enable incomplete features to get "std::format" support
-        set(LIBCXX_ENABLE_INCOMPLETE_FEATURES ON)
+    # Both GCC and Clang understand these, and the project is warning-clean under them.
+    # Without this, GCC builds compiled with no warnings enabled at all.
+    add_compile_options(-Wall -Wextra -Werror)
 
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20 -stdlib=libc++ -pthread -Wall -Wextra -Werror -fexec-charset=UTF-8 -lstdc++")
-        set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
-        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl -stdlib=libc++ -lc++ -lc++abi -lstdc++")
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+        # NOTE: this branch used to compare against "CLANG", but CMAKE_CXX_COMPILER_ID
+        # is "Clang", and STREQUAL is case-sensitive, so the branch never ran.
+        # It is kept disabled on purpose: enabling it would switch the standard
+        # library from libstdc++ to libc++ for every Clang build. The presets
+        # select the linker via CMAKE_LINKER_TYPE instead, and they do not request
+        # libc++. Set USE_LIBCXX to ON to opt in.
+        option(USE_LIBCXX "Link against libc++ instead of libstdc++" OFF)
 
-        set(CMAKE_LINKER_TYPE "LLD")
-        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=lld")
-        set(CMAKE_MODULE_LINKER_FLAGS_INIT "-fuse-ld=lld")
-        set(CMAKE_SHARED_LINKER_FLAGS_INIT "-fuse-ld=lld")
+        if(USE_LIBCXX)
+            # enable incomplete features to get "std::format" support
+            set(LIBCXX_ENABLE_INCOMPLETE_FEATURES ON)
+
+            add_compile_options(-stdlib=libc++)
+            # "-Wl" takes a single comma-separated argument. The previous
+            # "-Wl -stdlib=libc++" passed "-stdlib=libc++" as a separate
+            # argument, which the linker treated as a file name.
+            set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-stdlib=libc++ -lc++ -lc++abi")
+        else()
+            add_compile_options(-fexec-charset=UTF-8)
+        endif()
     elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
         add_compile_options(-fvisibility=hidden -pthread)
         #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden -pthread") # -stdlib=libc++

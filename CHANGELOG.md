@@ -12,6 +12,18 @@ All changes to the project will be documented in this file.
 
 - "It was a bright day in April, and the clocks were striking thirteen." - 1984
 
+## Fixes
+
+- a value containing a newline no longer breaks the conversion. RFC 4180 allows a line break inside a
+  quoted field, which makes a record span several lines of the CSV, but the reader split the input on line
+  boundaries and rejected such a record. The CSV is now read as a character stream, so these values survive
+  the round trip into the database
+
+## Changes
+
+- the CSV is read as a character stream instead of line by line. The error messages for a malformed
+  record and a wrong column count now name the record number instead of the line number
+
 ## [1.1.0] - 2026-09-30
 
 ## Added

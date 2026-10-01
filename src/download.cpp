@@ -77,7 +77,10 @@ bool download(char const * url, std::string const & save_as_filename)
     curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, verify_ssl ? 2L : 0L);
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
 
-    using file_ptr = std::unique_ptr<FILE, decltype(&std::fclose)>;
+    // The deleter type is spelled out instead of using decltype(&std::fclose),
+    // because that would carry the "nothrow" attribute of the declaration into a
+    // template argument, which GCC rejects with -Werror=ignored-attributes.
+    using file_ptr = std::unique_ptr<FILE, int (*)(FILE*)>;
 
     file_ptr const fhandle(std::fopen(save_as_filename.c_str(), "wb"), &std::fclose);
 
@@ -91,7 +94,9 @@ bool download(char const * url, std::string const & save_as_filename)
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, fhandle.get());
 
     std::array<char, CURL_ERROR_SIZE> error_buffer{};
-    error_buffer[0] = '\0';
+    // A std::array is zero-initialised already, so the first byte is '\0' and
+    // curl sees an empty error message until it writes one. Assigning it
+    // explicitly would be an unchecked operator[] on a fixed size array.
     curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, error_buffer.data());
 
     int http_code = 0;

@@ -4,21 +4,16 @@
 
 #include "main.h"
 
-#include <cinttypes>
-
-#include <algorithm> // std::all_of
-#include <cctype>
-#include <chrono>
+#include <algorithm> // std::ranges::all_of
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
-#include <ctime>
 #include <filesystem> // NOLINT(build/c++17): <filesystem> unapproved C++17 header. sure.
 #include <fstream>
-#include <iomanip>
 #include <iostream>
 #include <memory>
 #include <ostream>
+#include <ranges> // std::ranges::all_of
 #include <span>
 #include <sstream>
 #include <stdexcept>
@@ -26,16 +21,16 @@
 #include <type_traits>
 #include <unordered_map>
 #include <unordered_set>
-#include <utility> // std::move
 #include <vector>
 
 #include <fmt/format.h>
 using fmt::format;
-using fmt::vformat;
 
 #include <sqlite3.h>
 
+#include "csv_format.h"
 #include "download.h"
+#include "paths.h"
 
 #include "xlsxio_read.h"
 
@@ -47,12 +42,17 @@ XLSXReader::XLSXReader(char const * filename) : handle(xlsxioread_open(filename)
 }
 
 XLSXReader::~XLSXReader()
-{
-    xlsxioread_close(handle);
-}
+{ xlsxioread_close(handle); }
+
+bool XLSXReader::is_open() const noexcept
+{ return handle != nullptr; }
 
 std::unique_ptr<XLSXSheet> XLSXReader::OpenSheet(char const * sheetname, unsigned int flags)
 {
+    if (!is_open()) {
+        return nullptr;
+    }
+
     if (auto* sheet = xlsxioread_sheet_open(handle, sheetname, flags)) {
         return std::unique_ptr<XLSXSheet>(new XLSXSheet(sheet));
     }
@@ -62,14 +62,10 @@ std::unique_ptr<XLSXSheet> XLSXReader::OpenSheet(char const * sheetname, unsigne
 XLSXSheet::XLSXSheet(xlsxioreadersheet sheet) noexcept : sheethandle(sheet) { }
 
 XLSXSheet::~XLSXSheet()
-{
-    xlsxioread_sheet_close(sheethandle);
-}
+{ xlsxioread_sheet_close(sheethandle); }
 
 bool XLSXSheet::GetNextRow()
-{
-    return (xlsxioread_sheet_next_row(sheethandle) != 0);
-}
+{ return (xlsxioread_sheet_next_row(sheethandle) != 0); }
 
 bool XLSXSheet::GetNextCellString(char*& value)
 {
@@ -122,14 +118,10 @@ bool XLSXSheet::GetNextCellDateTime(time_t& value)
 namespace
 {
 
-    std::string getYear()
-    {
-        static std::time_t const time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-        std::stringstream stringstream;
-        stringstream << std::put_time(std::localtime(&time), "%Y");
-        return stringstream.str();
-    }
-
+    // Reports elapsed time since the first use of this class.
+    // The start time is a single static baseline, so every stop() label reports a
+    // cumulative point in the run rather than the duration of that one phase.
+    // There is deliberately no instance state: construct nothing, just call stop().
     class Timer
     {
     public:
@@ -142,7 +134,15 @@ namespace
         inline static Time::time_point const start_time = Time::now();
 
     public:
+        // There is no instance state, so instances are neither created, copied nor
+        // moved. Declaring them explicitly satisfies the Rule of Five.
         Timer() = default;
+
+        Timer(Timer const &)            = delete;
+        Timer& operator=(Timer const &) = delete;
+        Timer(Timer&&)                  = delete;
+        Timer& operator=(Timer&&)       = delete;
+        ~Timer()                        = default;
 
         static void stop(char const * time_point_name)
         {
@@ -150,135 +150,22 @@ namespace
             auto const time_diff       = stop_time - start_time;
             auto const ms_duration     = std::chrono::duration_cast<std::chrono::milliseconds>(time_diff).count();
             char constexpr const * fmt = "[{}] Time Elapsed: {}.{} sec\n";
-            std::ostringstream strStream;
-            int const msec = 1000;
-            strStream << fmt::format(fmt, time_point_name, (ms_duration / msec), (ms_duration % msec));
-            std::cout << strStream.str();
+            int const msec             = 1000;
+            std::cout << fmt::format(fmt, time_point_name, (ms_duration / msec), (ms_duration % msec));
         }
     };
-
-    inline std::string replace(std::string search_in, std::string const & search_for, std::string const & replace_with)
-    {
-        if (search_for.empty()) {
-            return search_in;
-        }
-
-        std::size_t pos = 0;
-
-        while ((pos = search_in.find(search_for)) != std::string::npos) {
-            search_in.replace(pos, search_for.size(), replace_with);
-        }
-
-        return search_in;
-    }
-
-    // Escapes a value for use as a single quoted SQL string literal.
-    std::string escape_sql_string(std::string const & str)
-    {
-        std::ostringstream out;
-        for (char const _char : str) {
-            switch (_char) {
-            case '\'':
-                out << "\'\'";
-                break;
-            /*case '\\': out << "\\\\"; break;
-            case '\b': out << "\\b"; break;
-            case '\f': out << "\\f"; break;
-            case '\n': out << "\\n"; break;
-            case '\r': out << "\\r"; break;
-            case '\t': out << "\\t"; break;*/
-            default:
-                out << _char;
-            }
-        }
-        return out.str();
-    }
-
-    // Quotes a value as a CSV field, as described by RFC 4180.
-    // Embedded double quotes are doubled. Wikifolio uses commas inside values,
-    // for example in the Euronext price notation "EO -,01", so fields must be quoted.
-    std::string quote_csv_field(std::string const & value)
-    {
-        std::string quoted;
-        quoted.reserve(value.size() + 2);
-
-        quoted.push_back('"');
-
-        for (char const _char : value) {
-            if (_char == '"') {
-                quoted.push_back('"');
-            }
-            quoted.push_back(_char);
-        }
-
-        quoted.push_back('"');
-
-        return quoted;
-    }
-
-    // Splits one CSV record into its fields and unquotes them, the inverse of quote_csv_field().
-    // Returns false, if the record is not well formed.
-    bool parse_csv_record(std::string const & record, std::vector<std::string>& fields)
-    {
-        fields.clear();
-
-        auto pos       = record.begin();
-        auto const end = record.end();
-
-        while (pos != end) {
-
-            if (*pos != '"') {
-                return false; // a field must start with a double quote
-            }
-
-            ++pos;
-
-            std::string field;
-            bool closed = false;
-
-            while (pos != end) {
-
-                if (*pos != '"') {
-                    field.push_back(*pos);
-                    ++pos;
-                    continue;
-                }
-
-                ++pos;
-
-                if (pos != end && *pos == '"') {
-                    field.push_back('"'); // a doubled double quote is a literal one
-                    ++pos;
-                    continue;
-                }
-
-                closed = true;
-                break;
-            }
-
-            if (!closed) {
-                return false; // the field is not terminated
-            }
-
-            fields.push_back(std::move(field));
-
-            if (pos == end) {
-                break;
-            }
-
-            if (*pos != ',') {
-                return false; // fields must be separated by a comma
-            }
-
-            ++pos;
-        }
-
-        return true;
-    }
 
     bool xlsx_to_csv(std::string const & xlsx_filename, std::string const & csv_filename)
     {
         XLSXReader file(xlsx_filename.c_str());
+
+        if (!file.is_open()) {
+            std::cerr << format(
+                "Error: xlsxio was unable to open \"{}\".\n"
+                "The file is either corrupt, incomplete or not a valid XLSX file.\n",
+                xlsx_filename);
+            return false;
+        }
 
         std::unique_ptr<XLSXSheet> sheet = file.OpenSheet(nullptr, XLSXIOREAD_SKIP_EMPTY_ROWS);
 
@@ -317,6 +204,11 @@ namespace
         std::fstream input_file(csv_filename.c_str(), std::ios::in);
         std::ofstream output_file(csv_tmp_filename.c_str());
 
+        if (!input_file.is_open() || !output_file.is_open()) {
+            std::cerr << format("Error: Could not open \"{}\" or \"{}\".\n", csv_filename, csv_tmp_filename);
+            return false;
+        }
+
         std::string line;
         bool replaced = false;
 
@@ -341,16 +233,58 @@ namespace
 
         // delete old "Investment_Universe.csv"
         if (std::remove(csv_filename.c_str()) != 0) {
-            std::cerr << format("Could not delete file.");
+            std::cerr << format("Could not delete file: {}\n", csv_filename);
+            return false;
         }
 
         // rename "Investment_Universe.tmp.csv" -> "Investment_Universe.csv"
         if (std::rename(csv_tmp_filename.c_str(), csv_filename.c_str()) != 0) {
-            std::cerr << format("Could not rename.");
+            std::cerr << format("Could not rename: {} -> {}\n", csv_tmp_filename, csv_filename);
+            return false;
         }
 
         return true;
     }
+
+    // Owns an open SQLite connection and closes it on destruction.
+    // This keeps the database handle closed on every early return path.
+    class SQLiteConnection
+    {
+    private:
+        sqlite3* db_handle = nullptr;
+
+    public:
+        explicit SQLiteConnection(std::string const & filename)
+        {
+            int const res = sqlite3_open(filename.c_str(), &db_handle);
+
+            if (res != SQLITE_OK) {
+                std::cerr << format("[SQLite][Error][{}]\nDB connection error: {}\n", res, sqlite3_errmsg(db_handle));
+                if (db_handle != nullptr) {
+                    sqlite3_close(db_handle);
+                    db_handle = nullptr;
+                }
+            }
+        }
+
+        ~SQLiteConnection()
+        {
+            if (db_handle != nullptr) {
+                sqlite3_close(db_handle);
+            }
+        }
+
+        SQLiteConnection(SQLiteConnection const &)            = delete;
+        SQLiteConnection& operator=(SQLiteConnection const &) = delete;
+        SQLiteConnection(SQLiteConnection&&)                  = delete;
+        SQLiteConnection& operator=(SQLiteConnection&&)       = delete;
+
+        [[nodiscard]] sqlite3* get() const noexcept
+        { return db_handle; }
+
+        explicit operator bool() const noexcept
+        { return db_handle != nullptr; }
+    };
 
     bool create_table(sqlite3* _db)
     {
@@ -374,11 +308,10 @@ namespace
 
         if (res != SQLITE_OK) {
             std::cerr << format("[SQLite][Error][{}]\nFailed to create table: {}\n", res, sqlite3_errmsg(_db));
-            sqlite3_close(_db);
             return false;
         }
 
-        return res == SQLITE_OK;
+        return true;
     }
 
     bool csv_to_sqlite(std::string const & csv_filename, std::string const & sqlite_filename)
@@ -389,14 +322,13 @@ namespace
 
         // Open SQLite Database
 
-        sqlite3* dbHandle = nullptr;
+        SQLiteConnection const connection(sqlite_filename);
 
-        res = sqlite3_open(sqlite_filename.c_str(), &dbHandle);
-        if (res != SQLITE_OK) {
-            std::cerr << format("[SQLite][Error][{}]\nDB connection error: {}\n", res, sqlite3_errmsg(dbHandle));
-            sqlite3_close(dbHandle);
+        if (!connection) {
             return false;
         }
+
+        sqlite3* dbHandle = connection.get();
 
         // Set full synchronous
 
@@ -404,22 +336,21 @@ namespace
         if (res != SQLITE_OK) {
             std::cerr
                 << format("[SQLite][Error][{}]\nFailed to set synchronous for {}\n", res, sqlite_filename.c_str());
-            sqlite3_close(dbHandle);
             return false;
         }
 
         // Create Table
 
         if (!create_table(dbHandle)) {
-            exit(EXIT_FAILURE);
+            return false;
         }
 
         // Open CSV for reading
 
         std::ifstream csv_file(csv_filename.c_str(), std::ios::in);
         if (!csv_file.is_open()) {
-            std::cerr << format("Error opening CSV file.");
-            exit(EXIT_FAILURE);
+            std::cerr << format("Error opening CSV file: {}\n", csv_filename);
+            return false;
         }
 
         // Iterate CSV data, build INSERT statement, exec query
@@ -429,20 +360,37 @@ namespace
         // Wikifolio adds columns to the investment universe from time to time, this check reports such a change.
         constexpr std::size_t expected_column_count = 13;
 
-        static std::string const sql_insert_stmt_tpl =
+        // The statement is prepared once and reused for every record. The values
+        // are bound as parameters, so they never have to be escaped or quoted.
+        // Keep the column list in sync with sql_table_schema (see create_table()).
+        static char const * sql_insert_stmt =
             "INSERT INTO Anlageuniversum ( ISIN, WKN, SecurityType, Bezeichnung, Emittent, "
             "Anlagegruppe1, Anlageuniversum1, Anlagegruppe2, Anlageuniversum2, Anlagegruppe3, Anlageuniversum3, "
             "Anlagegruppe4, Anlageuniversum4 ) "
-            "VALUES ( {} );";
+            "VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? );";
 
-        std::string sql_insert_values;
-        std::string line;
+        sqlite3_stmt* insert_stmt = nullptr;
+
+        res = sqlite3_prepare_v2(dbHandle, sql_insert_stmt, -1, &insert_stmt, nullptr);
+        if (res != SQLITE_OK) {
+            std::cerr << format(
+                "[SQLite][Error][{}]\nFailed to prepare insert statement: {}\n", res, sqlite3_errmsg(dbHandle));
+            return false;
+        }
+
+        // Owns the prepared statement and finalizes it on destruction.
+        auto const insert_stmt_guard =
+            std::unique_ptr<sqlite3_stmt, decltype(&sqlite3_finalize)>(insert_stmt, &sqlite3_finalize);
+
         std::vector<std::string> fields;
 
-        // get first line and ignore it. it's the table header, which is set in sql_table_schema (see create_table()).
-        std::getline(csv_file, line);
+        // Read the CSV as a character stream, because a record may span several
+        // lines when a value contains a line break.
+        CsvReader reader(csv_file);
 
-        if (!parse_csv_record(line, fields)) {
+        // Read the first record and ignore it. It is the table header, which is set
+        // in sql_table_schema (see create_table()).
+        if (!reader.read(fields)) {
             std::cerr << format("Error: Malformed CSV header in \"{}\".\n", csv_filename);
             return false;
         }
@@ -470,35 +418,35 @@ namespace
             return false;
         }
 
-        std::size_t line_number = 1; // the header line was read above
+        std::size_t record_number = 1; // the header record was read above
 
-        while (std::getline(csv_file, line)) {
-            line_number++;
+        while (true) {
 
-            if (line.empty()) {
+            if (!reader.read(fields)) {
+                // Reaching the end of the input is not an error, only a malformed record is.
+                if (reader.error() != CsvError::None) {
+                    std::cerr << format(
+                        "Error: Malformed CSV record starting in line {} of \"{}\".\n"
+                        "The record is not terminated by RFC 4180, the CSV is likely corrupt.\n",
+                        reader.record_line(),
+                        csv_filename);
+                    return false;
+                }
                 break;
             }
 
-            if (!parse_csv_record(line, fields)) {
-                std::cerr << format("Error: Malformed CSV record in line {} of \"{}\".\n", line_number, csv_filename);
-                return false;
-            }
+            record_number++;
 
-            for (auto const & _field : fields) {
-                sql_insert_values.push_back('\'');
-                sql_insert_values.append(escape_sql_string(_field));
-                sql_insert_values.append("', ");
-            }
-
-            sql_insert_values.resize(sql_insert_values.size() - 2); // strip the trailing ", "
-
+            // The column count must be verified before the values are assembled,
+            // because a record with fewer than two fields would underflow the
+            // size calculation of the trailing separator below.
             if (fields.size() != expected_column_count) {
                 std::cerr << format(
-                    "Error: Unexpected number of columns in line {} of \"{}\".\n"
+                    "Error: Unexpected number of columns in record {} of \"{}\".\n"
                     "Found {} columns, but wiuc {} expects {} columns.\n"
                     "Wikifolio appears to have changed the columns of the investment universe.\n"
                     "Please report this at: https://github.com/jakoch/wikifolio_universe_converter/issues\n",
-                    line_number,
+                    record_number,
                     csv_filename,
                     fields.size(),
                     app_version::get_version(),
@@ -506,33 +454,48 @@ namespace
                 return false;
             }
 
-            std::string sql_insert_values_str = sql_insert_values;
-            // printf("%s\n", sql_insert_values_str);
-            auto sql_insert_args = fmt::make_format_args(sql_insert_values_str);
+            // Bind the values as parameters. The indexes are 1-based, in the order
+            // of the column list of the statement above.
+            for (std::size_t index = 0; index < fields.size(); ++index) {
+                int const bind_index      = static_cast<int>(index) + 1;
+                std::string const & field = fields.at(index);
 
-            std::string sql_insert_stmt = vformat(sql_insert_stmt_tpl, sql_insert_args);
+                // SQLITE_TRANSIENT: SQLite copies the string, so the lifetime of
+                // "field" does not matter here.
+                res = sqlite3_bind_text(
+                    insert_stmt, bind_index, field.c_str(), static_cast<int>(field.size()), SQLITE_TRANSIENT);
 
-            sql_insert_values.clear();
+                if (res != SQLITE_OK) {
+                    std::cerr
+                        << format("[SQLite][Error][{}]\nFailed to bind value: {}\n", res, sqlite3_errmsg(dbHandle));
+                    return false;
+                }
+            }
 
-            // printf("%s\n", sql_insert_stmt.c_str());
+            res = sqlite3_step(insert_stmt);
 
-            res = sqlite3_exec(dbHandle, sql_insert_stmt.c_str(), nullptr, nullptr, &zErrMsg);
-            if (res != SQLITE_OK) {
-                std::cerr << format("[SQLite][Error][{}]\nQuery Exec: {}\n", res, zErrMsg);
-                std::cerr << format("[SQLite][Error]\nQuery: {}\n", sql_insert_stmt.c_str());
-                sqlite3_free(zErrMsg);
+            if (res != SQLITE_DONE) {
+                std::cerr << format("[SQLite][Error][{}]\nQuery Exec: {}\n", res, sqlite3_errmsg(dbHandle));
+                std::cerr << format("[SQLite][Error]\nQuery: {}\n", sql_insert_stmt);
 
                 std::cerr << format(
-                    "Error: Failed to store line {} of \"{}\" in the database.\n"
+                    "Error: Failed to store record {} of \"{}\" in the database.\n"
                     "This is most likely caused by a value which wiuc cannot store.\n"
                     "Please report this at: https://github.com/jakoch/wikifolio_universe_converter/issues\n",
-                    line_number,
+                    record_number,
                     csv_filename);
 
                 return false;
             }
 
-            sql_insert_stmt.clear();
+            // Reset the statement for the next record, keeping the bindings intact.
+            res = sqlite3_reset(insert_stmt);
+
+            if (res != SQLITE_OK) {
+                std::cerr
+                    << format("[SQLite][Error][{}]\nFailed to reset statement: {}\n", res, sqlite3_errmsg(dbHandle));
+                return false;
+            }
         }
 
         res = sqlite3_exec(dbHandle, "END TRANSACTION;", nullptr, nullptr, &zErrMsg);
@@ -542,8 +505,6 @@ namespace
             sqlite3_free(zErrMsg);
             return false;
         }
-
-        sqlite3_close(dbHandle);
 
         return true;
     }
@@ -565,20 +526,6 @@ namespace
         path.append(_it->second);
 
         return path.string();
-    }
-
-    bool file_exists(std::string const & filename)
-    {
-        std::filesystem::path const file = std::filesystem::current_path() / filename;
-        return std::filesystem::exists(file) && std::filesystem::is_regular_file(file);
-    }
-
-    void create_folder_if_not_exists(std::string const & folder_path)
-    {
-        std::filesystem::path const folder(folder_path);
-        if (!std::filesystem::exists(folder)) {
-            std::filesystem::create_directory(folder);
-        }
     }
 
     enum class Color : std::uint8_t
@@ -643,49 +590,20 @@ namespace
         std::cout << format("{}\n", help_text.c_str());
     }
 
-    namespace Util
+    // Returns the argument at "index", or an empty view if it does not exist.
+    // The bound is checked here, so callers never index out of range.
+    // std::span has no bounds-checked at() in C++20, hence the explicit check.
+    std::string_view arg_at(std::span<char const * const> const & args, std::size_t const index)
     {
-
-        // requires <ranges> support
-        /*auto is_alnum(std::string const& str) -> bool
-        {
-            return std::ranges::all_of(str.begin(), str.end(), [](char _char) {
-                return std::isalnum(static_cast<unsigned char>(_char));
-            });
-        }*/
-
-        bool is_alnum(std::string const & str)
-        {
-            return std::ranges::all_of(str, [](char _char) {
-                return std::isalnum(static_cast<unsigned char>(_char));
-            });
+        if (index >= args.size()) {
+            return {};
         }
 
-        // requires <ranges> support
-        /*bool is_valid_folder_name(std::string const& folder)
-        {
-            static std::string const char_whitelist =
-        "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_-/."; return std::ranges::all_of(folder.begin(),
-        folder.end(), [&](char _char) { return char_whitelist.find(_char) != std::string::npos;
-            });
-        }*/
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-avoid-unchecked-container-access)
+        char const * const argument = args[index];
 
-        // conservative approach for chars in a folder name
-        // allowed chars: 0-9,a-z,A-Z,_,-,/,.
-        bool is_valid_folder_name(std::string const & folder)
-        {
-            static std::unordered_set<char> const char_whitelist = {
-                '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g',
-                'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x',
-                'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
-                'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '_', '-', '/', '.'};
-
-            return std::ranges::all_of(folder, [](char _char) {
-                return char_whitelist.contains(_char);
-            });
-        }
-
-    } // namespace Util
+        return argument != nullptr ? std::string_view(argument) : std::string_view();
+    }
 
 } // anonymous namespace
 
@@ -693,7 +611,7 @@ int main(int const argc, char const * argv[]) noexcept(false)
 {
     std::string const name = "wiuc";
 
-    std::span const args(argv, static_cast<size_t>(argc));
+    std::span const args(argv, static_cast<std::size_t>(argc));
 
     // default action, no arguments → help
     if (args.size() <= 1) {
@@ -701,21 +619,23 @@ int main(int const argc, char const * argv[]) noexcept(false)
         return EXIT_SUCCESS;
     }
 
-    std::string_view const flag = args[1];
-
     // The "-o <folder>" option is only accepted together with "-c" / "--convert".
-    // Parse it up front, so that the remaining flags can require a single-flag invocation.
+    // It is parsed up front, so the remaining flags can require a single-flag
+    // invocation. Accepted invocations are a single flag, or "-c" followed by
+    // "-o <folder>"; anything else prints the help text and fails.
+    std::string_view const flag = arg_at(args, 1);
+
     std::string_view output_folder_option;
 
     if (args.size() == 4) {
-        std::string_view const flag2 = args[2];
+        std::string_view const second_argument = arg_at(args, 2);
+        std::string_view const third_argument  = arg_at(args, 3);
 
-        if (flag2 == "-o" || flag2 == "--out") {
-            output_folder_option = args[3];
+        if (second_argument == "-o" || second_argument == "--out") {
+            output_folder_option = third_argument;
         }
     }
 
-    // Accepted invocations are a single flag, or "-c" followed by "-o <folder>".
     bool const is_convert_flag = (flag == "-c" || flag == "--convert");
 
     bool const is_single_flag_invocation = (args.size() == 2);
@@ -757,8 +677,6 @@ int main(int const argc, char const * argv[]) noexcept(false)
             app_version::get_copyright());
         std::cout << app_header;
 
-        Timer const total_application_timer;
-
         // Output Folder
 
         // The output folder set via "-o" or "--out".
@@ -768,13 +686,15 @@ int main(int const argc, char const * argv[]) noexcept(false)
         if (!output_folder_option.empty()) {
             outputFolder = std::string(output_folder_option);
 
-            if (!Util::is_valid_folder_name(outputFolder)) {
+            if (!is_valid_folder_name(outputFolder)) {
                 std::cerr << "Error: Invalid output folder name. Please use only these chars: 0-9a-zA-Z_-/.\n";
                 return EXIT_FAILURE;
             }
         }
 
-        create_folder_if_not_exists(outputFolder);
+        if (!create_folder_if_not_exists(outputFolder)) {
+            return EXIT_FAILURE;
+        }
 
         print_status("Using output folder: " + outputFolder + "\n", 0, Color::Blue);
 
@@ -791,8 +711,6 @@ int main(int const argc, char const * argv[]) noexcept(false)
             std::cerr << "Download skipped. File already exists.\n";
             universe_downloaded = true;
         } else {
-            Timer const download_timer;
-
             // formerly "https://wikifolio.blob.core.windows.net/prod-documents/Investment_Universe.de.xlsx"
             char const * xlsx_url =
                 "https://wikifoliostorage.blob.core.windows.net/prod-documents/Investment_Universe.de.xlsx";
@@ -804,28 +722,32 @@ int main(int const argc, char const * argv[]) noexcept(false)
 
         // XLSX -> CSV
 
-        if (universe_downloaded) {
+        if (!universe_downloaded) {
+            std::cerr << "Error: Failed to download the investment universe. Aborting.\n";
+            return EXIT_FAILURE;
+        }
 
-            Timer const xlsx_to_csv_timer;
-
+        {
             bool const converted_to_csv = xlsx_to_csv(xlsx_file, csv_file);
 
             Timer::stop("xlsx -> csv");
 
-            if (converted_to_csv) {
-                rename_header_columns(csv_file, csv_tmp_file);
+            if (!converted_to_csv) {
+                return EXIT_FAILURE;
+            }
+
+            if (!rename_header_columns(csv_file, csv_tmp_file)) {
+                return EXIT_FAILURE;
             }
         }
 
         // CSV -> SQLITE
 
-        Timer const csv_to_sqlite_timer;
-
         bool const converted_to_sqlite = csv_to_sqlite(csv_file, sqlite_file);
 
         if (!converted_to_sqlite) {
             std::cerr << "Error: Failed to convert CSV to SQLite\n";
-            return 1;
+            return EXIT_FAILURE;
         }
 
         Timer::stop("csv -> sqlite");
