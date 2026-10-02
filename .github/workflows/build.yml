@@ -614,6 +614,7 @@ jobs:
     needs:
       - build-on-windows
       - build-on-linux
+      - build-on-container
 
     # on tag push
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
